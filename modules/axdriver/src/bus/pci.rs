@@ -84,8 +84,10 @@ fn config_pci_device(
 
 impl AllDevices {
     pub(crate) fn probe_bus_devices(&mut self) {
-        let base_vaddr = phys_to_virt(axconfig::PCI_ECAM_BASE.into());
-        // let base_vaddr = 0x6_0000_0000;
+        // let base_vaddr = phys_to_virt(axconfig::PCI_ECAM_BASE.into());
+        // let base_paddr: usize = 0x6_0000_0000;
+        let base_paddr: usize = 0xfd50_0000;
+        let base_vaddr = phys_to_virt(base_paddr.into());
         let mut root = unsafe { PciRoot::new(base_vaddr.as_mut_ptr(), Cam::Ecam) };
 
         // PCI 32-bit MMIO space
@@ -94,8 +96,8 @@ impl AllDevices {
             .map(|range| PciRangeAllocator::new(range.0 as u64, range.1 as u64));
 
         for bus in 0..=axconfig::PCI_BUS_END as u8 {
-            for (bdf, dev_info) in root.enumerate_bus(bus) {
-                debug!("PCI {}: {}", bdf, dev_info);
+            for (bdf, dev_info) in root.enumerate_bus(bus.clone()) {
+                debug!("PCI {}: {} |  at addr: {}", bdf, dev_info, bus.clone());
                 if dev_info.header_type != HeaderType::Standard {
                     continue;
                 }
