@@ -23,6 +23,7 @@ const CMD_TABLE: &[(&str, CmdHandler)] = &[
     ("uart", do_UART),
     ("test", do_test),
     ("move", do_m0ve),
+    ("test_pci", pci_test),
 ];
 
 fn do_uname(_args: &str) {
@@ -437,4 +438,10 @@ fn do_m0ve(args: &str) {
             _ => println!("move: argument err"),
         }
     }
+}
+
+use axdriver;
+fn pci_test(arg: &str) {
+    let mut devices = axdriver::init_drivers();
+    devices.probe()
 }

@@ -8,7 +8,7 @@ authors = ["Yuekai Jia <equation618@gmail.com>"]
 
 [features]
 # use-ramfs = ["axstd/myfs", "dep:axfs_vfs", "dep:axfs_ramfs", "dep:crate_interface"]
-default = []
+default = ["axdriver"]
 
 [dependencies]
 # axfs_vfs = { path = "../../../crates/axfs_vfs", optional = true }
@@ -18,3 +18,4 @@ default = []
 
 axstd = { path = "../../ulib/axstd", optional = true }
 arm_pl011 = { version = "0.1.0", path = "../../crates/arm_pl011" }
+axdriver = {path = "../../modules/axdriver",optional = true}
