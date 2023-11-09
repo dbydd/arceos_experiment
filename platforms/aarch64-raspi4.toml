@@ -20,6 +20,7 @@ phys-virt-offset = "0xffff_0000_0000_0000"
 mmio-regions = [
     ["0xFE20_1000", "0x1000"],      # PL011 UART
     ["0xFF84_1000", "0x8000"],      # GICv2
+    ["0xFD50_0000", "0x9310"],      # pcie
 ]
 virtio-mmio-regions = []
 # UART Address

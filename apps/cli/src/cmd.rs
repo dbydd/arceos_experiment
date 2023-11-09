@@ -1,5 +1,8 @@
 use core::f32::consts::E;
-use std::io::{self};
+use std::{
+    io::{self},
+    thread::sleep,
+};
 
 #[cfg(all(not(feature = "axstd"), unix))]
 
@@ -55,58 +58,184 @@ fn do_exit(_args: &str) {
     std::process::exit(0);
 }
 
+// fn do_ldr(args: &str) {
+//     println!("ldr");
+//     if args.is_empty() {
+//         println!("try: ldr ffff0000400fe000 / ldr ffff000040080000 ffff000040080008");
+//     }
+
+//     fn ldr_one(addr_offset: (u64, u64)) -> io::Result<()> {
+//         println!("addr = {:x},offset = {:x}", addr_offset.0, addr_offset.1);
+
+//         let address: *const u64 = addr_offset.0 as *const u64; // 强制转换为合适的指针类型
+
+//         let value: u64;
+//         let conv_val: u64;
+//         println!("Parsed address: {:p}", address); // 打印地址时使用 %p 格式化符号
+
+//         unsafe {
+//             value = *address.clone();
+//             conv_val = (value >> (8 * (4 - addr_offset.1))) & 0x00ff;
+//         }
+
+//         println!(
+//             "prime: Value at address {:x}, value: 0x{:x} | splitted: Value at address {:x}: ,value: 0x{:x}",
+//             addr_offset.0,
+//             value,
+//             addr_offset.0 + addr_offset.1,
+//             conv_val,
+//         ); // 使用输入的地址打印值
+//         return Ok(());
+//     }
+
+//     let mut splitted = args.split_ascii_whitespace();
+//     match splitted.next() {
+//         Some(base_addr) => {
+//             if let Some(count) = splitted.next() {
+//                 let from_str_radix =
+//                     u64::from_str_radix(count, 16).expect("panic while convert offset");
+//                 for offset in 0..from_str_radix {
+//                     ldr_one(conv_addr_and_offset_with_4offset(base_addr, offset * 4))
+//                         .expect("panic while load value");
+//                 }
+//             } else {
+//                 ldr_one(conv_addr_with_4offset(base_addr)).expect("panic while load value");
+//             }
+//         }
+//         None => {
+//             panic!("error at first arg: ldr $1");
+//         }
+//     }
+// }
+//
+// // use crate::mem::phys_to_virt;
+// use core::ptr::{read_volatile, write_volatile};
+
+// fn do_str(args: &str) {
+//     println!("str");
+//     if args.is_empty() {
+//         println!("try: str ffff0000400fe000 12345678");
+//     }
+
+//     fn str_one(addr: &str, val: &str) -> io::Result<()> {
+//         println!("addr = {}", addr);
+//         println!("val = {}", val);
+
+//         let addr_offset = conv_addr_with_4offset(addr);
+
+//         let address: *mut u64 = addr_offset.0 as *mut u64; // 强制转换为合适的指针类型
+//         println!("Parsed address: {:p}", address); // 打印地址时使用 %p 格式化符号
+
+//         if let Ok(parsed_val) = u32::from_str_radix(val, 16) {
+//             let value_pre: u64 = unsafe { *address };
+
+//             let mut value: u64 = parsed_val as u64; // 不需要将值转换为指针类型
+//             let mask = addr_offset.1 * 8;
+//             println!(
+//                 "Parsed value: 0x{:X},address:{:x},offset:{:x}",
+//                 value, addr_offset.0, addr_offset.1
+//             ); // 直接打印解析的值
+
+//             value = (value << mask) | (value_pre & mask);
+
+//             unsafe {
+//                 //  *address = value
+//                 write_volatile(address, value)
+//             }
+
+//             println!("Write value at address {}: 0x{:X}", addr, value); // 使用输入的地址打印值
+//         }
+
+//         Ok(())
+//     }
+
+//     let mut split_iter = args.split_whitespace();
+
+//     if let Some(addr) = split_iter.next() {
+//         println!("First element: {}", addr);
+
+//         if let Some(val) = split_iter.next() {
+//             println!("Second element: {}", val);
+//             str_one(addr, val).unwrap(); // 调用 str_one 函数并传递 addr 和 val
+//         }
+//     }
+// }
 fn do_ldr(args: &str) {
     println!("ldr");
     if args.is_empty() {
         println!("try: ldr ffff0000400fe000 / ldr ffff000040080000 ffff000040080008");
     }
 
-    fn ldr_one(addr_offset: (u64, u64)) -> io::Result<()> {
-        println!("addr = {:x},offset = {:x}", addr_offset.0, addr_offset.1);
+    fn ldr_one(addr: &str) -> io::Result<()> {
+        println!("addr = {}", addr);
 
-        let address: *const u64 = addr_offset.0 as *const u64; // 强制转换为合适的指针类型
+        if let Ok(parsed_addr) = u64::from_str_radix(addr, 16) {
+            let address: *const u32 = parsed_addr as *const u32; // 强制转换为合适的指针类型
 
-        let value: u64;
-        let conv_val: u64;
-        println!("Parsed address: {:p}", address); // 打印地址时使用 %p 格式化符号
+            let value: u32;
+            println!("Parsed address: {:p}", address); // 打印地址时使用 %p 格式化符号
 
-        unsafe {
-            value = *address.clone();
-            conv_val = (value >> (8 * (4 - addr_offset.1))) & 0x00ff;
+            unsafe {
+                value = *address;
+            }
+
+            println!("Value at address {}: 0x{:X}", addr, value); // 使用输入的地址打印值
+        } else {
+            println!("Failed to parse address.");
         }
-
-        println!(
-            "prime: Value at address {:x}, value: 0x{:x} | splitted: Value at address {:x}: ,value: 0x{:x}",
-            addr_offset.0,
-            value,
-            addr_offset.0 + addr_offset.1,
-            conv_val,
-        ); // 使用输入的地址打印值
         return Ok(());
     }
 
-    let mut splitted = args.split_ascii_whitespace();
-    match splitted.next() {
-        Some(base_addr) => {
-            if let Some(count) = splitted.next() {
-                let from_str_radix =
-                    u64::from_str_radix(count, 16).expect("panic while convert offset");
-                for offset in 0..from_str_radix {
-                    ldr_one(conv_addr_and_offset_with_4offset(base_addr, offset * 4))
-                        .expect("panic while load value");
+    fn ldr_n(addr: &str, n: &str) -> io::Result<()> {
+        println!("addr = {}", addr);
+
+        if let Ok(parsed_addr) = u64::from_str_radix(addr, 16) {
+            if let Ok(parsed_n) = u64::from_str_radix(n, 10) {
+                let address: *const u32 = parsed_addr as *const u32; // 强制转换为合适的指针类型
+                println!("Parsed address: {:p}", address); // 打印地址时使用 %p 格式化符号
+
+                for i in 0..parsed_n {
+                    let round_address = (parsed_addr + 4 * i) as *const u32;
+                    let value: u32;
+                    unsafe {
+                        value = *round_address;
+                    }
+
+                    println!("Value at address {:p}: 0x{:X}", round_address, value);
+                    // 使用输入的地址打印值
                 }
             } else {
-                ldr_one(conv_addr_with_4offset(base_addr)).expect("panic while load value");
+                println!("Failed to parse num.");
+            }
+        } else {
+            println!("Failed to parse address.");
+        }
+        return Ok(());
+    }
+
+    let mut arg_iter = args.split_whitespace();
+
+    if let Some(addr) = arg_iter.next() {
+        if let Some(num) = arg_iter.next() {
+            if arg_iter.next().is_none() {
+                if let Err(e) = ldr_n(addr, num) {
+                    println!("ldr {} {} {}", addr, num, e);
+                }
+            } else {
+                println!("too many arugments!");
+            }
+        } else {
+            if let Err(e) = ldr_one(addr) {
+                println!("ldr {} {}", addr, e);
             }
         }
-        None => {
-            panic!("error at first arg: ldr $1");
-        }
+    } else {
+        println!("Missing address arugment !");
     }
 }
 
 // use crate::mem::phys_to_virt;
-use core::ptr::{read_volatile, write_volatile};
+// use core::ptr::{read_volatile, write_volatile};
 
 fn do_str(args: &str) {
     println!("str");
@@ -118,29 +247,25 @@ fn do_str(args: &str) {
         println!("addr = {}", addr);
         println!("val = {}", val);
 
-        let addr_offset = conv_addr_with_4offset(addr);
+        if let Ok(parsed_addr) = u64::from_str_radix(addr, 16) {
+            let address: *mut u32 = parsed_addr as *mut u32; // 强制转换为合适的指针类型
+            println!("Parsed address: {:p}", address); // 打印地址时使用 %p 格式化符号
 
-        let address: *mut u64 = addr_offset.0 as *mut u64; // 强制转换为合适的指针类型
-        println!("Parsed address: {:p}", address); // 打印地址时使用 %p 格式化符号
+            if let Ok(parsed_val) = u32::from_str_radix(val, 16) {
+                let value: u32 = parsed_val; // 不需要将值转换为指针类型
+                println!("Parsed value: 0x{:X}", value); // 直接打印解析的值
 
-        if let Ok(parsed_val) = u32::from_str_radix(val, 16) {
-            let value_pre: u64 = unsafe { *address };
+                // let ptr = phys_to_virt(parsed_addr.into()).as_mut_ptr() as *mut u32;
+                unsafe {
+                    *address = value;
+                    // write_volatile(address, value);
+                    // write_volatile(ptr, value);
+                }
 
-            let mut value: u64 = parsed_val as u64; // 不需要将值转换为指针类型
-            let mask = addr_offset.1 * 8;
-            println!(
-                "Parsed value: 0x{:X},address:{:x},offset:{:x}",
-                value, addr_offset.0, addr_offset.1
-            ); // 直接打印解析的值
-
-            value = (value << mask) | (value_pre & mask);
-
-            unsafe {
-                //  *address = value
-                write_volatile(address, value)
+                println!("Write value at address {}: 0x{:X}", addr, value); // 使用输入的地址打印值
             }
-
-            println!("Write value at address {}: 0x{:X}", addr, value); // 使用输入的地址打印值
+        } else {
+            println!("Failed to parse address.");
         }
 
         Ok(())
@@ -444,4 +569,8 @@ use axdriver;
 fn pci_test(arg: &str) {
     let mut devices = axdriver::init_drivers();
     devices.probe()
+}
+
+fn init_pcie() {
+    // set bits 0 and 1 of 32 bit register [0xfd509210] (reset controller)
 }
