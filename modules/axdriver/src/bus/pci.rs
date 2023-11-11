@@ -4,7 +4,7 @@ use driver_pci::{
     BarInfo, Cam, Command, DeviceFunction, HeaderType, MemoryBarType, PciRangeAllocator, PciRoot,
 };
 
-const PCI_BAR_NUM: u8 = 6;
+const PCI_BAR_NUM: u8 = 1;
 
 fn config_pci_device(
     root: &mut PciRoot,
@@ -12,7 +12,7 @@ fn config_pci_device(
     allocator: &mut Option<PciRangeAllocator>,
 ) -> DevResult {
     let mut bar = 0;
-    info!("out while");
+    // info!("out while");
     while bar < PCI_BAR_NUM {
         info!("into while,b_index: {},bdf: {}", bar, bdf);
         let bar_info = root.bar_info(bdf, bar);
@@ -26,7 +26,7 @@ fn config_pci_device(
                     ..
                 } = info
                 {
-                    info!("if 1,info: {info}");
+                    // info!("if 1");
                     // if the BAR address is not assigned, call the allocator and assign it.
                     if size > 0 && address == 0 {
                         info!("allocating!");
@@ -37,7 +37,7 @@ fn config_pci_device(
                             .ok_or(DevError::NoMemory);
                         match allocated {
                             Ok(new_addr) => {
-                                info!("allocated");
+                                info!("allocated,addr 0x{:x}", new_addr);
                                 if address_type == MemoryBarType::Width32 {
                                     root.set_bar_32(bdf, bar, new_addr as _);
                                 } else if address_type == MemoryBarType::Width64 {
@@ -50,14 +50,13 @@ fn config_pci_device(
                             }
                         }
                     } else {
-                        info!("if1 failed");
+                        // info!("if1 failed");
                         // return Err(DevError::BadState);
                     }
                 }
 
                 // read the BAR info again after assignment.
                 let info = root.bar_info(bdf, bar).unwrap();
-                info!("reading info ! {info}");
                 match info {
                     BarInfo::IO { address, size } => {
                         if address > 0 && size > 0 {
@@ -122,13 +121,17 @@ impl AllDevices {
             .get(1)
             .map(|range| PciRangeAllocator::new(range.0 as u64, range.1 as u64));
 
+        // info!("pci_ranges = ({},{})", axconfig::PCI_RANGES.first());
+
         for bus in 0..=axconfig::PCI_BUS_END as u8 {
             for (bdf, dev_info) in root.enumerate_bus(bus) {
                 debug!("PCI {}: {}", bdf, dev_info);
+
                 if dev_info.header_type != HeaderType::Standard {
                     info!("continue enum");
                     continue;
                 }
+
                 match config_pci_device(&mut root, bdf, &mut allocator) {
                     Ok(_) => for_each_drivers!(type Driver, {
                         if let Some(dev) = Driver::probe_pci(&mut root, bdf, &dev_info) {
