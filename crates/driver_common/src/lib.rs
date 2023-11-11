@@ -16,6 +16,8 @@
 #![no_std]
 #![feature(const_trait_impl)]
 
+use core::fmt::Display;
+
 /// All supported device types.
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub enum DeviceType {
@@ -48,6 +50,21 @@ pub enum DevError {
     ResourceBusy,
     /// This operation is unsupported or unimplemented.
     Unsupported,
+}
+
+impl Display for DevError {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        match self {
+            DevError::AlreadyExists => write!(f, "AlreadyExists"),
+            DevError::Again => write!(f, "Again"),
+            DevError::BadState => write!(f, "BadState"),
+            DevError::InvalidParam => write!(f, "InvalidParam"),
+            DevError::Io => write!(f, "Io"),
+            DevError::NoMemory => write!(f, "NoMemory"),
+            DevError::ResourceBusy => write!(f, "ResourceBusy"),
+            DevError::Unsupported => write!(f, "Unsupported"),
+        }
+    }
 }
 
 /// A specialized `Result` type for device operations.

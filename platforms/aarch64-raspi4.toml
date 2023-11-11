@@ -28,17 +28,18 @@ uart-paddr = "0xFE20_1000"
 uart-irq = "0x79"
 
 # Base physical address of the PCIe ECAM space.
-pci-ecam-base = "0"
+pci-ecam-base = "0xfd500000"
 # End PCI bus number.
-pci-bus-end = "0"
+pci-bus-end = "0x7ffffffff"
 # PCI device memory ranges.
 pci-ranges = [
     # just for known config structure, not real address
     # copy from virt.toml or something
-    # ["0x3ef_f0000", "0x1_0000"],            # PIO space
-    # ["0x1000_0000", "0x2eff_0000"],         # 32-bit MMIO space
-    # ["0x80_0000_0000", "0x80_0000_0000"],   # 64-but MMIO space
-    [""]
+    ["0x3ef_f0000", "0x1_0000"],            # PIO space
+    ["0x1000_0000", "0x2eff_0000"],         # 32-bit MMIO space
+    ["0x80_0000_0000", "0x80_0000_0000"],   # 64-but MMIO space
+    # ["0x04","0x7c000000"],
+    # ["0x00","0x3800000"]
 ] #TODO: findout ranges
 
 

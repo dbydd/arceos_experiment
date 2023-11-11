@@ -12,9 +12,13 @@ fn config_pci_device(
     allocator: &mut Option<PciRangeAllocator>,
 ) -> DevResult {
     let mut bar = 0;
+    info!("out while");
     while bar < PCI_BAR_NUM {
-        match root.bar_info(bdf, bar).map_err(|e| info!("{}", e)) {
+        info!("into while,b_index: {},bdf: {}", bar, bdf);
+        let bar_info = root.bar_info(bdf, bar);
+        match bar_info {
             Ok(info) => {
+                info!("ok!");
                 if let BarInfo::Memory {
                     address_type,
                     address,
@@ -22,23 +26,38 @@ fn config_pci_device(
                     ..
                 } = info
                 {
+                    info!("if 1,info: {info}");
                     // if the BAR address is not assigned, call the allocator and assign it.
                     if size > 0 && address == 0 {
-                        let new_addr = allocator
+                        info!("allocating!");
+                        let allocated = allocator
                             .as_mut()
                             .expect("No memory ranges available for PCI BARs!")
                             .alloc(size as _)
-                            .ok_or(DevError::NoMemory)?;
-                        if address_type == MemoryBarType::Width32 {
-                            root.set_bar_32(bdf, bar, new_addr as _);
-                        } else if address_type == MemoryBarType::Width64 {
-                            root.set_bar_64(bdf, bar, new_addr);
+                            .ok_or(DevError::NoMemory);
+                        match allocated {
+                            Ok(new_addr) => {
+                                info!("allocated");
+                                if address_type == MemoryBarType::Width32 {
+                                    root.set_bar_32(bdf, bar, new_addr as _);
+                                } else if address_type == MemoryBarType::Width64 {
+                                    root.set_bar_64(bdf, bar, new_addr);
+                                }
+                                info!("finished allocate");
+                            }
+                            Err(e) => {
+                                info!("{}", e)
+                            }
                         }
+                    } else {
+                        info!("if1 failed");
+                        // return Err(DevError::BadState);
                     }
                 }
 
                 // read the BAR info again after assignment.
                 let info = root.bar_info(bdf, bar).unwrap();
+                info!("reading info ! {info}");
                 match info {
                     BarInfo::IO { address, size } => {
                         if address > 0 && size > 0 {
@@ -73,7 +92,11 @@ fn config_pci_device(
                     bar += 1;
                 }
             }
-            Err(_) => {}
+            Err(errinfo) => {
+                info!("failed to alloc,info:{}", errinfo);
+
+                return Err(DevError::Unsupported);
+            }
         };
     } //this
 
@@ -88,10 +111,10 @@ fn config_pci_device(
 
 impl AllDevices {
     pub(crate) fn probe_bus_devices(&mut self) {
-        let base_vaddr = phys_to_virt(axconfig::PCI_ECAM_BASE.into());
+        // let base_vaddr = phys_to_virt(axconfig::PCI_ECAM_BASE.into());
         // let base_paddr: usize = 0x6_0000_0000;
-        // let base_paddr: usize = 0xfd50_0000;
-        // let base_vaddr = phys_to_virt(base_paddr.into());
+        let base_paddr: usize = 0xfd50_0000;
+        let base_vaddr = phys_to_virt(base_paddr.into());
         let mut root = unsafe { PciRoot::new(base_vaddr.as_mut_ptr(), Cam::Ecam) };
 
         // PCI 32-bit MMIO space
@@ -100,9 +123,10 @@ impl AllDevices {
             .map(|range| PciRangeAllocator::new(range.0 as u64, range.1 as u64));
 
         for bus in 0..=axconfig::PCI_BUS_END as u8 {
-            for (bdf, dev_info) in root.enumerate_bus(bus.clone()) {
-                debug!("PCI {}: {} |  at addr: {}", bdf, dev_info, bus.clone());
+            for (bdf, dev_info) in root.enumerate_bus(bus) {
+                debug!("PCI {}: {}", bdf, dev_info);
                 if dev_info.header_type != HeaderType::Standard {
+                    info!("continue enum");
                     continue;
                 }
                 match config_pci_device(&mut root, bdf, &mut allocator) {
