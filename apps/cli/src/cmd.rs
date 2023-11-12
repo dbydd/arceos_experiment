@@ -27,6 +27,7 @@ const CMD_TABLE: &[(&str, CmdHandler)] = &[
     ("test", do_test),
     ("move", do_m0ve),
     ("test_pci", pci_test),
+    ("test_usb", test_usb),
 ];
 
 fn do_uname(_args: &str) {
@@ -568,7 +569,18 @@ fn do_m0ve(args: &str) {
 use axdriver;
 fn pci_test(arg: &str) {
     let mut devices = axdriver::init_drivers();
-    devices.probe()
+    // devices.probe();
+}
+
+use driver_usb;
+fn test_usb(arg: &str) {
+    let init = driver_usb::init();
+    loop {
+        println!(
+            "changed bit: {}",
+            init.operational.usbsts.read_volatile().port_change_detect()
+        )
+    }
 }
 
 fn init_pcie() {

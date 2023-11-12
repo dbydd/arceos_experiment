@@ -21,3 +21,4 @@ arm_pl011 = { version = "0.1.0", path = "../../crates/arm_pl011" }
 axdriver = {path = "../../modules/axdriver",optional = true}
 
 brcm_pcie = { path = "../../crates/brcm_pcie" }
+driver_usb = {path = "../../crates/driver_usb"}

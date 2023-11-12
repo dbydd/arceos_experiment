@@ -38,7 +38,8 @@ pci-ranges = [
     # ["0x3ef_f0000", "0x1_0000"],            # PIO space
     # ["0x1000_0000", "0x2eff_0000"],         # 32-bit MMIO space
     ["0x00","0x3800000"],
-    ["0x6_0000_0000", "0x7_FFFF_FFFF"],   # 64-but MMIO space
+    # ["0x6_0000_0000", "0x7_FFFF_FFFF"],   # 64-bit MMIO space
+    ["0xfd508000", "0x7_FFFF_FFFF"],   # 64-bit MMIO space
     # ["0x04","0x7c000000"],
 ] #TODO: findout ranges
 

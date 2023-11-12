@@ -131,6 +131,7 @@ impl AllDevices {
         });
 
         self.probe_bus_devices();
+        info!("probe completes")
     }
 
     /// Adds one device into the corresponding container, according to its device category.
@@ -155,6 +156,7 @@ pub fn init_drivers() -> AllDevices {
     let mut all_devs = AllDevices::default();
     all_devs.probe();
 
+    info!("step 1");
     #[cfg(feature = "net")]
     {
         debug!("number of NICs: {}", all_devs.net.len());
@@ -163,6 +165,7 @@ pub fn init_drivers() -> AllDevices {
             debug!("  NIC {}: {:?}", i, dev.device_name());
         }
     }
+    info!("step 2");
     #[cfg(feature = "block")]
     {
         debug!("number of block devices: {}", all_devs.block.len());
@@ -171,6 +174,7 @@ pub fn init_drivers() -> AllDevices {
             debug!("  block device {}: {:?}", i, dev.device_name());
         }
     }
+    info!("step 3");
     #[cfg(feature = "display")]
     {
         debug!("number of graphics devices: {}", all_devs.display.len());

@@ -4,7 +4,7 @@ use driver_pci::{
     BarInfo, Cam, Command, DeviceFunction, HeaderType, MemoryBarType, PciRangeAllocator, PciRoot,
 };
 
-const PCI_BAR_NUM: u8 = 1;
+const PCI_BAR_NUM: u8 = 6;
 
 fn config_pci_device(
     root: &mut PciRoot,
@@ -114,6 +114,7 @@ impl AllDevices {
         // let base_paddr: usize = 0x6_0000_0000;
         let base_paddr: usize = 0xfd50_0000;
         let base_vaddr = phys_to_virt(base_paddr.into());
+        info!("base_vaddr:{:x}", base_vaddr.as_usize());
         let mut root = unsafe { PciRoot::new(base_vaddr.as_mut_ptr(), Cam::Ecam) };
 
         // PCI 32-bit MMIO space
@@ -123,33 +124,48 @@ impl AllDevices {
 
         // info!("pci_ranges = ({},{})", axconfig::PCI_RANGES.first());
 
-        for bus in 0..=axconfig::PCI_BUS_END as u8 {
+        'out: for bus in 0..=axconfig::PCI_BUS_END as u8 {
+            info!("iter {bus}");
             for (bdf, dev_info) in root.enumerate_bus(bus) {
-                debug!("PCI {}: {}", bdf, dev_info);
-
-                if dev_info.header_type != HeaderType::Standard {
-                    info!("continue enum");
+                if !((dev_info.class == 0xc as u8) && (dev_info.subclass == 0x3 as u8)) {
                     continue;
-                }
+                } else {
+                    debug!("PCI {}: {}", bdf, dev_info);
 
-                match config_pci_device(&mut root, bdf, &mut allocator) {
-                    Ok(_) => for_each_drivers!(type Driver, {
-                        if let Some(dev) = Driver::probe_pci(&mut root, bdf, &dev_info) {
-                            info!(
-                                "registered a new {:?} device at {}: {:?}",
-                                dev.device_type(),
-                                bdf,
-                                dev.device_name(),
-                            );
-                            self.add_device(dev);
-                            continue; // skip to the next device
-                        }
-                    }),
-                    Err(e) => warn!(
-                        "failed to enable PCI device at {}({}): {:?}",
-                        bdf, dev_info, e
-                    ),
-                } //todo fix memory alloc
+                    info!("in!");
+                    if dev_info.header_type != HeaderType::Standard {
+                        info!("continue enum");
+                        continue;
+                    }
+
+                    // if dev_info.class == 0 {
+                    //     info!("skipped unknown device");
+                    //     continue;
+                    // }
+                    // info!("{} == 0: {}", dev_info.class, dev_info.class == 0);
+
+                    match config_pci_device(&mut root, bdf, &mut allocator) {
+                        Ok(_) => for_each_drivers!(type Driver, {
+                            if let Some(dev) = Driver::probe_pci(&mut root, bdf, &dev_info) {
+                                info!(
+                                    "registered a new {:?} device at {}: {:?}",
+                                    dev.device_type(),
+                                    bdf,
+                                    dev.device_name(),
+                                );
+                                self.add_device(dev);
+                                continue; // skip to the next device
+                            }
+                        }),
+                        Err(e) => warn!(
+                            "failed to enable PCI device at {}({}): {:?}",
+                            bdf, dev_info, e
+                        ),
+                    } //todo fix memory alloc
+                    info!("break!");
+                    break 'out;
+                }
+                info!("iter complete")
             }
         }
     }
