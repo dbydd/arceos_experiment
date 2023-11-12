@@ -1,0 +1,16 @@
+[package]
+name = "brcm_pcie"
+version = "0.1.0"
+edition = "2021"
+authors = ["Shenlin Xu <axsl666@foxmail.com>"]
+description = "driver of broadcom 2711 PCIe host controller"
+license = "GPL-3.0-or-later OR Apache-2.0"
+homepage = "https://github.com/rcore-os/arceos"
+repository = "https://github.com/rcore-os/arceos/tree/main/crates/brcm-pcie"
+documentation = "https://rcore-os.github.io/arceos/brcm-pcie/index.html"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+tock-registers = "0.9"
+log = "0.4"

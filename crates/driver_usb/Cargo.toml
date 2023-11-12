@@ -1,0 +1,16 @@
+[package]
+name = "driver_usb"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[features]
+default = []
+
+[dependencies]
+spin = "0.9"
+log = "0.4"
+xhci = "0.9.2"
+axhal ={ path = "../../modules/axhal"}
+axalloc ={ path = "../../modules/axalloc" }
