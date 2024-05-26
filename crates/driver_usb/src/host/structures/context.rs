@@ -45,10 +45,12 @@ impl Input {
     }
 
     pub(crate) fn virt_addr(&self) -> VirtAddr {
-        match self {
+        let virt_addr = match self {
             Self::Byte32(b32) => b32.virt_addr(),
             Self::Byte64(b64) => b64.virt_addr(),
-        }
+        };
+
+        return (virt_addr.as_usize() + 0xffff_0000_0000_0000).into();
     }
 }
 impl Default for Input {

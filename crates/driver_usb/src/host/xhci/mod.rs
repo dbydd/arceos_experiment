@@ -48,10 +48,15 @@ pub(crate) fn init(mmio_base: usize) {
 
     debug!("resetting xhci controller");
     debug!(
-        "before reset:{:?}",
-        registers::handle(|r| r.operational.usbsts.read_volatile())
+        "before reset:{:?},pagesize: {}",
+        registers::handle(|r| r.operational.usbsts.read_volatile()),
+        registers::handle(|r| r.operational.pagesize.read_volatile().get())
     );
     reset_xhci_controller();
+    debug!(
+        "pagesize: {}",
+        registers::handle(|r| r.operational.pagesize.read_volatile().get())
+    );
 
     xhci_slot_manager::new();
     scratchpad::new();

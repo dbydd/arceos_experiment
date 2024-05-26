@@ -178,20 +178,6 @@ impl XHCIUSBDevice {
         debug!("addressing device");
         let input_addr = self.context.input.virt_addr();
         debug!("address to input {:?}", input_addr);
-        // let ring_addr = self.transfer_ring.get_ring_addr();
-        // debug!("request address!");
-        // match COMMAND_MANAGER
-        //     .get()
-        //     .unwrap()
-        //     .lock()
-        //     .address_device(input_addr, self.slot_id, true)
-        // {
-        //     CommandResult::Success(trb) => {
-        //         debug!("addressed device at slot id {}", self.slot_id);
-        //         debug!("command result {:?}", trb);
-        //     }
-        //     err => error!("error while address device at slot id {}", self.slot_id),
-        // }
         match COMMAND_MANAGER
             .get()
             .unwrap()

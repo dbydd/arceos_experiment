@@ -9,6 +9,7 @@ use spinning_top::Spinlock;
 use xhci::{
     context::Slot,
     extended_capabilities::debug::Debug,
+    registers::operational::PageSizeRegister,
     ring::trb::{
         command::{
             self, AddressDevice, Allowed, ConfigureEndpoint, DisableSlot, EnableSlot,
@@ -157,6 +158,15 @@ impl CommandManager {
             while let handle_event = xhci_event_manager::handle_event() {
                 match handle_event {
                     Ok(trb) if let Ok(complete) = CommandCompletion::try_from(trb) => {
+                        registers::handle(|r| {
+                            r.interrupter_register_set
+                                .interrupter_mut(0)
+                                .erdp
+                                .update_volatile(|erdp| {
+                                    erdp.clear_event_handler_busy();
+                                })
+                        });
+
                         match complete.completion_code() {
                             Ok(code) if code == CompletionCode::Success => {
                                 debug!("t o t a l success!");
