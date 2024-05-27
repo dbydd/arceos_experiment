@@ -68,7 +68,7 @@ impl XHCIUSBDevice {
         self.config_endpoint_0();
         // self.check_input();
         self.assign_device();
-        self.address_device(false);
+        self.address_device(true);
         self.dump_ep0();
         dump_port_status(self.port_id as usize);
         // only available after address device
