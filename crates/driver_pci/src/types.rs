@@ -219,6 +219,10 @@ impl ConifgPciPciBridge {
         self.regs().secondary_bus_number.set(bus);
     }
 
+    pub fn get_secondary_bus_number(&self) -> u8 {
+        self.regs().secondary_bus_number.get()
+    }
+
     pub fn set_subordinate_bus_number(&self, bus: u8) {
         self.regs().subordinate_bus_number.set(bus);
     }

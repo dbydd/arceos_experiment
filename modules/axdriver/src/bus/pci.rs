@@ -1,4 +1,8 @@
-use crate::{prelude::*, AllDevices};
+use crate::{
+    drivers::{DriverProbe, PhytiumDriver},
+    prelude::*,
+    AllDevices,
+};
 use axhal::mem::phys_to_virt;
 use driver_pci::*;
 

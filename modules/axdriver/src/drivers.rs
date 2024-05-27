@@ -91,11 +91,11 @@ cfg_if::cfg_if! {
 cfg_if::cfg_if! {
     if #[cfg(usb_host_dev = "phytium-xhci")] {
         use axalloc::GlobalNoCacheAllocator;
-        pub struct VL805Driver;
+        pub struct PhytiumDriver;
         register_usb_host_driver!(VL805Driver, driver_usb::host::xhci::vl805::VL805<GlobalNoCacheAllocator>);
         use driver_usb::host::xhci::vl805::VL805;
 
-        impl DriverProbe for VL805Driver {
+        impl DriverProbe for PhytiumDriver {
             fn probe_pci(
                     root: &mut PciRoot,
                     bdf: DeviceFunction,

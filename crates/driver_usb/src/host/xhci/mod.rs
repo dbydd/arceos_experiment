@@ -23,8 +23,8 @@ use crate::host::structures::{
 use super::structures::registers;
 
 // const ARM_IRQ_PCIE_HOST_INTA: usize = 143 + 32; //todo figure out it's interrupt num
-//const ARM_IRQ_PCIE_HOST_INTA: usize = 48; //todo figure out it's interrupt num
-//const XHCI_CONFIG_MAX_EVENTS_PER_INTR: usize = 16;
+const ARM_IRQ_PCIE_HOST_INTA: usize = 48; //todo figure out it's interrupt num
+const XHCI_CONFIG_MAX_EVENTS_PER_INTR: usize = 16;
 
 #[derive(Clone, Copy)]
 pub struct MemoryMapper;

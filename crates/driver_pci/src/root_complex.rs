@@ -95,7 +95,6 @@ impl<A: Access> Iterator for BusDeviceIterator<A> {
     fn next(&mut self) -> Option<Self::Item> {
         debug!("into next!");
         loop {
-            debug!("looped");
             if self.next.function >= MAX_FUNCTIONS {
                 debug!("added");
                 self.next.function = 0;
@@ -125,23 +124,27 @@ impl<A: Access> Iterator for BusDeviceIterator<A> {
                 None => {
                     debug!("no conf");
                     if current.function == 0 {
+                        debug!("dev +1");
                         self.next.device += 1;
                     } else {
+                        debug!("func +1");
                         self.next.function += 1;
                     }
                     continue;
                 }
             };
 
-            // debug!("begin: {} @ 0x{:X}", current, cfg_addr);
+            debug!("begin: {} @ 0x{:X}", current, cfg_addr);
             let header = PciHeader::new(cfg_addr);
             let (vid, did) = header.vendor_id_and_device_id();
-            // debug!("vid {:X}, did {:X}", vid, did);
+            debug!("vid {:X}, did {:X}", vid, did);
 
             if vid == 0xffff {
                 if current.function == 0 {
+                    debug!("dev + 1");
                     self.next.device += 1;
                 } else {
+                    debug!("func + 1");
                     self.next.function += 1;
                 }
                 continue;
@@ -162,6 +165,7 @@ impl<A: Access> Iterator for BusDeviceIterator<A> {
             debug!("header_type:{:?}", header_type);
             match header_type {
                 HeaderType::PciPciBridge => {
+                    debug!("found bridge at {:?}", self.next);
                     let bridge = ConifgPciPciBridge::new(cfg_addr);
                     self.stack.push(current.clone());
                     self.next.bus += 1;

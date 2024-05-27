@@ -41,7 +41,7 @@ def send_file(port, baudrate, file_path):
         modem.send(f)
         print("transfer complete")
 
-    ser.write(b'go 0x90100000\n')
+    # ser.write(b'go 0x90100000\n')
     
     # 关闭串口
     ser.close()

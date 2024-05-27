@@ -65,6 +65,7 @@ impl<A: Allocator + Clone> VL805<A> {
         {
             return None;
         }
+        debug!("found phytium xhci!");
 
         if let ConfigKind::Endpoint { inner } = &config.kind {
             let bar = inner.bar(0).unwrap();
@@ -74,12 +75,12 @@ impl<A: Allocator + Clone> VL805<A> {
                 prefetchable,
             } = bar
             {
-                let mut dma: DMAVec<A, u8> = DMAVec::new(0x100, 0x1000, dma_alloc.clone());
-                let mbox = Mailbox::new();
-                let msg = MsgNotifyXhciReset {};
-                mbox.send(&msg, &mut dma);
+                // let mut dma: DMAVec<A, u8> = DMAVec::new(0x100, 0x1000, dma_alloc.clone());
+                // let mbox = Mailbox::new();
+                // let msg = MsgNotifyXhciReset {};
+                // mbox.send(&msg, &mut dma);
 
-                debug!("VL805 @0x{:X}", address);
+                debug!("Phytium xhci @0x{:X}", address);
                 config.header.set_command([
                     ConfigCommand::MemorySpaceEnable,
                     ConfigCommand::BusMasterEnable,

@@ -1,95 +1,128 @@
  
 
-arceos# 
-arceos# 
-arceos# 
-arceos# 
-arceos# 
-arceos# 
-arceos# test_xhci
-[ 34.218687 0:2 driver_usb::host::xhci:49] resetting xhci controller
-[ 34.223450 0:2 driver_usb::host::xhci:50] before reset:UsbStatusRegister { hc_halted: false, host_system_error: false, event_interrupt: false, port_change_detect: true, save_state_status: false, restore_state_status: false, save_restore_error: false, controller_not_ready: false, host_controller_error: false },pagesize: 1
-[ 34.253047 0:2 driver_usb::host::xhci:131] stop
-[ 34.258777 0:2 driver_usb::host::xhci:136] wait until halt
-[ 34.265460 0:2 driver_usb::host::xhci:138] halted
-[ 34.271362 0:2 driver_usb::host::xhci:140] HCRST!
-[ 34.277266 0:2 driver_usb::host::xhci:166] Reset xHCI Controller Globally
-[ 34.285250 0:2 driver_usb::host::xhci:56] pagesize: 1
-[ 34.291500 0:2 driver_usb::host::structures::xhci_slot_manager:65] max slot: 16
-[ 34.300011 0:2 driver_usb::host::structures::xhci_slot_manager:84] initialized!
-[ 34.308516 0:2 driver_usb::host::structures::xhci_slot_manager:21] assign device: VA:0x90192000 to dcbaa 0
-[ 34.319364 0:2 driver_usb::host::structures::scratchpad:79] initialized!
-[ 34.327263 0:2 driver_usb::host::structures::xhci_roothub:99] number of ports:2
-[ 34.335768 0:2 driver_usb::host::structures::xhci_roothub:104] allocating port 0
-[ 34.344363 0:2 driver_usb::host::structures:101] ----dumped port state: PortStatusAndControlRegister { current_connect_status: false, port_enabled_disabled: false, over_current_active: false, port_reset: false, port_link_state: 5, port_power: true, port_speed: 0, port_indicator_control: Off, port_link_state_write_strobe: false, connect_status_change: false, port_enabled_disabled_change: false, warm_port_reset_change: false, over_current_change: false, port_reset_change: false, port_link_state_change: false, port_config_error_change: false, cold_attach_status: false, wake_on_connect_enable: false, wake_on_disconnect_enable: false, wake_on_over_current_enable: false, device_removable: false, warm_port_reset: false }
-[ 34.408767 0:2 driver_usb::host::structures::xhci_roothub:111] assert:0 == 0
-[ 34.417012 0:2 driver_usb::host::structures::xhci_roothub:104] allocating port 1
-[ 34.425607 0:2 driver_usb::host::structures:101] ----dumped port state: PortStatusAndControlRegister { current_connect_status: true, port_enabled_disabled: true, over_current_active: false, port_reset: false, port_link_state: 0, port_power: true, port_speed: 4, port_indicator_control: Off, port_link_state_write_strobe: false, connect_status_change: false, port_enabled_disabled_change: false, warm_port_reset_change: false, over_current_change: false, port_reset_change: true, port_link_state_change: false, port_config_error_change: false, cold_attach_status: false, wake_on_connect_enable: false, wake_on_disconnect_enable: false, wake_on_over_current_enable: false, device_removable: false, warm_port_reset: false }
-[ 34.489752 0:2 driver_usb::host::structures::xhci_roothub:111] assert:1 == 1
-[ 34.497997 0:2 driver_usb::host::structures::xhci_roothub:115] ended
-[ 34.505549 0:2 driver_usb::host::structures::xhci_roothub:125] initialized!
-[ 34.513745 0:2 driver_usb::host::structures::xhci_command_manager:262] initialized!
-[ 34.522561 0:2 driver_usb::host::structures::xhci_event_manager:43] initilizating!
-[ 34.531363 0:2 driver_usb::host::structures::event_ring:33] created!
-[ 34.538881 0:2 driver_usb::host::structures::xhci_event_manager:56] test
-[ 34.546784 0:2 driver_usb::host::structures::xhci_event_manager:99] initialized!
-[ 34.555372 0:2 driver_usb::host::xhci:70] before start:UsbStatusRegister { hc_halted: true, host_system_error: false, event_interrupt: false, port_change_detect: true, save_state_status: false, restore_state_status: false, save_restore_error: false, controller_not_ready: false, host_controller_error: false }
-[ 34.583843 0:2 driver_usb::host::xhci:81] init completed!, coltroller state:UsbStatusRegister { hc_halted: false, host_system_error: false, event_interrupt: false, port_change_detect: true, save_state_status: false, restore_state_status: false, save_restore_error: false, controller_not_ready: false, host_controller_error: false }
-[ 34.614225 0:2 driver_usb::host::xhci:90] port0 : false
-[ 34.620647 0:2 driver_usb::host::xhci:90] port1 : true
-[ 34.626982 0:2 driver_usb::host::xhci:100] initializing roothub
-[ 34.634100 0:2 driver_usb::host::structures::xhci_roothub:45] initializing root ports
-[ 34.643127 0:2 driver_usb::host::structures::xhci_roothub:50] initializing port 0
-[ 34.651809 0:2 driver_usb::host::structures::root_port:25] port 0 not connected
-[ 34.660313 0:2 driver_usb::host::structures::xhci_roothub:50] initializing port 1
-[ 34.668994 0:2 driver_usb::host::structures::root_port:28] port 1 connected, continue
-[ 34.678020 0:2 driver_usb::host::structures:113] reseting port 1
-[ 34.685227 0:2 driver_usb::host::structures:115] before reset Port 1, status: PortStatusAndControlRegister { current_connect_status: true, port_enabled_disabled: true, over_current_active: false, port_reset: false, port_link_state: 0, port_power: true, port_speed: 4, port_indicator_control: Off, port_link_state_write_strobe: false, connect_status_change: false, port_enabled_disabled_change: false, warm_port_reset_change: false, over_current_change: false, port_reset_change: true, port_link_state_change: false, port_config_error_change: false, cold_attach_status: false, wake_on_connect_enable: false, wake_on_disconnect_enable: false, wake_on_over_current_enable: false, device_removable: false, warm_port_reset: false }
-[ 34.749896 0:2 driver_usb::host::structures:134] Port 1 reset ok, status: PortStatusAndControlRegister { current_connect_status: true, port_enabled_disabled: true, over_current_active: false, port_reset: false, port_link_state: 0, port_power: true, port_speed: 4, port_indicator_control: Off, port_link_state_write_strobe: false, connect_status_change: false, port_enabled_disabled_change: false, warm_port_reset_change: false, over_current_change: false, port_reset_change: true, port_link_state_change: false, port_config_error_change: false, cold_attach_status: false, wake_on_connect_enable: false, wake_on_disconnect_enable: false, wake_on_over_current_enable: false, device_removable: false, warm_port_reset: false }
-[ 34.814211 0:2 driver_usb::host::structures:101] ----dumped port state: PortStatusAndControlRegister { current_connect_status: true, port_enabled_disabled: true, over_current_active: false, port_reset: false, port_link_state: 0, port_power: true, port_speed: 4, port_indicator_control: Off, port_link_state_write_strobe: false, connect_status_change: false, port_enabled_disabled_change: false, warm_port_reset_change: false, over_current_change: false, port_reset_change: true, port_link_state_change: false, port_config_error_change: false, cold_attach_status: false, wake_on_connect_enable: false, wake_on_disconnect_enable: false, wake_on_over_current_enable: false, device_removable: false, warm_port_reset: false }
-[ 34.878356 0:2 driver_usb::host::structures::root_port:37] port speed: USBSpeedSuper
-[ 34.887295 0:2 driver_usb::host::structures::root_port:39] initializing device: USBSpeedSuper
-[ 34.897017 0:2 driver_usb::host::structures::xhci_usb_device:48] new device! port:1
-[ 34.905945 0:2 driver_usb::host::structures::root_port:42] writing ...
-[ 34.913595 0:2 driver_usb::host::structures::root_port:45] writing complete
-[ 34.921754 0:2 driver_usb::host::structures::xhci_usb_device:63] initialize/enum this device! port=1
-[ 34.932084 0:2 driver_usb::host::structures::xhci_command_manager:142] do command EnableSlot(EnableSlot { slot_type: 0, cycle_bit: false }) !
-[ 34.945973 0:2 driver_usb::host::structures::xhci_command_manager:157] waiting for interrupt handler complete!
-[ 34.957171 0:2 driver_usb::host::structures::xhci_event_manager:109] event handler has a trb:PortStatusChange(PortStatusChange { completion_code: Ok(Success), port_id: 2, cycle_bit: true })
-[ 34.975223 0:2 driver_usb::host::structures::xhci_event_manager:138] step into port status change.
+Phytium-Pi#go 0x90100000
+## Starting application at 0x90100000 ...
+aaaaaaaaaaaacarch = aarch64
+platform = aarch64-phytium-pi
+target = aarch64-unknown-none-softfloat
+smp = 1
+build_mode = release
+log_level = debug
 
-[ 34.985553 0:2 driver_usb::host::structures::xhci_roothub:78] port 1 changed!
-[ 34.993887 0:2 driver_usb::host::structures:101] ----dumped port state: PortStatusAndControlRegister { current_connect_status: true, port_enabled_disabled: true, over_current_active: false, port_reset: false, port_link_state: 0, port_power: true, port_speed: 4, port_indicator_control: Off, port_link_state_write_strobe: false, connect_status_change: false, port_enabled_disabled_change: false, warm_port_reset_change: false, over_current_change: false, port_reset_change: true, port_link_state_change: false, port_config_error_change: false, cold_attach_status: false, wake_on_connect_enable: false, wake_on_disconnect_enable: false, wake_on_over_current_enable: false, device_removable: false, warm_port_reset: false }
-[ 35.058032 0:2 driver_usb::host::structures::xhci_event_manager:109] event handler has a trb:PortStatusChange(PortStatusChange { completion_code: Ok(Success), port_id: 2, cycle_bit: true })
-[ 35.076085 0:2 driver_usb::host::structures::xhci_event_manager:138] step into port status change.
-
-[ 35.086414 0:2 driver_usb::host::structures::xhci_roothub:78] port 1 changed!
-[ 35.094748 0:2 driver_usb::host::structures:101] ----dumped port state: PortStatusAndControlRegister { current_connect_status: true, port_enabled_disabled: true, over_current_active: false, port_reset: false, port_link_state: 0, port_power: true, port_speed: 4, port_indicator_control: Off, port_link_state_write_strobe: false, connect_status_change: false, port_enabled_disabled_change: false, warm_port_reset_change: false, over_current_change: false, port_reset_change: true, port_link_state_change: false, port_config_error_change: false, cold_attach_status: false, wake_on_connect_enable: false, wake_on_disconnect_enable: false, wake_on_over_current_enable: false, device_removable: false, warm_port_reset: false }
-[ 35.158893 0:2 driver_usb::host::structures::xhci_event_manager:109] event handler has a trb:CommandCompletion(CommandCompletion { completion_code: Ok(Success), command_trb_pointer: 2417573888, command_completion_parameter: 0, vf_id: 0, slot_id: 1, cycle_bit: true })
-[ 35.183717 0:2 driver_usb::host::structures::xhci_command_manager:220] handleing command complete:CommandCompletion { completion_code: Ok(Success), command_trb_pointer: 2417573888, command_completion_parameter: 0, vf_id: 0, slot_id: 1, cycle_bit: true }
-[ 35.207328 0:2 driver_usb::host::structures::xhci_command_manager:172] t o t a l success!
-[ 35.216701 0:2 driver_usb::host::structures::xhci_usb_device:88] enable slot success! CommandCompletion { completion_code: Ok(Success), command_trb_pointer: 2417573888, command_completion_parameter: 0, vf_id: 0, slot_id: 1, cycle_bit: true }
-[ 35.239269 0:2 driver_usb::host::structures::xhci_usb_device:97] init input ctx
-[ 35.247777 0:2 driver_usb::host::structures::xhci_usb_device:158] endpoint 0 state: Disabled, slot state: DisabledEnabled
-[ 35.259929 0:2 driver_usb::host::structures::xhci_usb_device:132] begin config endpoint 0 and assign dev!
-[ 35.270692 0:2 driver_usb::host::structures::xhci_usb_device:135] config ep0
-[ 35.278937 0:2 driver_usb::host::structures::xhci_usb_device:158] endpoint 0 state: Disabled, slot state: DisabledEnabled
-[ 35.291091 0:2 driver_usb::host::structures::xhci_usb_device:166] assigning device into dcbaa, slot number= 1
-[ 35.302199 0:2 driver_usb::host::structures::xhci_slot_manager:21] assign device: VA:0x9019a000 to dcbaa 1
-[ 35.313049 0:2 driver_usb::host::structures::xhci_usb_device:178] addressing device
-[ 35.321902 0:2 driver_usb::host::structures::xhci_usb_device:180] address to input VA:0xffff000090199000
-[ 35.332579 0:2 driver_usb::host::structures::xhci_command_manager:106] addressing device!
-[ 35.341953 0:2 driver_usb::host::structures::xhci_command_manager:142] do command AddressDevice(AddressDevice { input_context_pointer: 18446462601150435328, block_set_address_request: false, slot_id: 1, cycle_bit: false }) !
-[ 35.363047 0:2 driver_usb::host::structures::xhci_command_manager:157] waiting for interrupt handler complete!
-[ 35.374244 0:2 driver_usb::host::structures::xhci_event_manager:109] event handler has a trb:CommandCompletion(CommandCompletion { completion_code: Ok(ParameterError), command_trb_pointer: 2417573904, command_completion_parameter: 0, vf_id: 0, slot_id: 1, cycle_bit: true })
-[ 35.399675 0:2 driver_usb::host::structures::xhci_command_manager:220] handleing command complete:CommandCompletion { completion_code: Ok(ParameterError), command_trb_pointer: 2417573904, command_completion_parameter: 0, vf_id: 0, slot_id: 1, cycle_bit: true }
-[ 35.423894 0:2 driver_usb::host::structures::xhci_command_manager:176] ok, but: ParameterError
- full trb: CommandCompletion { completion_code: Ok(ParameterError), command_trb_pointer: 2417573904, command_completion_parameter: 0, vf_id: 0, slot_id: 1, cycle_bit: true }
-[ 35.448891 0:2 driver_usb::host::structures::xhci_usb_device:191] error while address device at slot id 1
-[ 35.459654 0:2 driver_usb::host::structures::xhci_usb_device:199] assert ep0 running!
-[ 35.468682 0:2 driver_usb::host::structures::xhci_usb_device:158] endpoint 0 state: Disabled, slot state: DisabledEnabled
-[ 35.480834 0:2 driver_usb::host::structures::xhci_usb_device:158] endpoint 0 state: Disabled, slot state: DisabledEnabled
-[ 35.492987 0:2 driver_usb::host::structures:101] ----dumped port state: PortStatusAndControlRegister { current_connect_status: true, port_enabled_disabled: true, over_current_active: false, port_reset: false, port_link_state: 0, port_power: true, port_speed: 4, port_indicator_control: Off, port_link_state_write_strobe: false, connect_status_change: false, port_enabled_disabled_change: false, warm_port_reset_change: false, over_current_change: false, port_reset_change: true, port_link_state_change: false, port_config_error_change: false, cold_attach_status: false, wake_on_connect_enable: false, wake_on_disconnect_enable: false, wake_on_over_current_enable: false, device_removable: false, warm_port_reset: false }
-[ 35.557130 0:2 driver_usb::host::structures::root_port:49] initialize complete
-[ 35.565550 0:2 driver_usb::host::structures::xhci_roothub:54] configuring root ports
+ccc[ 40.592085 0 axruntime:138] Logging is enabled.
+[ 40.597813 0 axruntime:139] Primary CPU 512 started, dtb = 0x1.
+[ 40.604931 0 axruntime:141] Found physcial memory regions:
+c[ 40.611702 0 axruntime:144]   [PA:0x90100000, PA:0x9011f000) .text (READ | EXECUTE | RESERVED)
+[ 40.621509 0 axruntime:144]   [PA:0x9011f000, PA:0x90127000) .rodata (READ | RESERVED)
+[ 40.630623 0 axruntime:144]   [PA:0x90127000, PA:0x9012b000) .data .tdata .tbss .percpu (READ | WRITE | RESERVED)
+[ 40.642081 0 axruntime:144]   [PA:0x9012b000, PA:0x9016b000) boot stack (READ | WRITE | RESERVED)
+[ 40.652150 0 axruntime:144]   [PA:0x9016b000, PA:0x90190000) .bss (READ | WRITE | RESERVED)
+[ 40.661698 0 axruntime:144]   [PA:0x0, PA:0x1000) spintable (READ | WRITE | RESERVED)
+[ 40.670725 0 axruntime:144]   [PA:0x90190000, PA:0x90490000) nocache memory (READ | WRITE | DEVICE)
+[ 40.680967 0 axruntime:144]   [PA:0x90490000, PA:0xffd00000) free memory (READ | WRITE | FREE)
+[ 40.690776 0 axruntime:144]   [PA:0x40000000, PA:0x50000000) mmio (READ | WRITE | DEVICE | RESERVED)
+[ 40.701105 0 axruntime:144]   [PA:0x50000000, PA:0x58000000) mmio (READ | WRITE | DEVICE | RESERVED)
+[ 40.711434 0 axruntime:144]   [PA:0x58000000, PA:0x80000000) mmio (READ | WRITE | DEVICE | RESERVED)
+[ 40.721763 0 axruntime:144]   [PA:0x1000000000, PA:0x1010000000) mmio (READ | WRITE | DEVICE | RESERVED)
+[ 40.732440 0 axruntime:144]   [PA:0x2800c000, PA:0x2800d000) mmio (READ | WRITE | DEVICE | RESERVED)
+[ 40.742769 0 axruntime:144]   [PA:0x2800d000, PA:0x2800e000) mmio (READ | WRITE | DEVICE | RESERVED)
+[ 40.753098 0 axruntime:144]   [PA:0x2800e000, PA:0x2800f000) mmio (READ | WRITE | DEVICE | RESERVED)
+[ 40.763427 0 axruntime:144]   [PA:0x2800f000, PA:0x28010000) mmio (READ | WRITE | DEVICE | RESERVED)
+[ 40.773757 0 axruntime:144]   [PA:0x30000000, PA:0x38000000) mmio (READ | WRITE | DEVICE | RESERVED)
+[ 40.784086 0 axruntime:223] Initialize global memory allocator...
+[ 40.791377 0 axruntime:224]   use TLSF allocator.
+[ 40.797282 0 axalloc:281] initialize global allocator at: free-[0xffff000090490000, 0xffff0000ffd00000)
+[ 40.808192 0 axruntime:158] Initialize kernel page table...
+[ 40.814759 0 axruntime:258] Initialize global no cache memory allocator...
+[ 40.822713 0 axalloc:297] initialize global allocator at: nocache-[0x90190000,0x90490000)
+[ 40.832088 0 axruntime:165] Initialize platform devices...
+[ 40.838770 0 axtask::api:66] Initialize scheduling...
+[ 40.845023 0 axtask::task:146] new task: Task(1, "idle")
+[ 40.851533 0 axtask::task:146] new task: Task(3, "gc")
+[ 40.857870 0 axalloc:126] expand heap memory: [0xffff0000904a4000, 0xffff0000904e4000)
+[ 40.866987 0 axalloc:126] expand heap memory: [0xffff0000904e4000, 0xffff000090564000)
+[ 40.876095 0 axtask::api:72]   use FIFO scheduler.
+[ 40.882083 0 axdriver:158] Initialize device drivers...
+[ 40.888507 0 axdriver:159]   device model: static
+[ 40.894409 0 driver_pci::phytium:18] PCIe link start @0xFFFF000040000000...
+[ 40.902568 0 driver_pci::phytium:19] theroticly, since uboot had already initialized it, we need't to operate it any more! 
+ or maybe we need to allocate bar addr!
+[ 40.918452 0 axdriver::bus::pci:18] probing in pci.rs!
+[ 40.924789 0 driver_pci::root_complex:96] into next!
+[ 40.930952 0 driver_pci::phytium:62] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 0, function: 0 } to idx 1048576
+[ 40.943364 0 driver_pci::root_complex:137] begin: 01:00.0 @ 0xFFFF000040008000
+[ 40.951784 0 driver_pci::root_complex:140] vid FFFF, did FFFF
+[ 40.958728 0 driver_pci::root_complex:144] dev + 1
+[ 40.964717 0 driver_pci::root_complex:125] no conf
+[ 40.970706 0 driver_pci::root_complex:127] dev +1
+[ 40.976608 0 driver_pci::root_complex:125] no conf
+[ 40.982597 0 driver_pci::root_complex:127] dev +1
+[ 40.988500 0 driver_pci::root_complex:125] no conf
+[ 40.994489 0 driver_pci::root_complex:127] dev +1
+[ 41.000391 0 driver_pci::root_complex:125] no conf
+[ 41.006381 0 driver_pci::root_complex:127] dev +1
+[ 41.012283 0 driver_pci::root_complex:125] no conf
+[ 41.018272 0 driver_pci::root_complex:127] dev +1
+[ 41.024175 0 driver_pci::root_complex:125] no conf
+[ 41.030164 0 driver_pci::root_complex:127] dev +1
+[ 41.036066 0 driver_pci::root_complex:125] no conf
+[ 41.042055 0 driver_pci::root_complex:127] dev +1
+[ 41.047958 0 driver_pci::root_complex:125] no conf
+[ 41.053947 0 driver_pci::root_complex:127] dev +1
+[ 41.059849 0 driver_pci::root_complex:125] no conf
+[ 41.065839 0 driver_pci::root_complex:127] dev +1
+[ 41.071741 0 driver_pci::root_complex:125] no conf
+[ 41.077730 0 driver_pci::root_complex:127] dev +1
+[ 41.083633 0 driver_pci::root_complex:125] no conf
+[ 41.089622 0 driver_pci::root_complex:127] dev +1
+[ 41.095524 0 driver_pci::root_complex:125] no conf
+[ 41.101513 0 driver_pci::root_complex:127] dev +1
+[ 41.107416 0 driver_pci::root_complex:125] no conf
+[ 41.113405 0 driver_pci::root_complex:127] dev +1
+[ 41.119307 0 driver_pci::root_complex:125] no conf
+[ 41.125297 0 driver_pci::root_complex:127] dev +1
+[ 41.131199 0 driver_pci::root_complex:125] no conf
+[ 41.137188 0 driver_pci::root_complex:127] dev +1
+[ 41.143091 0 driver_pci::root_complex:125] no conf
+[ 41.149080 0 driver_pci::root_complex:127] dev +1
+[ 41.154982 0 driver_pci::root_complex:125] no conf
+[ 41.160971 0 driver_pci::root_complex:127] dev +1
+[ 41.166874 0 driver_pci::root_complex:125] no conf
+[ 41.172863 0 driver_pci::root_complex:127] dev +1
+[ 41.178765 0 driver_pci::root_complex:125] no conf
+[ 41.184755 0 driver_pci::root_complex:127] dev +1
+[ 41.190657 0 driver_pci::root_complex:125] no conf
+[ 41.196646 0 driver_pci::root_complex:127] dev +1
+[ 41.202549 0 driver_pci::root_complex:125] no conf
+[ 41.208538 0 driver_pci::root_complex:127] dev +1
+[ 41.214440 0 driver_pci::root_complex:125] no conf
+[ 41.220429 0 driver_pci::root_complex:127] dev +1
+[ 41.226332 0 driver_pci::root_complex:125] no conf
+[ 41.232321 0 driver_pci::root_complex:127] dev +1
+[ 41.238223 0 driver_pci::root_complex:125] no conf
+[ 41.244213 0 driver_pci::root_complex:127] dev +1
+[ 41.250115 0 driver_pci::root_complex:125] no conf
+[ 41.256104 0 driver_pci::root_complex:127] dev +1
+[ 41.262007 0 driver_pci::root_complex:125] no conf
+[ 41.267996 0 driver_pci::root_complex:127] dev +1
+[ 41.273898 0 driver_pci::root_complex:125] no conf
+[ 41.279887 0 driver_pci::root_complex:127] dev +1
+[ 41.285790 0 driver_pci::root_complex:125] no conf
+[ 41.291779 0 driver_pci::root_complex:127] dev +1
+[ 41.297681 0 driver_pci::root_complex:125] no conf
+[ 41.303671 0 driver_pci::root_complex:127] dev +1
+[ 41.309573 0 driver_pci::root_complex:125] no conf
+[ 41.315562 0 driver_pci::root_complex:127] dev +1
+[ 41.321465 0 driver_pci::root_complex:125] no conf
+[ 41.327454 0 driver_pci::root_complex:127] dev +1
+[ 41.333356 0 driver_pci::root_complex:115] none!
+[ 41.339172 0 axdriver:190] number of usb host controller: 0
+[ 41.345943 0 axruntime:201] Primary CPU 512 init OK.
+Available commands:
+  exit
+  help
+  uname
+  ldr
+  str
+  test_xhci
 arceos# 

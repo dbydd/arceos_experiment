@@ -74,7 +74,7 @@ macro_rules! for_each_drivers {
         }
         #[cfg(usb_host_dev = "phytium-xhci")]
         {
-            type $drv_type = crate::drivers::VL805Driver; //TODO FIXIT
+            type $drv_type = crate::drivers::PhytiumDriver; //TODO FIXIT
             $code
         }
     }};
