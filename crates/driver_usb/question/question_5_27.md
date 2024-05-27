@@ -33,7 +33,7 @@ make A=apps/cli PLATFORM=aarch64-phytium-pi ARCH=aarch64 LOG=debug chainboot
 
 系统提供读内存命令 ldr，格式为
 ```bash
-ldr <16进制格式内存地址（无0x前缀，地址8位对齐(即最后一位只能为8/0)> <读取字节数量>···
+ldr <16进制格式内存地址（无0x前缀，地址8位对齐(即最后一位只能为8/0)> <读取字节数量>
 ```
 （注：读取出的结果为小端序，与intel文档中的布局相同）
 
