@@ -1,4 +1,8 @@
+mod registers;
+use core::usize;
+
 use log::debug;
+use virtio_drivers::PhysAddr;
 
 use crate::{types::ConfigCommand, Access, PciAddress};
 
@@ -10,8 +14,8 @@ fn cfg_index(addr: PciAddress) -> usize {
 }
 
 //
-const EXT_CFG_INDEX: usize = 0x9000;
-const EXT_CFG_DATA: usize = 0x8000;
+// const EXT_CFG_INDEX: usize = 0x9000;
+// const EXT_CFG_DATA: usize = 0x8000;
 
 impl Access for PhytiumPCIeDummy {
     fn setup(mmio_base: usize) {
@@ -22,7 +26,10 @@ impl Access for PhytiumPCIeDummy {
     }
 
     fn probe_bridge(mmio_base: usize, bridge_header: &crate::types::ConifgPciPciBridge) {
-        debug!("bridge phytium weird pcie chip");
+        debug!(
+            "probe phytium weird pcie bridge {}",
+            bridge_header.get_secondary_bus_number()
+        );
 
         bridge_header.set_cache_line_size(64 / 4);
         let limit =
@@ -30,8 +37,9 @@ impl Access for PhytiumPCIeDummy {
         let base = limit - 0x00020000u32;
         //weird
         bridge_header.set_memory_base((base >> 16) as u16); //理论上这玩意是要有定义的，但我没找到，先拿树莓派的顶着
-        bridge_header.set_memory_limit((limit >> 16) as u16); //这部分就是分配给下游设备的内存区域 //但是为啥这里设置为0？//配置有误，不过暂时用不到bridge，所以问题不大
+        bridge_header.set_memory_limit((limit >> 16) as u16); //这部分就是分配给下游设备的内存区域 //但是为啥这里设置为0？
         bridge_header.set_control(0x01);
+
         unsafe {
             (bridge_header.cfg_addr as *mut u8)
                 .offset(0xac + 0x1c)
@@ -47,19 +55,26 @@ impl Access for PhytiumPCIeDummy {
     }
 
     fn map_conf(mmio_base: usize, addr: crate::PciAddress) -> Option<usize> {
-        if (addr.bus < 7 && addr.device > 0) {
-            return None;
-        }
+        // if (addr.bus < 7 && addr.device > 0) {
+        //     return None;
+        // }
 
-        if addr.bus == 0 {
-            return Some(mmio_base);
-        }
+        // if addr.bus == 0 {
+        //     return Some(mmio_base);
+        // }
 
         let idx = cfg_index(addr);
-        unsafe {
-            ((mmio_base + EXT_CFG_INDEX) as *mut u32).write_volatile(idx as u32);
-        }
-        debug!("mapconf 0x{:x}-{:?} to idx {}", mmio_base, addr, idx);
-        return Some(mmio_base + EXT_CFG_DATA);
+        // unsafe {
+        //     ((mmio_base + EXT_CFG_INDEX) as *mut u32).write_volatile(idx as u32);
+        // }
+        debug!(
+            "mapconf 0x{:x}-{:?} to idx 0x{:X}",
+            mmio_base,
+            addr,
+            mmio_base + idx
+        );
+        return Some(mmio_base + idx);
+
+        return None;
     }
 }

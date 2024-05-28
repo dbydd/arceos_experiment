@@ -107,6 +107,7 @@ impl<A: Access> Iterator for BusDeviceIterator<A> {
                     self.next.bus = parent.bus;
                     self.next.device = parent.device + 1;
                     self.next.function = 0;
+                    debug!("pop stack! {}", parent);
                     let cfg_addr = A::map_conf(self.root.mmio_base, parent.clone()).unwrap();
                     let bridge = ConifgPciPciBridge::new(cfg_addr);
                     trace!("Bridge {} set subordinate: {:X}", parent, sub);
