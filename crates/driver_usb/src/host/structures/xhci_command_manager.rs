@@ -144,6 +144,12 @@ impl CommandManager {
         let mut trb1 = trb.into_raw();
         trb1[3] |= self.command_ring.cycle_state(); //weird
         if let Some(poped) = self.command_ring.get_enque_trb() {
+            debug!(
+                "enque trb, assert addr 16B aligned! {:x}",
+                poped.as_ptr().addr()
+            );
+            assert!(poped.as_ptr().is_aligned_to(16));
+
             *poped = trb1;
             self.command_ring.inc_enque();
 

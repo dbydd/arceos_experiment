@@ -30,7 +30,11 @@ impl EvtRing {
                 cycle_state: XHCI_TRB_CONTROL_C as u32,
             };
 
-            debug!("created!");
+            debug!(
+                "created! event ring, check alignment of 4k: {:x}",
+                event_ring.ring.virt_addr()
+            );
+            assert!(event_ring.ring.virt_addr().is_aligned_4k());
 
             event_ring
         })

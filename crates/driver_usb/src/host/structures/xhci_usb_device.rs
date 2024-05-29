@@ -139,7 +139,9 @@ impl XHCIUSBDevice {
         endpoint_mut.set_endpoint_type(EndpointType::Control);
         endpoint_mut.set_max_packet_size(s);
         endpoint_mut.set_max_burst_size(0);
-        endpoint_mut.set_tr_dequeue_pointer(self.transfer_ring.get_ring_addr().as_usize() as u64);
+        let transfer_addr = self.transfer_ring.get_ring_addr().as_usize() as u64;
+        debug!("address of transfer ring: {:x}", transfer_addr);
+        endpoint_mut.set_tr_dequeue_pointer(transfer_addr);
         if (self.transfer_ring.cycle_state() != 0) {
             endpoint_mut.set_dequeue_cycle_state();
         } else {
@@ -163,8 +165,11 @@ impl XHCIUSBDevice {
     }
 
     pub fn assign_device(&mut self) {
-        debug!("assigning device into dcbaa, slot number= {}", self.slot_id);
         let virt_addr = self.context.output.virt_addr();
+        debug!(
+            "assigning device into dcbaa, slot number= {},output addr: {:x}",
+            self.slot_id, virt_addr
+        );
         SLOT_MANAGER
             .get()
             .unwrap()
@@ -177,7 +182,8 @@ impl XHCIUSBDevice {
     fn address_device(&mut self, bsr: bool) {
         debug!("addressing device");
         let input_addr = self.context.input.virt_addr();
-        debug!("address to input {:?}", input_addr);
+        debug!("address to input {:?}, check 4k alignment!", input_addr);
+        assert!(input_addr.is_aligned_4k());
         match COMMAND_MANAGER
             .get()
             .unwrap()

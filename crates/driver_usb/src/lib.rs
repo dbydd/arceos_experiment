@@ -9,6 +9,7 @@
 #![feature(if_let_guard)]
 #![feature(let_chains)]
 #![feature(generic_arg_infer)]
+#![feature(pointer_is_aligned_to)]
 
 extern crate alloc;
 pub(crate) mod dma;
