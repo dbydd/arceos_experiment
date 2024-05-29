@@ -352,8 +352,7 @@ impl ConifgEndpoint {
                         size,
                         prefetchable,
                     })
-                }
-                // TODO: should we bother to return an error here?
+                } // TODO: should we bother to return an error here?
                 _ => panic!("BAR Memory type is reserved!"),
             }
         } else {

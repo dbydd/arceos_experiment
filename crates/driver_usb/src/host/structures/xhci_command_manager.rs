@@ -24,7 +24,6 @@ use crate::{dma::DMAVec, host::structures::xhci_event_manager};
 
 pub(crate) struct CommandManager {
     command_ring: CmdRing,
-    current_trb: VirtAddr,
 }
 
 type SlotID = u8;
@@ -138,11 +137,16 @@ impl CommandManager {
         })
     }
 
-    pub fn do_command(&mut self, trb: Allowed) -> CommandResult {
+    pub fn do_command(&mut self, mut trb: Allowed) -> CommandResult {
+        // trb1[3] |= self.command_ring.cycle_state(); //weird
+        if (self.command_ring.cycle_state() != 0) {
+            trb.set_cycle_bit();
+        } else {
+            trb.clear_cycle_bit();
+        }
         debug!("do command {:?} !", trb);
         //todo check
         let mut trb1 = trb.into_raw();
-        trb1[3] |= self.command_ring.cycle_state(); //weird
         if let Some(poped) = self.command_ring.get_enque_trb() {
             debug!(
                 "enque trb, assert addr 16B aligned! {:x}",
@@ -248,7 +252,6 @@ pub(crate) fn command_completed(trb: CommandCompletion) -> Result<[u32; 4], ()> 
 pub(crate) fn new() {
     let cmd_manager = CommandManager {
         command_ring: CmdRing::new(),
-        current_trb: VirtAddr::from(0),
     };
     registers::handle(|r| {
         r.operational.crcr.update_volatile(|c| {

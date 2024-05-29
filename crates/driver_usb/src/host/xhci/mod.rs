@@ -60,9 +60,9 @@ pub(crate) fn init(mmio_base: usize) {
 
     xhci_slot_manager::new();
     scratchpad::new();
-    xhci_roothub::new();
     xhci_command_manager::new();
     xhci_event_manager::new();
+    xhci_roothub::new();
 
     // axhal::irq::register_handler(ARM_IRQ_PCIE_HOST_INTA, interrupt_handler);
     // axhal::irq::register_handler(ARM_IRQ_PCIE_HOST_INTA + 1, interrupt_handler);
@@ -73,9 +73,10 @@ pub(crate) fn init(mmio_base: usize) {
     );
     registers::handle(|r| {
         r.operational.usbcmd.update_volatile(|r| {
-            r.interrupter_enable();
             r.set_run_stop();
-        })
+        });
+
+        while r.operational.usbsts.read_volatile().hc_halted() {}
     });
 
     debug!(

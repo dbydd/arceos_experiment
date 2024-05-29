@@ -50,7 +50,7 @@ impl Input {
             Self::Byte64(b64) => b64.virt_addr(),
         };
 
-        return (virt_addr.as_usize() + 0xffff_0000_0000_0000).into();
+        return virt_addr;
     }
 }
 impl Default for Input {

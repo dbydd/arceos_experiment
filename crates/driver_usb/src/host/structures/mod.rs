@@ -125,11 +125,18 @@ pub fn reset_port(i: usize) {
         });
     });
 
-    while registers::handle(|r| {
+    while !registers::handle(|r| {
         r.port_register_set
             .read_volatile_at(i)
             .portsc
             .port_reset_change()
+    }) {}
+
+    while !registers::handle(|r| {
+        r.port_register_set
+            .read_volatile_at(i)
+            .portsc
+            .port_enabled_disabled()
     }) {}
     debug!(
         "Port {} reset ok, status: {:?}",

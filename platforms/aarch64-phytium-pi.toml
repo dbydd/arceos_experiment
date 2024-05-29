@@ -44,7 +44,8 @@ gicd-paddr = "0x3080_0000"
 gicc-paddr = "0x3080_1000"
 
 # Base physical address of the PCIe ECAM space.
-pci-ecam-base = "0x40000000"
+# pci-ecam-base = "0x31a00000"
+pci-ecam-base = "0x4000_0000"
 # End PCI bus number.
 pci-bus-end = "0x7"
 # PCI device memory ranges.

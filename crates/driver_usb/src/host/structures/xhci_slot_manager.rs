@@ -69,7 +69,10 @@ pub(crate) fn new() {
         });
 
         let slot_manager = SlotManager {
-            dcbaa: PageBox::new_slice(VirtAddr::from(0 as usize), XHCI_CONFIG_MAX_SLOTS + 1),
+            dcbaa: PageBox::new_slice(
+                VirtAddr::from(0 as usize),
+                (count_device_slots + 1) as usize,
+            ),
             // device: PageBox::new_slice(Device::new_64byte(), XHCI_CONFIG_MAX_SLOTS + 1),
         };
 

@@ -77,9 +77,6 @@ pub(crate) fn new() {
             ir0.erstba.update_volatile(|b| {
                 b.set(event_manager.erst_entry.virt_addr().as_usize() as u64);
             });
-            ir0.imod.update_volatile(|im| {
-                im.set_interrupt_moderation_interval(XHCI_CONFIG_IMODI);
-            });
 
             ir0.imod.update_volatile(|im| {
                 im.set_interrupt_moderation_interval(0);
