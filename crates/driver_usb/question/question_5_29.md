@@ -2,11 +2,16 @@
 * 背景：目前我们正在编写xhci控制器/usb的驱动，当进行到获取设备描述符以设置端点传输大小前，我们需要为设备进行一次address device，但是很奇怪的是，控制器始终都只会回报paramater error，为了保证不会引入rust代码，我将会把整个流程辅以内存采样的数据描述出来 
 * 注意事项：我们所使用的rust代码中，引入了第三方的xhci库来读写寄存器，有些寄存器在程序上的路径可能与xhci文档不一致，但是实际上读写的内存位置是正确的，仅仅只是为了方便重新组织了结构，当遇到这种情况时只关注读写的寄存器的名字即可。
 * 约定1：由于飞腾派有两个控制器，我们当前所使用的控制器内存基地址为0x31a0_8000，插入的usb口颜色为蓝色，位置为更靠近cpu那一面哪一个
-* 约定2：在下文所给出的内存dump数据中，其格式为小端序，具体的来说:
-    31..0
-0x00 ...
-0x04 ...
-0x08 ...
+* 约定2：在下文所给出的内存dump数据中，其格式为小端序，举个例子:
+
+    31...0
+
+0x00
+
+0x04
+
+0x08
+
 
 ## 控制器启动流程：
 目前在开发阶段，当系统启动完成后，由用户手动触发xhci控制器的初始化/重新枚举，其过程如下：
@@ -106,10 +111,10 @@
     ```
 4. 开始设备的初始化 ！重点在这
     1. 向command_ring入队一个EnableSlot TRB,该TRB有效内容如下:
-    ```log
-    EnableSlot { slot_type: 0, cycle_bit: false }
-    ```
-    收到连续三个 portStatusChange TRB,请参考[debug日志](./minicom_output.log)第376-392行
+        ```log
+        EnableSlot { slot_type: 0, cycle_bit: false }
+        ```
+        收到连续三个 portStatusChange TRB,请参考[debug日志](./minicom_output.log)第376-392行
     2. 配置slot context
         1. input->control->set_add_context_flag(0)
         2. input->control->set_add_context_flag(1) //此处不是开关，add_context_flag是个数组，此处遵循xhci规范第四章中描述的启动流程置位
@@ -227,10 +232,19 @@ offset: 0x7c: 00000000000000000000000000000000
 是的，竟然是全0
 
 ## 猜想1
-    很简单，既然output全0，那说明device并没有回复消息，也就是说可能dcbaa/scratchpad的分配有误（地址经验证，正确）
+很简单，既然output全0，那说明device并没有回复消息，也就是说可能dcbaa/scratchpad的分配有误（地址经验证，正确）
 ## 猜想2
-    由于pcie没有枚举，导致xhci控制器无法从bar中获取自己的mmio空间信息，从而无法为设备分配内存，因此出现了paramater error（但是我们的系统是uboot引导的，在uboot中已经通过usb start枚举过一次设备，既然如此，bar难道不应该已经配好了？
-    另外，我们目前枚举0x4000_0000的pcie ecam空间，仅仅只能找到PCI 00:01.0: 1DB7:DC01 (class 06.04, rev 00) PciPciBridge,剩下的就找不到任何设备了，能否发一份最精简的枚举pci总线以配置xhci控制器的代码？sdk中提供的例程过于混乱，且难以调试。
+由于pcie没有枚举，导致xhci控制器无法从bar中获取自己的mmio空间信息，从而无法为设备分配内存，因此出现了paramater error（但是我们的系统是uboot引导的，在uboot中已经通过usb start枚举过一次设备，既然如此，bar难道不应该已经配好了？
+另外，我们目前枚举0x4000_0000的pcie ecam空间，仅仅只能找到
+
+PCI 00:01.0: 1DB7:DC01 (class 06.04, rev 00) PciPciBridge
+
+剩下的就找不到任何设备了，能否发一份最精简的枚举pci总线以配置xhci控制器的代码？sdk中提供的例程过于混乱，且难以调试。
+
+## 疑问1
+pcie控制器的ecam空间是否有误？xhci控制器的基地址是0x31a0_8000，如果仔细想一下可以发现(也可能是我想多了),后面的8000很像是pci的bdf中 device=1的偏移，而当我将pci扫描的起始地址设置到0x3100_0000时，还真的能扫出来一些endpoint设备，是内存中数据分布造成的巧合嘛？
+
+![扫描截图](./scan_from_31000000.png)
 
 ## 备注
 如需要远程连线调试请告知。
