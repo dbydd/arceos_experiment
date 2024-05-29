@@ -101,6 +101,10 @@ pub(crate) fn init(mmio_base: usize) {
     ROOT_HUB.get().unwrap().lock().initialize();
 }
 
+pub(crate) fn enum_device() {
+    ROOT_HUB.get().unwrap().lock().initialize();
+}
+
 fn interrupt_handler() {
     debug!("interrupt!");
     registers::handle(|r| {

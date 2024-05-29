@@ -22,11 +22,16 @@ const CMD_TABLE: &[(&str, CmdHandler)] = &[
     ("ldr", do_ldr),
     ("str", do_str),
     ("test_xhci", test_xhci),
+    ("enum_device",enum_device)
 ];
 
 fn test_xhci(_args: &str) {
     driver_usb::try_init(0x31a08000 as usize)
     // unsafe { xhci::Registers::new(0xffff_0000_31a0_8000 as usize, MemoryMapper {}) };
+}
+
+fn enum_device(_args:&str){
+    driver_usb::enum_device();
 }
 
 fn do_uname(_args: &str) {

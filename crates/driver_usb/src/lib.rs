@@ -32,3 +32,7 @@ pub fn try_init(mmio_base_paddr: usize) {
     // init(vaddr.as_usize())
     init(0xffff_0000_31a0_8000 as usize)
 }
+
+pub fn enum_device() {
+    host::xhci::enum_device();
+}

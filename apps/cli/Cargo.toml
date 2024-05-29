@@ -17,6 +17,11 @@ default = []
 # axstd = { path = "../../../ulib/axstd", features = ["alloc", "fs"], optional = true }
 
 axstd = { path = "../../ulib/axstd", optional = true }
-axfeat = {path = "../../api/axfeat", features = ["phytium-pi","usb-host","multitask","bus-pci"]}
-driver_usb ={ path = "../../crates/driver_usb",features = ["phytium-xhci"]}
+axfeat = { path = "../../api/axfeat", features = [
+  "phytium-pi",
+  "usb-host",
+  "multitask",
+] }
+driver_usb = { path = "../../crates/driver_usb", features = ["phytium-xhci"] }
 xhci = "0.9"
+
