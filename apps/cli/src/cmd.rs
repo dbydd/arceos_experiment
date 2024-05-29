@@ -22,7 +22,7 @@ const CMD_TABLE: &[(&str, CmdHandler)] = &[
     ("ldr", do_ldr),
     ("str", do_str),
     ("test_xhci", test_xhci),
-    ("enum_device",enum_device)
+    ("enum_device", enum_device),
 ];
 
 fn test_xhci(_args: &str) {
@@ -30,7 +30,7 @@ fn test_xhci(_args: &str) {
     // unsafe { xhci::Registers::new(0xffff_0000_31a0_8000 as usize, MemoryMapper {}) };
 }
 
-fn enum_device(_args:&str){
+fn enum_device(_args: &str) {
     driver_usb::enum_device();
 }
 
@@ -90,12 +90,16 @@ fn do_ldr(args: &str) {
 
                     // println!("Value at address {}: 0x{:X}", addr, value); // 使用输入的地址打印值
                     // println!("value at address{} = 0x{:X}: ", addr, value);
-                    for chunk in le_bytes.chunks(4) {
+                    for (j, chunk) in le_bytes.chunks(4).enumerate() {
                         let mut chunk_value: u32 = 0;
                         for (i, byte) in chunk.iter().enumerate() {
                             chunk_value |= (*byte as u32) << (i * 8);
                         }
-                        println!("{:032b}", chunk_value);
+                        println!(
+                            "offset: 0x{:02x}: {:032b}",
+                            i as usize * 8 + j * 4,
+                            chunk_value
+                        );
                     }
                 } else {
                     println!("addr not aligned!");

@@ -232,6 +232,7 @@ fn config_ep(cfg_addr: usize, allocator: &mut PciRangeAllocator) -> ConifgEndpoi
                     prefetchable,
                 } => {
                     let addr = allocator.alloc(size).unwrap();
+                    debug!("alloced bar addr : {:x}", addr);
                     unsafe {
                         ep.write_bar64(slot, addr);
                     }

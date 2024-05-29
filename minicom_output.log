@@ -9,115 +9,312 @@ smp = 1
 build_mode = release
 log_level = debug
 
-ccc[ 40.592085 0 axruntime:138] Logging is enabled.
-[ 40.597813 0 axruntime:139] Primary CPU 512 started, dtb = 0x1.
-[ 40.604931 0 axruntime:141] Found physcial memory regions:
-c[ 40.611702 0 axruntime:144]   [PA:0x90100000, PA:0x9011f000) .text (READ | EXECUTE | RESERVED)
-[ 40.621509 0 axruntime:144]   [PA:0x9011f000, PA:0x90127000) .rodata (READ | RESERVED)
-[ 40.630623 0 axruntime:144]   [PA:0x90127000, PA:0x9012b000) .data .tdata .tbss .percpu (READ | WRITE | RESERVED)
-[ 40.642081 0 axruntime:144]   [PA:0x9012b000, PA:0x9016b000) boot stack (READ | WRITE | RESERVED)
-[ 40.652150 0 axruntime:144]   [PA:0x9016b000, PA:0x90190000) .bss (READ | WRITE | RESERVED)
-[ 40.661698 0 axruntime:144]   [PA:0x0, PA:0x1000) spintable (READ | WRITE | RESERVED)
-[ 40.670725 0 axruntime:144]   [PA:0x90190000, PA:0x90490000) nocache memory (READ | WRITE | DEVICE)
-[ 40.680967 0 axruntime:144]   [PA:0x90490000, PA:0xffd00000) free memory (READ | WRITE | FREE)
-[ 40.690776 0 axruntime:144]   [PA:0x40000000, PA:0x50000000) mmio (READ | WRITE | DEVICE | RESERVED)
-[ 40.701105 0 axruntime:144]   [PA:0x50000000, PA:0x58000000) mmio (READ | WRITE | DEVICE | RESERVED)
-[ 40.711434 0 axruntime:144]   [PA:0x58000000, PA:0x80000000) mmio (READ | WRITE | DEVICE | RESERVED)
-[ 40.721763 0 axruntime:144]   [PA:0x1000000000, PA:0x1010000000) mmio (READ | WRITE | DEVICE | RESERVED)
-[ 40.732440 0 axruntime:144]   [PA:0x2800c000, PA:0x2800d000) mmio (READ | WRITE | DEVICE | RESERVED)
-[ 40.742769 0 axruntime:144]   [PA:0x2800d000, PA:0x2800e000) mmio (READ | WRITE | DEVICE | RESERVED)
-[ 40.753098 0 axruntime:144]   [PA:0x2800e000, PA:0x2800f000) mmio (READ | WRITE | DEVICE | RESERVED)
-[ 40.763427 0 axruntime:144]   [PA:0x2800f000, PA:0x28010000) mmio (READ | WRITE | DEVICE | RESERVED)
-[ 40.773757 0 axruntime:144]   [PA:0x30000000, PA:0x38000000) mmio (READ | WRITE | DEVICE | RESERVED)
-[ 40.784086 0 axruntime:223] Initialize global memory allocator...
-[ 40.791377 0 axruntime:224]   use TLSF allocator.
-[ 40.797282 0 axalloc:281] initialize global allocator at: free-[0xffff000090490000, 0xffff0000ffd00000)
-[ 40.808192 0 axruntime:158] Initialize kernel page table...
-[ 40.814759 0 axruntime:258] Initialize global no cache memory allocator...
-[ 40.822713 0 axalloc:297] initialize global allocator at: nocache-[0x90190000,0x90490000)
-[ 40.832088 0 axruntime:165] Initialize platform devices...
-[ 40.838770 0 axtask::api:66] Initialize scheduling...
-[ 40.845023 0 axtask::task:146] new task: Task(1, "idle")
-[ 40.851533 0 axtask::task:146] new task: Task(3, "gc")
-[ 40.857870 0 axalloc:126] expand heap memory: [0xffff0000904a4000, 0xffff0000904e4000)
-[ 40.866987 0 axalloc:126] expand heap memory: [0xffff0000904e4000, 0xffff000090564000)
-[ 40.876095 0 axtask::api:72]   use FIFO scheduler.
-[ 40.882083 0 axdriver:158] Initialize device drivers...
-[ 40.888507 0 axdriver:159]   device model: static
-[ 40.894409 0 driver_pci::phytium:18] PCIe link start @0xFFFF000040000000...
-[ 40.902568 0 driver_pci::phytium:19] theroticly, since uboot had already initialized it, we need't to operate it any more! 
+ccc[ 34.942509 0 axruntime:138] Logging is enabled.
+[ 34.948238 0 axruntime:139] Primary CPU 512 started, dtb = 0x1.
+[ 34.955355 0 axruntime:141] Found physcial memory regions:
+c[ 34.962126 0 axruntime:144]   [PA:0x90100000, PA:0x9011f000) .text (READ | EXECUTE | RESERVED)
+[ 34.971933 0 axruntime:144]   [PA:0x9011f000, PA:0x90127000) .rodata (READ | RESERVED)
+[ 34.981047 0 axruntime:144]   [PA:0x90127000, PA:0x9012b000) .data .tdata .tbss .percpu (READ | WRITE | RESERVED)
+[ 34.992505 0 axruntime:144]   [PA:0x9012b000, PA:0x9016b000) boot stack (READ | WRITE | RESERVED)
+[ 35.002574 0 axruntime:144]   [PA:0x9016b000, PA:0x90190000) .bss (READ | WRITE | RESERVED)
+[ 35.012122 0 axruntime:144]   [PA:0x0, PA:0x1000) spintable (READ | WRITE | RESERVED)
+[ 35.021149 0 axruntime:144]   [PA:0x90190000, PA:0x90490000) nocache memory (READ | WRITE | DEVICE)
+[ 35.031392 0 axruntime:144]   [PA:0x90490000, PA:0xffd00000) free memory (READ | WRITE | FREE)
+[ 35.041200 0 axruntime:144]   [PA:0x40000000, PA:0x50000000) mmio (READ | WRITE | DEVICE | RESERVED)
+[ 35.051529 0 axruntime:144]   [PA:0x50000000, PA:0x58000000) mmio (READ | WRITE | DEVICE | RESERVED)
+[ 35.061858 0 axruntime:144]   [PA:0x58000000, PA:0x80000000) mmio (READ | WRITE | DEVICE | RESERVED)
+[ 35.072188 0 axruntime:144]   [PA:0x1000000000, PA:0x1010000000) mmio (READ | WRITE | DEVICE | RESERVED)
+[ 35.082864 0 axruntime:144]   [PA:0x2800c000, PA:0x2800d000) mmio (READ | WRITE | DEVICE | RESERVED)
+[ 35.093193 0 axruntime:144]   [PA:0x2800d000, PA:0x2800e000) mmio (READ | WRITE | DEVICE | RESERVED)
+[ 35.103522 0 axruntime:144]   [PA:0x2800e000, PA:0x2800f000) mmio (READ | WRITE | DEVICE | RESERVED)
+[ 35.113852 0 axruntime:144]   [PA:0x2800f000, PA:0x28010000) mmio (READ | WRITE | DEVICE | RESERVED)
+[ 35.124181 0 axruntime:144]   [PA:0x30000000, PA:0x38000000) mmio (READ | WRITE | DEVICE | RESERVED)
+[ 35.134510 0 axruntime:223] Initialize global memory allocator...
+[ 35.141801 0 axruntime:224]   use TLSF allocator.
+[ 35.147705 0 axalloc:281] initialize global allocator at: free-[0xffff000090490000, 0xffff0000ffd00000)
+[ 35.158618 0 axruntime:158] Initialize kernel page table...
+[ 35.165181 0 axruntime:258] Initialize global no cache memory allocator...
+[ 35.173137 0 axalloc:297] initialize global allocator at: nocache-[0x90190000,0x90490000)
+[ 35.182512 0 axruntime:165] Initialize platform devices...
+[ 35.189194 0 axtask::api:66] Initialize scheduling...
+[ 35.195447 0 axtask::task:146] new task: Task(1, "idle")
+[ 35.201957 0 axtask::task:146] new task: Task(3, "gc")
+[ 35.208294 0 axalloc:126] expand heap memory: [0xffff0000904a4000, 0xffff0000904e4000)
+[ 35.217411 0 axalloc:126] expand heap memory: [0xffff0000904e4000, 0xffff000090564000)
+[ 35.226519 0 axtask::api:72]   use FIFO scheduler.
+[ 35.232507 0 axdriver:158] Initialize device drivers...
+[ 35.238931 0 axdriver:159]   device model: static
+[ 35.244833 0 driver_pci::phytium:22] PCIe link start @0xFFFF000040000000...
+[ 35.252992 0 driver_pci::phytium:23] theroticly, since uboot had already initialized it, we need't to operate it any more! 
  or maybe we need to allocate bar addr!
-[ 40.918452 0 axdriver::bus::pci:18] probing in pci.rs!
-[ 40.924789 0 driver_pci::root_complex:96] into next!
-[ 40.930952 0 driver_pci::phytium:62] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 0, function: 0 } to idx 1048576
-[ 40.943364 0 driver_pci::root_complex:137] begin: 01:00.0 @ 0xFFFF000040008000
-[ 40.951784 0 driver_pci::root_complex:140] vid FFFF, did FFFF
-[ 40.958728 0 driver_pci::root_complex:144] dev + 1
-[ 40.964717 0 driver_pci::root_complex:125] no conf
-[ 40.970706 0 driver_pci::root_complex:127] dev +1
-[ 40.976608 0 driver_pci::root_complex:125] no conf
-[ 40.982597 0 driver_pci::root_complex:127] dev +1
-[ 40.988500 0 driver_pci::root_complex:125] no conf
-[ 40.994489 0 driver_pci::root_complex:127] dev +1
-[ 41.000391 0 driver_pci::root_complex:125] no conf
-[ 41.006381 0 driver_pci::root_complex:127] dev +1
-[ 41.012283 0 driver_pci::root_complex:125] no conf
-[ 41.018272 0 driver_pci::root_complex:127] dev +1
-[ 41.024175 0 driver_pci::root_complex:125] no conf
-[ 41.030164 0 driver_pci::root_complex:127] dev +1
-[ 41.036066 0 driver_pci::root_complex:125] no conf
-[ 41.042055 0 driver_pci::root_complex:127] dev +1
-[ 41.047958 0 driver_pci::root_complex:125] no conf
-[ 41.053947 0 driver_pci::root_complex:127] dev +1
-[ 41.059849 0 driver_pci::root_complex:125] no conf
-[ 41.065839 0 driver_pci::root_complex:127] dev +1
-[ 41.071741 0 driver_pci::root_complex:125] no conf
-[ 41.077730 0 driver_pci::root_complex:127] dev +1
-[ 41.083633 0 driver_pci::root_complex:125] no conf
-[ 41.089622 0 driver_pci::root_complex:127] dev +1
-[ 41.095524 0 driver_pci::root_complex:125] no conf
-[ 41.101513 0 driver_pci::root_complex:127] dev +1
-[ 41.107416 0 driver_pci::root_complex:125] no conf
-[ 41.113405 0 driver_pci::root_complex:127] dev +1
-[ 41.119307 0 driver_pci::root_complex:125] no conf
-[ 41.125297 0 driver_pci::root_complex:127] dev +1
-[ 41.131199 0 driver_pci::root_complex:125] no conf
-[ 41.137188 0 driver_pci::root_complex:127] dev +1
-[ 41.143091 0 driver_pci::root_complex:125] no conf
-[ 41.149080 0 driver_pci::root_complex:127] dev +1
-[ 41.154982 0 driver_pci::root_complex:125] no conf
-[ 41.160971 0 driver_pci::root_complex:127] dev +1
-[ 41.166874 0 driver_pci::root_complex:125] no conf
-[ 41.172863 0 driver_pci::root_complex:127] dev +1
-[ 41.178765 0 driver_pci::root_complex:125] no conf
-[ 41.184755 0 driver_pci::root_complex:127] dev +1
-[ 41.190657 0 driver_pci::root_complex:125] no conf
-[ 41.196646 0 driver_pci::root_complex:127] dev +1
-[ 41.202549 0 driver_pci::root_complex:125] no conf
-[ 41.208538 0 driver_pci::root_complex:127] dev +1
-[ 41.214440 0 driver_pci::root_complex:125] no conf
-[ 41.220429 0 driver_pci::root_complex:127] dev +1
-[ 41.226332 0 driver_pci::root_complex:125] no conf
-[ 41.232321 0 driver_pci::root_complex:127] dev +1
-[ 41.238223 0 driver_pci::root_complex:125] no conf
-[ 41.244213 0 driver_pci::root_complex:127] dev +1
-[ 41.250115 0 driver_pci::root_complex:125] no conf
-[ 41.256104 0 driver_pci::root_complex:127] dev +1
-[ 41.262007 0 driver_pci::root_complex:125] no conf
-[ 41.267996 0 driver_pci::root_complex:127] dev +1
-[ 41.273898 0 driver_pci::root_complex:125] no conf
-[ 41.279887 0 driver_pci::root_complex:127] dev +1
-[ 41.285790 0 driver_pci::root_complex:125] no conf
-[ 41.291779 0 driver_pci::root_complex:127] dev +1
-[ 41.297681 0 driver_pci::root_complex:125] no conf
-[ 41.303671 0 driver_pci::root_complex:127] dev +1
-[ 41.309573 0 driver_pci::root_complex:125] no conf
-[ 41.315562 0 driver_pci::root_complex:127] dev +1
-[ 41.321465 0 driver_pci::root_complex:125] no conf
-[ 41.327454 0 driver_pci::root_complex:127] dev +1
-[ 41.333356 0 driver_pci::root_complex:115] none!
-[ 41.339172 0 axdriver:190] number of usb host controller: 0
-[ 41.345943 0 axruntime:201] Primary CPU 512 init OK.
+[ 35.268876 0 axdriver::bus::pci:18] probing in pci.rs!
+[ 35.275213 0 driver_pci::root_complex:96] into next!
+[ 35.281376 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 0, function: 0 } to idx 0xFFFF000040000000
+[ 35.294743 0 driver_pci::root_complex:138] begin: 00:00.0 @ 0xFFFF000040000000
+[ 35.303163 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 35.310107 0 driver_pci::root_complex:145] dev + 1
+[ 35.316096 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 1, function: 0 } to idx 0xFFFF000040008000
+[ 35.329463 0 driver_pci::root_complex:138] begin: 00:01.0 @ 0xFFFF000040008000
+[ 35.337883 0 driver_pci::root_complex:141] vid 1DB7, did DC01
+[ 35.344827 0 driver_pci::root_complex:166] header_type:PciPciBridge
+[ 35.352291 0 driver_pci::root_complex:169] found bridge at PciAddress { bus: 0, device: 1, function: 0 }
+[ 35.362969 0 driver_pci::phytium:29] probe phytium weird pcie bridge 1
+[ 35.370693 0 axdriver::bus::pci:21] PCI 00:01.0: 1DB7:DC01 (class 06.04, rev 00) PciPciBridge
+[ 35.380414 0 axdriver::drivers:105] probing!
+[ 35.385883 0 driver_pci::root_complex:96] into next!
+[ 35.392045 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 0, function: 0 } to idx 0xFFFF000040100000
+[ 35.405413 0 driver_pci::root_complex:138] begin: 01:00.0 @ 0xFFFF000040100000
+[ 35.413833 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 35.420776 0 driver_pci::root_complex:145] dev + 1
+[ 35.426766 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 1, function: 0 } to idx 0xFFFF000040108000
+[ 35.440133 0 driver_pci::root_complex:138] begin: 01:01.0 @ 0xFFFF000040108000
+[ 35.448553 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 35.455496 0 driver_pci::root_complex:145] dev + 1
+[ 35.461486 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 2, function: 0 } to idx 0xFFFF000040110000
+[ 35.474853 0 driver_pci::root_complex:138] begin: 01:02.0 @ 0xFFFF000040110000
+[ 35.483273 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 35.490216 0 driver_pci::root_complex:145] dev + 1
+[ 35.496206 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 3, function: 0 } to idx 0xFFFF000040118000
+[ 35.509573 0 driver_pci::root_complex:138] begin: 01:03.0 @ 0xFFFF000040118000
+[ 35.517993 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 35.524936 0 driver_pci::root_complex:145] dev + 1
+[ 35.530926 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 4, function: 0 } to idx 0xFFFF000040120000
+[ 35.544293 0 driver_pci::root_complex:138] begin: 01:04.0 @ 0xFFFF000040120000
+[ 35.552713 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 35.559656 0 driver_pci::root_complex:145] dev + 1
+[ 35.565646 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 5, function: 0 } to idx 0xFFFF000040128000
+[ 35.579013 0 driver_pci::root_complex:138] begin: 01:05.0 @ 0xFFFF000040128000
+[ 35.587433 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 35.594376 0 driver_pci::root_complex:145] dev + 1
+[ 35.600366 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 6, function: 0 } to idx 0xFFFF000040130000
+[ 35.613733 0 driver_pci::root_complex:138] begin: 01:06.0 @ 0xFFFF000040130000
+[ 35.622153 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 35.629096 0 driver_pci::root_complex:145] dev + 1
+[ 35.635086 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 7, function: 0 } to idx 0xFFFF000040138000
+[ 35.648453 0 driver_pci::root_complex:138] begin: 01:07.0 @ 0xFFFF000040138000
+[ 35.656873 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 35.663816 0 driver_pci::root_complex:145] dev + 1
+[ 35.669806 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 8, function: 0 } to idx 0xFFFF000040140000
+[ 35.683173 0 driver_pci::root_complex:138] begin: 01:08.0 @ 0xFFFF000040140000
+[ 35.691593 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 35.698536 0 driver_pci::root_complex:145] dev + 1
+[ 35.704526 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 9, function: 0 } to idx 0xFFFF000040148000
+[ 35.717893 0 driver_pci::root_complex:138] begin: 01:09.0 @ 0xFFFF000040148000
+[ 35.726313 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 35.733256 0 driver_pci::root_complex:145] dev + 1
+[ 35.739245 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 10, function: 0 } to idx 0xFFFF000040150000
+[ 35.752699 0 driver_pci::root_complex:138] begin: 01:0a.0 @ 0xFFFF000040150000
+[ 35.761119 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 35.768063 0 driver_pci::root_complex:145] dev + 1
+[ 35.774052 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 11, function: 0 } to idx 0xFFFF000040158000
+[ 35.787506 0 driver_pci::root_complex:138] begin: 01:0b.0 @ 0xFFFF000040158000
+[ 35.795926 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 35.802870 0 driver_pci::root_complex:145] dev + 1
+[ 35.808859 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 12, function: 0 } to idx 0xFFFF000040160000
+[ 35.822313 0 driver_pci::root_complex:138] begin: 01:0c.0 @ 0xFFFF000040160000
+[ 35.830733 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 35.837677 0 driver_pci::root_complex:145] dev + 1
+[ 35.843666 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 13, function: 0 } to idx 0xFFFF000040168000
+[ 35.857120 0 driver_pci::root_complex:138] begin: 01:0d.0 @ 0xFFFF000040168000
+[ 35.865540 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 35.872484 0 driver_pci::root_complex:145] dev + 1
+[ 35.878473 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 14, function: 0 } to idx 0xFFFF000040170000
+[ 35.891927 0 driver_pci::root_complex:138] begin: 01:0e.0 @ 0xFFFF000040170000
+[ 35.900347 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 35.907290 0 driver_pci::root_complex:145] dev + 1
+[ 35.913280 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 15, function: 0 } to idx 0xFFFF000040178000
+[ 35.926734 0 driver_pci::root_complex:138] begin: 01:0f.0 @ 0xFFFF000040178000
+[ 35.935153 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 35.942097 0 driver_pci::root_complex:145] dev + 1
+[ 35.948086 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 16, function: 0 } to idx 0xFFFF000040180000
+[ 35.961540 0 driver_pci::root_complex:138] begin: 01:10.0 @ 0xFFFF000040180000
+[ 35.969960 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 35.976904 0 driver_pci::root_complex:145] dev + 1
+[ 35.982893 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 17, function: 0 } to idx 0xFFFF000040188000
+[ 35.996347 0 driver_pci::root_complex:138] begin: 01:11.0 @ 0xFFFF000040188000
+[ 36.004767 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 36.011711 0 driver_pci::root_complex:145] dev + 1
+[ 36.017700 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 18, function: 0 } to idx 0xFFFF000040190000
+[ 36.031154 0 driver_pci::root_complex:138] begin: 01:12.0 @ 0xFFFF000040190000
+[ 36.039574 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 36.046517 0 driver_pci::root_complex:145] dev + 1
+[ 36.052507 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 19, function: 0 } to idx 0xFFFF000040198000
+[ 36.065961 0 driver_pci::root_complex:138] begin: 01:13.0 @ 0xFFFF000040198000
+[ 36.074381 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 36.081324 0 driver_pci::root_complex:145] dev + 1
+[ 36.087314 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 20, function: 0 } to idx 0xFFFF0000401A0000
+[ 36.100767 0 driver_pci::root_complex:138] begin: 01:14.0 @ 0xFFFF0000401A0000
+[ 36.109187 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 36.116131 0 driver_pci::root_complex:145] dev + 1
+[ 36.122120 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 21, function: 0 } to idx 0xFFFF0000401A8000
+[ 36.135574 0 driver_pci::root_complex:138] begin: 01:15.0 @ 0xFFFF0000401A8000
+[ 36.143994 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 36.150938 0 driver_pci::root_complex:145] dev + 1
+[ 36.156927 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 22, function: 0 } to idx 0xFFFF0000401B0000
+[ 36.170381 0 driver_pci::root_complex:138] begin: 01:16.0 @ 0xFFFF0000401B0000
+[ 36.178801 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 36.185745 0 driver_pci::root_complex:145] dev + 1
+[ 36.191734 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 23, function: 0 } to idx 0xFFFF0000401B8000
+[ 36.205188 0 driver_pci::root_complex:138] begin: 01:17.0 @ 0xFFFF0000401B8000
+[ 36.213608 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 36.220552 0 driver_pci::root_complex:145] dev + 1
+[ 36.226541 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 24, function: 0 } to idx 0xFFFF0000401C0000
+[ 36.239995 0 driver_pci::root_complex:138] begin: 01:18.0 @ 0xFFFF0000401C0000
+[ 36.248415 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 36.255358 0 driver_pci::root_complex:145] dev + 1
+[ 36.261348 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 25, function: 0 } to idx 0xFFFF0000401C8000
+[ 36.274802 0 driver_pci::root_complex:138] begin: 01:19.0 @ 0xFFFF0000401C8000
+[ 36.283221 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 36.290165 0 driver_pci::root_complex:145] dev + 1
+[ 36.296154 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 26, function: 0 } to idx 0xFFFF0000401D0000
+[ 36.309608 0 driver_pci::root_complex:138] begin: 01:1a.0 @ 0xFFFF0000401D0000
+[ 36.318028 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 36.324972 0 driver_pci::root_complex:145] dev + 1
+[ 36.330961 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 27, function: 0 } to idx 0xFFFF0000401D8000
+[ 36.344415 0 driver_pci::root_complex:138] begin: 01:1b.0 @ 0xFFFF0000401D8000
+[ 36.352835 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 36.359779 0 driver_pci::root_complex:145] dev + 1
+[ 36.365768 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 28, function: 0 } to idx 0xFFFF0000401E0000
+[ 36.379222 0 driver_pci::root_complex:138] begin: 01:1c.0 @ 0xFFFF0000401E0000
+[ 36.387642 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 36.394586 0 driver_pci::root_complex:145] dev + 1
+[ 36.400575 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 29, function: 0 } to idx 0xFFFF0000401E8000
+[ 36.414029 0 driver_pci::root_complex:138] begin: 01:1d.0 @ 0xFFFF0000401E8000
+[ 36.422449 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 36.429392 0 driver_pci::root_complex:145] dev + 1
+[ 36.435381 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 30, function: 0 } to idx 0xFFFF0000401F0000
+[ 36.448836 0 driver_pci::root_complex:138] begin: 01:1e.0 @ 0xFFFF0000401F0000
+[ 36.457256 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 36.464199 0 driver_pci::root_complex:145] dev + 1
+[ 36.470188 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 31, function: 0 } to idx 0xFFFF0000401F8000
+[ 36.483642 0 driver_pci::root_complex:138] begin: 01:1f.0 @ 0xFFFF0000401F8000
+[ 36.492062 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 36.499006 0 driver_pci::root_complex:145] dev + 1
+[ 36.504995 0 driver_pci::root_complex:110] pop stack! 00:01.0
+[ 36.511939 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 1, function: 0 } to idx 0xFFFF000040008000
+[ 36.525306 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 2, function: 0 } to idx 0xFFFF000040010000
+[ 36.538673 0 driver_pci::root_complex:138] begin: 00:02.0 @ 0xFFFF000040010000
+[ 36.547094 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 36.554037 0 driver_pci::root_complex:145] dev + 1
+[ 36.560026 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 3, function: 0 } to idx 0xFFFF000040018000
+[ 36.573394 0 driver_pci::root_complex:138] begin: 00:03.0 @ 0xFFFF000040018000
+[ 36.581814 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 36.588757 0 driver_pci::root_complex:145] dev + 1
+[ 36.594746 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 4, function: 0 } to idx 0xFFFF000040020000
+[ 36.608114 0 driver_pci::root_complex:138] begin: 00:04.0 @ 0xFFFF000040020000
+[ 36.616533 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 36.623477 0 driver_pci::root_complex:145] dev + 1
+[ 36.629466 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 5, function: 0 } to idx 0xFFFF000040028000
+[ 36.642834 0 driver_pci::root_complex:138] begin: 00:05.0 @ 0xFFFF000040028000
+[ 36.651253 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 36.658197 0 driver_pci::root_complex:145] dev + 1
+[ 36.664186 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 6, function: 0 } to idx 0xFFFF000040030000
+[ 36.677554 0 driver_pci::root_complex:138] begin: 00:06.0 @ 0xFFFF000040030000
+[ 36.685973 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 36.692917 0 driver_pci::root_complex:145] dev + 1
+[ 36.698906 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 7, function: 0 } to idx 0xFFFF000040038000
+[ 36.712274 0 driver_pci::root_complex:138] begin: 00:07.0 @ 0xFFFF000040038000
+[ 36.720693 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 36.727637 0 driver_pci::root_complex:145] dev + 1
+[ 36.733626 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 8, function: 0 } to idx 0xFFFF000040040000
+[ 36.746993 0 driver_pci::root_complex:138] begin: 00:08.0 @ 0xFFFF000040040000
+[ 36.755413 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 36.762357 0 driver_pci::root_complex:145] dev + 1
+[ 36.768346 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 9, function: 0 } to idx 0xFFFF000040048000
+[ 36.781714 0 driver_pci::root_complex:138] begin: 00:09.0 @ 0xFFFF000040048000
+[ 36.790133 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 36.797077 0 driver_pci::root_complex:145] dev + 1
+[ 36.803066 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 10, function: 0 } to idx 0xFFFF000040050000
+[ 36.816520 0 driver_pci::root_complex:138] begin: 00:0a.0 @ 0xFFFF000040050000
+[ 36.824940 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 36.831884 0 driver_pci::root_complex:145] dev + 1
+[ 36.837873 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 11, function: 0 } to idx 0xFFFF000040058000
+[ 36.851327 0 driver_pci::root_complex:138] begin: 00:0b.0 @ 0xFFFF000040058000
+[ 36.859747 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 36.866691 0 driver_pci::root_complex:145] dev + 1
+[ 36.872680 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 12, function: 0 } to idx 0xFFFF000040060000
+[ 36.886134 0 driver_pci::root_complex:138] begin: 00:0c.0 @ 0xFFFF000040060000
+[ 36.894554 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 36.901497 0 driver_pci::root_complex:145] dev + 1
+[ 36.907487 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 13, function: 0 } to idx 0xFFFF000040068000
+[ 36.920941 0 driver_pci::root_complex:138] begin: 00:0d.0 @ 0xFFFF000040068000
+[ 36.929361 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 36.936304 0 driver_pci::root_complex:145] dev + 1
+[ 36.942294 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 14, function: 0 } to idx 0xFFFF000040070000
+[ 36.955747 0 driver_pci::root_complex:138] begin: 00:0e.0 @ 0xFFFF000040070000
+[ 36.964167 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 36.971111 0 driver_pci::root_complex:145] dev + 1
+[ 36.977100 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 15, function: 0 } to idx 0xFFFF000040078000
+[ 36.990554 0 driver_pci::root_complex:138] begin: 00:0f.0 @ 0xFFFF000040078000
+[ 36.998974 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 37.005918 0 driver_pci::root_complex:145] dev + 1
+[ 37.011907 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 16, function: 0 } to idx 0xFFFF000040080000
+[ 37.025361 0 driver_pci::root_complex:138] begin: 00:10.0 @ 0xFFFF000040080000
+[ 37.033781 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 37.040725 0 driver_pci::root_complex:145] dev + 1
+[ 37.046714 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 17, function: 0 } to idx 0xFFFF000040088000
+[ 37.060168 0 driver_pci::root_complex:138] begin: 00:11.0 @ 0xFFFF000040088000
+[ 37.068588 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 37.075531 0 driver_pci::root_complex:145] dev + 1
+[ 37.081521 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 18, function: 0 } to idx 0xFFFF000040090000
+[ 37.094975 0 driver_pci::root_complex:138] begin: 00:12.0 @ 0xFFFF000040090000
+[ 37.103395 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 37.110338 0 driver_pci::root_complex:145] dev + 1
+[ 37.116328 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 19, function: 0 } to idx 0xFFFF000040098000
+[ 37.129782 0 driver_pci::root_complex:138] begin: 00:13.0 @ 0xFFFF000040098000
+[ 37.138201 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 37.145145 0 driver_pci::root_complex:145] dev + 1
+[ 37.151134 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 20, function: 0 } to idx 0xFFFF0000400A0000
+[ 37.164588 0 driver_pci::root_complex:138] begin: 00:14.0 @ 0xFFFF0000400A0000
+[ 37.173008 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 37.179952 0 driver_pci::root_complex:145] dev + 1
+[ 37.185941 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 21, function: 0 } to idx 0xFFFF0000400A8000
+[ 37.199395 0 driver_pci::root_complex:138] begin: 00:15.0 @ 0xFFFF0000400A8000
+[ 37.207815 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 37.214759 0 driver_pci::root_complex:145] dev + 1
+[ 37.220748 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 22, function: 0 } to idx 0xFFFF0000400B0000
+[ 37.234202 0 driver_pci::root_complex:138] begin: 00:16.0 @ 0xFFFF0000400B0000
+[ 37.242622 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 37.249566 0 driver_pci::root_complex:145] dev + 1
+[ 37.255555 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 23, function: 0 } to idx 0xFFFF0000400B8000
+[ 37.269009 0 driver_pci::root_complex:138] begin: 00:17.0 @ 0xFFFF0000400B8000
+[ 37.277429 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 37.284372 0 driver_pci::root_complex:145] dev + 1
+[ 37.290361 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 24, function: 0 } to idx 0xFFFF0000400C0000
+[ 37.303815 0 driver_pci::root_complex:138] begin: 00:18.0 @ 0xFFFF0000400C0000
+[ 37.312235 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 37.319179 0 driver_pci::root_complex:145] dev + 1
+[ 37.325168 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 25, function: 0 } to idx 0xFFFF0000400C8000
+[ 37.338622 0 driver_pci::root_complex:138] begin: 00:19.0 @ 0xFFFF0000400C8000
+[ 37.347042 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 37.353986 0 driver_pci::root_complex:145] dev + 1
+[ 37.359975 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 26, function: 0 } to idx 0xFFFF0000400D0000
+[ 37.373429 0 driver_pci::root_complex:138] begin: 00:1a.0 @ 0xFFFF0000400D0000
+[ 37.381849 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 37.388793 0 driver_pci::root_complex:145] dev + 1
+[ 37.394782 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 27, function: 0 } to idx 0xFFFF0000400D8000
+[ 37.408236 0 driver_pci::root_complex:138] begin: 00:1b.0 @ 0xFFFF0000400D8000
+[ 37.416656 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 37.423599 0 driver_pci::root_complex:145] dev + 1
+[ 37.429589 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 28, function: 0 } to idx 0xFFFF0000400E0000
+[ 37.443043 0 driver_pci::root_complex:138] begin: 00:1c.0 @ 0xFFFF0000400E0000
+[ 37.451463 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 37.458406 0 driver_pci::root_complex:145] dev + 1
+[ 37.464395 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 29, function: 0 } to idx 0xFFFF0000400E8000
+[ 37.477850 0 driver_pci::root_complex:138] begin: 00:1d.0 @ 0xFFFF0000400E8000
+[ 37.486269 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 37.493213 0 driver_pci::root_complex:145] dev + 1
+[ 37.499202 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 30, function: 0 } to idx 0xFFFF0000400F0000
+[ 37.512656 0 driver_pci::root_complex:138] begin: 00:1e.0 @ 0xFFFF0000400F0000
+[ 37.521076 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 37.528020 0 driver_pci::root_complex:145] dev + 1
+[ 37.534009 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 31, function: 0 } to idx 0xFFFF0000400F8000
+[ 37.547463 0 driver_pci::root_complex:138] begin: 00:1f.0 @ 0xFFFF0000400F8000
+[ 37.555883 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 37.562827 0 driver_pci::root_complex:145] dev + 1
+[ 37.568816 0 driver_pci::root_complex:116] none!
+[ 37.574632 0 axdriver:190] number of usb host controller: 0
+[ 37.581402 0 axruntime:201] Primary CPU 512 init OK.
 Available commands:
   exit
   help
@@ -125,4 +322,23 @@ Available commands:
   ldr
   str
   test_xhci
+  enum_device
+arceos# ldr 90100000 8
+ldr
+offset: 0x00: 11010101001110000000000010110011
+offset: 0x04: 10010100000000000001010010100100
+offset: 0x08: 10010010010000000101111001110011
+offset: 0x0c: 10101010000000000000001111110100
+offset: 0x10: 11110000000000000000000101001000
+offset: 0x14: 10010001010000010000000100001000
+offset: 0x18: 10010001000000000000000100011111
+offset: 0x1c: 10010100000000000001010010011110
+offset: 0x20: 10010100000000000001010010101100
+offset: 0x24: 10010100000000000001010010011100
+offset: 0x28: 10010100000000000001010011001010
+offset: 0x2c: 10010100000000000001010010011010
+offset: 0x30: 10010100000000000001010011010110
+offset: 0x34: 10010100000000000001010010011111
+offset: 0x38: 10010100000000000001010011101001
+offset: 0x3c: 10010100000000000001010010011101
 arceos# 

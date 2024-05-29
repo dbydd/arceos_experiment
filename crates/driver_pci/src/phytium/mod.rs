@@ -31,27 +31,27 @@ impl Access for PhytiumPCIeDummy {
             bridge_header.get_secondary_bus_number()
         );
 
-        bridge_header.set_cache_line_size(64 / 4);
-        let limit =
-            0x31000000u32 + (0x00020000u32 * bridge_header.get_secondary_bus_number() as u32);
-        let base = limit - 0x00020000u32;
-        //weird
-        bridge_header.set_memory_base((base >> 16) as u16); //理论上这玩意是要有定义的，但我没找到，先拿树莓派的顶着
-        bridge_header.set_memory_limit((limit >> 16) as u16); //这部分就是分配给下游设备的内存区域 //但是为啥这里设置为0？
-        bridge_header.set_control(0x01);
+        // bridge_header.set_cache_line_size(64 / 4);
+        // let limit =
+        //     0x31000000u32 + (0x00020000u32 * bridge_header.get_secondary_bus_number() as u32);
+        // let base = limit - 0x00020000u32;
+        // //weird
+        // bridge_header.set_memory_base((base >> 16) as u16); //理论上这玩意是要有定义的，但我没找到，先拿树莓派的顶着
+        // bridge_header.set_memory_limit((limit >> 16) as u16); //这部分就是分配给下游设备的内存区域 //但是为啥这里设置为0？
+        // bridge_header.set_control(0x01);
 
-        unsafe {
-            (bridge_header.cfg_addr as *mut u8)
-                .offset(0xac + 0x1c)
-                .write_volatile(0x10);
-        }
+        // unsafe {
+        //     (bridge_header.cfg_addr as *mut u8)
+        //         .offset(0xac + 0x1c)
+        //         .write_volatile(0x10);
+        // }
 
-        bridge_header.to_header().set_command([
-            ConfigCommand::MemorySpaceEnable,
-            ConfigCommand::BusMasterEnable,
-            ConfigCommand::ParityErrorResponse,
-            ConfigCommand::SERREnable,
-        ])
+        // bridge_header.to_header().set_command([
+        //     ConfigCommand::MemorySpaceEnable,
+        //     ConfigCommand::BusMasterEnable,
+        //     ConfigCommand::ParityErrorResponse,
+        //     ConfigCommand::SERREnable,
+        // ])
     }
 
     fn map_conf(mmio_base: usize, addr: crate::PciAddress) -> Option<usize> {
