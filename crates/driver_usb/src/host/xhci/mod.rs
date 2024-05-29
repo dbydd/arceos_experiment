@@ -99,7 +99,7 @@ pub(crate) fn init(mmio_base: usize) {
     }
 
     debug!("initializing roothub");
-    ROOT_HUB.get().unwrap().lock().initialize();
+    ROOT_HUB.get().unwrap().lock().initialize(); //设备枚举
 }
 
 pub(crate) fn enum_device() {

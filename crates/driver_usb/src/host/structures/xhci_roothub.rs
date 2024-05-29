@@ -31,7 +31,7 @@ pub(crate) static ROOT_HUB: OnceCell<Spinlock<Roothub>> = OnceCell::uninit();
 
 pub struct Roothub {
     ports: usize,
-    root_ports: PageBox<[Arc<MaybeUninit<Spinlock<RootPort>>>]>,
+    root_ports: PageBox<[Arc<MaybeUninit<Spinlock<RootPort>>>]>, //pagebox分配 无 cache的空间
 }
 
 impl Roothub {
