@@ -36,11 +36,6 @@ pub struct Roothub {
 
 impl Roothub {
     pub fn initialize(&mut self) {
-        // debug!("reset device and slot");
-        // for i in 0..=4 {
-        //     Self::reset_device_and_slot(i)
-        // }
-
         //todo delay?
         debug!("initializing root ports");
         self.root_ports

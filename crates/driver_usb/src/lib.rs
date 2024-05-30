@@ -28,7 +28,7 @@ pub(crate) type Futurelock<T> = GenericMutex<RawSpinlock, T>;
 pub(crate) type FuturelockGuard<'a, T> = GenericMutexGuard<'a, RawSpinlock, T>;
 
 use host::xhci::init;
-pub fn try_init(mmio_base_paddr: usize) {
+pub fn try_init() {
     init(0xffff_0000_31a0_8000 as usize) //just hard code it! refer phytium pi embedded sdk
 }
 

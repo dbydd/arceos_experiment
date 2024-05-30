@@ -20,13 +20,13 @@ impl RootPort {
     pub fn configure(&mut self) {}
 
     pub fn initialize(&mut self) {
-        //TODO 由于uboot已经探测过设备，因此设备的device context已被更改，因此我们比起普通的xhci驱动，还多了端口复位+设备复位的操作，需要修改。
         if !self.connected() {
             error!("port {} not connected", self.root_port_id);
             return;
         }
         debug!("port {} connected, continue", self.root_port_id);
 
+        //由于uboot已经探测过设备，因此设备的device context可能已被更改，因此我们比起普通的xhci驱动，还多了端口复位+设备复位的操作
         reset_port(self.root_port_id);
         dump_port_status(self.root_port_id);
 

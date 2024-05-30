@@ -26,8 +26,7 @@ const CMD_TABLE: &[(&str, CmdHandler)] = &[
 ];
 
 fn test_xhci(_args: &str) {
-    driver_usb::try_init(0x31a08000 as usize)
-    // unsafe { xhci::Registers::new(0xffff_0000_31a0_8000 as usize, MemoryMapper {}) };
+    driver_usb::try_init();
 }
 
 fn enum_device(_args: &str) {
