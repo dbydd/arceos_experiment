@@ -1,3 +1,4 @@
+use axalloc::{global_no_cache_allocator, GlobalNoCacheAllocator};
 use axhal::mem::VirtAddr;
 use conquer_once::spin::OnceCell;
 use log::debug;
@@ -8,17 +9,20 @@ use xhci::{
     ring::trb::event::{CompletionCode, TransferEvent},
 };
 
+use crate::dma::DMAVec;
+
 use super::{event_ring::TypeXhciTrb, registers};
 
 const XHCI_CONFIG_MAX_SLOTS: usize = 64;
 pub(crate) struct SlotManager {
-    dcbaa: PageBox<[VirtAddr]>,
+    dcbaa: DMAVec<GlobalNoCacheAllocator, VirtAddr>,
     // device: PageBox<[Device64Byte]>,
 }
 
 impl SlotManager {
     pub fn assign_device(&mut self, port_id: u8, device: VirtAddr) {
         debug!("assign device: {:?} to dcbaa {}", device, port_id);
+        assert!(device.is_aligned(64usize), "device not aligned to 64");
 
         // self.device[valid_slot_id as usize - 1] = device;
         self.dcbaa[port_id as usize] = device
@@ -69,16 +73,23 @@ pub(crate) fn new() {
         });
 
         let slot_manager = SlotManager {
-            dcbaa: PageBox::new_slice(
-                VirtAddr::from(0 as usize),
+            // dcbaa: PageBox::new_slice(
+            //     VirtAddr::from(0 as usize),
+            //     (count_device_slots + 1) as usize,
+            // ),
+            dcbaa: DMAVec::new(
                 (count_device_slots + 1) as usize,
-            ),
-            // device: PageBox::new_slice(Device::new_64byte(), XHCI_CONFIG_MAX_SLOTS + 1),
+                64,
+                global_no_cache_allocator(),
+            ), // device: PageBox::new_slice(Device::new_64byte(), XHCI_CONFIG_MAX_SLOTS + 1),
         };
 
-        r.operational
-            .dcbaap
-            .update_volatile(|d| d.set(slot_manager.dcbaa.virt_addr().as_usize() as u64));
+        r.operational.dcbaap.update_volatile(|d| {
+            let addr = slot_manager.dcbaa.as_ptr().addr() as u64;
+            debug!("addr of dcbaa: {:x}", addr);
+            assert!(addr % 64 == 0, "dcbaa not aligned to 64!");
+            d.set(addr);
+        });
 
         SLOT_MANAGER
             .try_init_once(move || Spinlock::new(slot_manager))

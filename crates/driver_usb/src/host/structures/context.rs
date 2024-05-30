@@ -1,3 +1,5 @@
+use core::ops::Add;
+
 use super::registers;
 use alloc::{boxed::Box, sync::Arc};
 use axalloc::{global_no_cache_allocator, GlobalNoCacheAllocator};
@@ -6,8 +8,8 @@ use log::{debug, error};
 use page_box::PageBox;
 use spinning_top::Spinlock;
 use xhci::context::{
-    Device32Byte, Device64Byte, DeviceHandler, Input32Byte, Input64Byte, InputControlHandler,
-    InputHandler,
+    Device32Byte, Device64Byte, DeviceHandler, EndpointHandler, Input32Byte, Input64Byte,
+    InputControlHandler, InputHandler, SlotHandler,
 };
 
 pub(crate) struct Context {
@@ -66,6 +68,7 @@ impl Default for Input {
     }
 }
 
+#[derive(Debug)]
 pub(crate) enum Device {
     Byte64(PageBox<Device64Byte>),
     Byte32(PageBox<Device32Byte>),
@@ -85,6 +88,19 @@ impl Device {
         match self {
             Self::Byte32(b32) => b32.virt_addr(),
             Self::Byte64(b64) => b64.virt_addr(),
+        }
+    }
+
+    pub fn ep(&mut self, dci: usize) -> &mut dyn EndpointHandler {
+        match self {
+            Self::Byte32(b32) => b32.endpoint_mut(dci),
+            Self::Byte64(b64) => b64.endpoint_mut(dci),
+        }
+    }
+    pub fn slot(&mut self) -> &mut dyn SlotHandler {
+        match self {
+            Self::Byte32(b32) => b32.slot_mut(),
+            Self::Byte64(b64) => b64.slot_mut(),
         }
     }
 }

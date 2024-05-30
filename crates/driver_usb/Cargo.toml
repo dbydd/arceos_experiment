@@ -22,7 +22,7 @@ phytium-xhci = []
 [dependencies]
 driver_common = { path = "../driver_common" }
 driver_pci = { path = "../driver_pci" }
-xhci = "0.9"
+xhci = {path = "../xhci"}
 log="0.4"
 axhal = {path = "../../modules/axhal"}
 axtask = {path = "../../modules/axtask",features = ["multitask","sched_fifo"]}

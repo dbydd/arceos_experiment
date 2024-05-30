@@ -1,5 +1,6 @@
  
 
+Phytium-Pi#
 Phytium-Pi#go 0x90100000
 ## Starting application at 0x90100000 ...
 aaaaaaaaaaaacarch = aarch64
@@ -9,312 +10,312 @@ smp = 1
 build_mode = release
 log_level = debug
 
-ccc[ 34.561826 0 axruntime:138] Logging is enabled.
-[ 34.567555 0 axruntime:139] Primary CPU 512 started, dtb = 0x1.
-[ 34.574673 0 axruntime:141] Found physcial memory regions:
-c[ 34.581444 0 axruntime:144]   [PA:0x90100000, PA:0x9011f000) .text (READ | EXECUTE | RESERVED)
-[ 34.591251 0 axruntime:144]   [PA:0x9011f000, PA:0x90127000) .rodata (READ | RESERVED)
-[ 34.600365 0 axruntime:144]   [PA:0x90127000, PA:0x9012b000) .data .tdata .tbss .percpu (READ | WRITE | RESERVED)
-[ 34.611823 0 axruntime:144]   [PA:0x9012b000, PA:0x9016b000) boot stack (READ | WRITE | RESERVED)
-[ 34.621892 0 axruntime:144]   [PA:0x9016b000, PA:0x90190000) .bss (READ | WRITE | RESERVED)
-[ 34.631440 0 axruntime:144]   [PA:0x0, PA:0x1000) spintable (READ | WRITE | RESERVED)
-[ 34.640467 0 axruntime:144]   [PA:0x90190000, PA:0x90490000) nocache memory (READ | WRITE | DEVICE)
-[ 34.650709 0 axruntime:144]   [PA:0x90490000, PA:0xffd00000) free memory (READ | WRITE | FREE)
-[ 34.660518 0 axruntime:144]   [PA:0x40000000, PA:0x50000000) mmio (READ | WRITE | DEVICE | RESERVED)
-[ 34.670847 0 axruntime:144]   [PA:0x50000000, PA:0x58000000) mmio (READ | WRITE | DEVICE | RESERVED)
-[ 34.681176 0 axruntime:144]   [PA:0x58000000, PA:0x80000000) mmio (READ | WRITE | DEVICE | RESERVED)
-[ 34.691505 0 axruntime:144]   [PA:0x1000000000, PA:0x1010000000) mmio (READ | WRITE | DEVICE | RESERVED)
-[ 34.702182 0 axruntime:144]   [PA:0x2800c000, PA:0x2800d000) mmio (READ | WRITE | DEVICE | RESERVED)
-[ 34.712511 0 axruntime:144]   [PA:0x2800d000, PA:0x2800e000) mmio (READ | WRITE | DEVICE | RESERVED)
-[ 34.722840 0 axruntime:144]   [PA:0x2800e000, PA:0x2800f000) mmio (READ | WRITE | DEVICE | RESERVED)
-[ 34.733170 0 axruntime:144]   [PA:0x2800f000, PA:0x28010000) mmio (READ | WRITE | DEVICE | RESERVED)
-[ 34.743499 0 axruntime:144]   [PA:0x30000000, PA:0x38000000) mmio (READ | WRITE | DEVICE | RESERVED)
-[ 34.753828 0 axruntime:223] Initialize global memory allocator...
-[ 34.761119 0 axruntime:224]   use TLSF allocator.
-[ 34.767023 0 axalloc:281] initialize global allocator at: free-[0xffff000090490000, 0xffff0000ffd00000)
-[ 34.777936 0 axruntime:158] Initialize kernel page table...
-[ 34.784500 0 axruntime:258] Initialize global no cache memory allocator...
-[ 34.792455 0 axalloc:297] initialize global allocator at: nocache-[0x90190000,0x90490000)
-[ 34.801830 0 axruntime:165] Initialize platform devices...
-[ 34.808512 0 axtask::api:66] Initialize scheduling...
-[ 34.814765 0 axtask::task:146] new task: Task(1, "idle")
-[ 34.821275 0 axtask::task:146] new task: Task(3, "gc")
-[ 34.827612 0 axalloc:126] expand heap memory: [0xffff0000904a4000, 0xffff0000904e4000)
-[ 34.836729 0 axalloc:126] expand heap memory: [0xffff0000904e4000, 0xffff000090564000)
-[ 34.845837 0 axtask::api:72]   use FIFO scheduler.
-[ 34.851825 0 axdriver:158] Initialize device drivers...
-[ 34.858248 0 axdriver:159]   device model: static
-[ 34.864151 0 driver_pci::phytium:22] PCIe link start @0xFFFF000040000000...
-[ 34.872310 0 driver_pci::phytium:23] theroticly, since uboot had already initialized it, we need't to operate it any more! 
+ccc[ 36.874441 0 axruntime:138] Logging is enabled.
+[ 36.880170 0 axruntime:139] Primary CPU 512 started, dtb = 0x1.
+[ 36.887287 0 axruntime:141] Found physcial memory regions:
+c[ 36.894059 0 axruntime:144]   [PA:0x90100000, PA:0x90120000) .text (READ | EXECUTE | RESERVED)
+[ 36.903866 0 axruntime:144]   [PA:0x90120000, PA:0x90129000) .rodata (READ | RESERVED)
+[ 36.912980 0 axruntime:144]   [PA:0x90129000, PA:0x9012d000) .data .tdata .tbss .percpu (READ | WRITE | RESERVED)
+[ 36.924438 0 axruntime:144]   [PA:0x9012d000, PA:0x9016d000) boot stack (READ | WRITE | RESERVED)
+[ 36.934506 0 axruntime:144]   [PA:0x9016d000, PA:0x90192000) .bss (READ | WRITE | RESERVED)
+[ 36.944054 0 axruntime:144]   [PA:0x0, PA:0x1000) spintable (READ | WRITE | RESERVED)
+[ 36.953082 0 axruntime:144]   [PA:0x90192000, PA:0x90492000) nocache memory (READ | WRITE | DEVICE)
+[ 36.963324 0 axruntime:144]   [PA:0x90492000, PA:0xffd00000) free memory (READ | WRITE | FREE)
+[ 36.973132 0 axruntime:144]   [PA:0x40000000, PA:0x50000000) mmio (READ | WRITE | DEVICE | RESERVED)
+[ 36.983462 0 axruntime:144]   [PA:0x50000000, PA:0x58000000) mmio (READ | WRITE | DEVICE | RESERVED)
+[ 36.993791 0 axruntime:144]   [PA:0x58000000, PA:0x80000000) mmio (READ | WRITE | DEVICE | RESERVED)
+[ 37.004120 0 axruntime:144]   [PA:0x1000000000, PA:0x1010000000) mmio (READ | WRITE | DEVICE | RESERVED)
+[ 37.014796 0 axruntime:144]   [PA:0x2800c000, PA:0x2800d000) mmio (READ | WRITE | DEVICE | RESERVED)
+[ 37.025126 0 axruntime:144]   [PA:0x2800d000, PA:0x2800e000) mmio (READ | WRITE | DEVICE | RESERVED)
+[ 37.035455 0 axruntime:144]   [PA:0x2800e000, PA:0x2800f000) mmio (READ | WRITE | DEVICE | RESERVED)
+[ 37.045784 0 axruntime:144]   [PA:0x2800f000, PA:0x28010000) mmio (READ | WRITE | DEVICE | RESERVED)
+[ 37.056113 0 axruntime:144]   [PA:0x30000000, PA:0x38000000) mmio (READ | WRITE | DEVICE | RESERVED)
+[ 37.066443 0 axruntime:223] Initialize global memory allocator...
+[ 37.073734 0 axruntime:224]   use TLSF allocator.
+[ 37.079638 0 axalloc:281] initialize global allocator at: free-[0xffff000090492000, 0xffff0000ffd00000)
+[ 37.090550 0 axruntime:158] Initialize kernel page table...
+[ 37.097114 0 axruntime:258] Initialize global no cache memory allocator...
+[ 37.105070 0 axalloc:297] initialize global allocator at: nocache-[0x90192000,0x90492000)
+[ 37.114445 0 axruntime:165] Initialize platform devices...
+[ 37.121126 0 axtask::api:66] Initialize scheduling...
+[ 37.127380 0 axtask::task:146] new task: Task(1, "idle")
+[ 37.133890 0 axtask::task:146] new task: Task(3, "gc")
+[ 37.140226 0 axalloc:126] expand heap memory: [0xffff0000904a6000, 0xffff0000904e6000)
+[ 37.149343 0 axalloc:126] expand heap memory: [0xffff0000904e6000, 0xffff000090566000)
+[ 37.158452 0 axtask::api:72]   use FIFO scheduler.
+[ 37.164440 0 axdriver:158] Initialize device drivers...
+[ 37.170863 0 axdriver:159]   device model: static
+[ 37.176765 0 driver_pci::phytium:22] PCIe link start @0xFFFF000040000000...
+[ 37.184925 0 driver_pci::phytium:23] theroticly, since uboot had already initialized it, we need't to operate it any more! 
  or maybe we need to allocate bar addr!
-[ 34.888194 0 axdriver::bus::pci:18] probing in pci.rs!
-[ 34.894531 0 driver_pci::root_complex:96] into next!
-[ 34.900694 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 0, function: 0 } to idx 0xFFFF000040000000
-[ 34.914061 0 driver_pci::root_complex:138] begin: 00:00.0 @ 0xFFFF000040000000
-[ 34.922481 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 34.929424 0 driver_pci::root_complex:145] dev + 1
-[ 34.935413 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 1, function: 0 } to idx 0xFFFF000040008000
-[ 34.948781 0 driver_pci::root_complex:138] begin: 00:01.0 @ 0xFFFF000040008000
-[ 34.957201 0 driver_pci::root_complex:141] vid 1DB7, did DC01
-[ 34.964145 0 driver_pci::root_complex:166] header_type:PciPciBridge
-[ 34.971609 0 driver_pci::root_complex:169] found bridge at PciAddress { bus: 0, device: 1, function: 0 }
-[ 34.982286 0 driver_pci::phytium:29] probe phytium weird pcie bridge 1
-[ 34.990011 0 axdriver::bus::pci:21] PCI 00:01.0: 1DB7:DC01 (class 06.04, rev 00) PciPciBridge
-[ 34.999732 0 axdriver::drivers:105] probing!
-[ 35.005201 0 driver_pci::root_complex:96] into next!
-[ 35.011363 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 0, function: 0 } to idx 0xFFFF000040100000
-[ 35.024730 0 driver_pci::root_complex:138] begin: 01:00.0 @ 0xFFFF000040100000
-[ 35.033150 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 35.040094 0 driver_pci::root_complex:145] dev + 1
-[ 35.046083 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 1, function: 0 } to idx 0xFFFF000040108000
-[ 35.059451 0 driver_pci::root_complex:138] begin: 01:01.0 @ 0xFFFF000040108000
-[ 35.067871 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 35.074814 0 driver_pci::root_complex:145] dev + 1
-[ 35.080803 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 2, function: 0 } to idx 0xFFFF000040110000
-[ 35.094171 0 driver_pci::root_complex:138] begin: 01:02.0 @ 0xFFFF000040110000
-[ 35.102591 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 35.109534 0 driver_pci::root_complex:145] dev + 1
-[ 35.115523 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 3, function: 0 } to idx 0xFFFF000040118000
-[ 35.128890 0 driver_pci::root_complex:138] begin: 01:03.0 @ 0xFFFF000040118000
-[ 35.137310 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 35.144254 0 driver_pci::root_complex:145] dev + 1
-[ 35.150243 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 4, function: 0 } to idx 0xFFFF000040120000
-[ 35.163611 0 driver_pci::root_complex:138] begin: 01:04.0 @ 0xFFFF000040120000
-[ 35.172030 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 35.178974 0 driver_pci::root_complex:145] dev + 1
-[ 35.184963 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 5, function: 0 } to idx 0xFFFF000040128000
-[ 35.198331 0 driver_pci::root_complex:138] begin: 01:05.0 @ 0xFFFF000040128000
-[ 35.206751 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 35.213694 0 driver_pci::root_complex:145] dev + 1
-[ 35.219683 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 6, function: 0 } to idx 0xFFFF000040130000
-[ 35.233050 0 driver_pci::root_complex:138] begin: 01:06.0 @ 0xFFFF000040130000
-[ 35.241470 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 35.248414 0 driver_pci::root_complex:145] dev + 1
-[ 35.254403 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 7, function: 0 } to idx 0xFFFF000040138000
-[ 35.267771 0 driver_pci::root_complex:138] begin: 01:07.0 @ 0xFFFF000040138000
-[ 35.276190 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 35.283134 0 driver_pci::root_complex:145] dev + 1
-[ 35.289123 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 8, function: 0 } to idx 0xFFFF000040140000
-[ 35.302491 0 driver_pci::root_complex:138] begin: 01:08.0 @ 0xFFFF000040140000
-[ 35.310911 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 35.317854 0 driver_pci::root_complex:145] dev + 1
-[ 35.323843 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 9, function: 0 } to idx 0xFFFF000040148000
-[ 35.337211 0 driver_pci::root_complex:138] begin: 01:09.0 @ 0xFFFF000040148000
-[ 35.345631 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 35.352574 0 driver_pci::root_complex:145] dev + 1
-[ 35.358563 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 10, function: 0 } to idx 0xFFFF000040150000
-[ 35.372017 0 driver_pci::root_complex:138] begin: 01:0a.0 @ 0xFFFF000040150000
-[ 35.380437 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 35.387381 0 driver_pci::root_complex:145] dev + 1
-[ 35.393370 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 11, function: 0 } to idx 0xFFFF000040158000
-[ 35.406824 0 driver_pci::root_complex:138] begin: 01:0b.0 @ 0xFFFF000040158000
-[ 35.415244 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 35.422188 0 driver_pci::root_complex:145] dev + 1
-[ 35.428177 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 12, function: 0 } to idx 0xFFFF000040160000
-[ 35.441631 0 driver_pci::root_complex:138] begin: 01:0c.0 @ 0xFFFF000040160000
-[ 35.450051 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 35.456995 0 driver_pci::root_complex:145] dev + 1
-[ 35.462984 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 13, function: 0 } to idx 0xFFFF000040168000
-[ 35.476438 0 driver_pci::root_complex:138] begin: 01:0d.0 @ 0xFFFF000040168000
-[ 35.484858 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 35.491801 0 driver_pci::root_complex:145] dev + 1
-[ 35.497791 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 14, function: 0 } to idx 0xFFFF000040170000
-[ 35.511245 0 driver_pci::root_complex:138] begin: 01:0e.0 @ 0xFFFF000040170000
-[ 35.519664 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 35.526608 0 driver_pci::root_complex:145] dev + 1
-[ 35.532597 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 15, function: 0 } to idx 0xFFFF000040178000
-[ 35.546051 0 driver_pci::root_complex:138] begin: 01:0f.0 @ 0xFFFF000040178000
-[ 35.554471 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 35.561415 0 driver_pci::root_complex:145] dev + 1
-[ 35.567404 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 16, function: 0 } to idx 0xFFFF000040180000
-[ 35.580858 0 driver_pci::root_complex:138] begin: 01:10.0 @ 0xFFFF000040180000
-[ 35.589278 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 35.596222 0 driver_pci::root_complex:145] dev + 1
-[ 35.602211 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 17, function: 0 } to idx 0xFFFF000040188000
-[ 35.615665 0 driver_pci::root_complex:138] begin: 01:11.0 @ 0xFFFF000040188000
-[ 35.624085 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 35.631029 0 driver_pci::root_complex:145] dev + 1
-[ 35.637018 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 18, function: 0 } to idx 0xFFFF000040190000
-[ 35.650472 0 driver_pci::root_complex:138] begin: 01:12.0 @ 0xFFFF000040190000
-[ 35.658892 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 35.665835 0 driver_pci::root_complex:145] dev + 1
-[ 35.671825 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 19, function: 0 } to idx 0xFFFF000040198000
-[ 35.685278 0 driver_pci::root_complex:138] begin: 01:13.0 @ 0xFFFF000040198000
-[ 35.693698 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 35.700642 0 driver_pci::root_complex:145] dev + 1
-[ 35.706631 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 20, function: 0 } to idx 0xFFFF0000401A0000
-[ 35.720085 0 driver_pci::root_complex:138] begin: 01:14.0 @ 0xFFFF0000401A0000
-[ 35.728505 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 35.735449 0 driver_pci::root_complex:145] dev + 1
-[ 35.741438 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 21, function: 0 } to idx 0xFFFF0000401A8000
-[ 35.754892 0 driver_pci::root_complex:138] begin: 01:15.0 @ 0xFFFF0000401A8000
-[ 35.763312 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 35.770256 0 driver_pci::root_complex:145] dev + 1
-[ 35.776245 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 22, function: 0 } to idx 0xFFFF0000401B0000
-[ 35.789699 0 driver_pci::root_complex:138] begin: 01:16.0 @ 0xFFFF0000401B0000
-[ 35.798119 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 35.805062 0 driver_pci::root_complex:145] dev + 1
-[ 35.811052 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 23, function: 0 } to idx 0xFFFF0000401B8000
-[ 35.824506 0 driver_pci::root_complex:138] begin: 01:17.0 @ 0xFFFF0000401B8000
-[ 35.832926 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 35.839869 0 driver_pci::root_complex:145] dev + 1
-[ 35.845859 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 24, function: 0 } to idx 0xFFFF0000401C0000
-[ 35.859313 0 driver_pci::root_complex:138] begin: 01:18.0 @ 0xFFFF0000401C0000
-[ 35.867732 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 35.874676 0 driver_pci::root_complex:145] dev + 1
-[ 35.880665 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 25, function: 0 } to idx 0xFFFF0000401C8000
-[ 35.894119 0 driver_pci::root_complex:138] begin: 01:19.0 @ 0xFFFF0000401C8000
-[ 35.902539 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 35.909483 0 driver_pci::root_complex:145] dev + 1
-[ 35.915472 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 26, function: 0 } to idx 0xFFFF0000401D0000
-[ 35.928926 0 driver_pci::root_complex:138] begin: 01:1a.0 @ 0xFFFF0000401D0000
-[ 35.937346 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 35.944290 0 driver_pci::root_complex:145] dev + 1
-[ 35.950279 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 27, function: 0 } to idx 0xFFFF0000401D8000
-[ 35.963733 0 driver_pci::root_complex:138] begin: 01:1b.0 @ 0xFFFF0000401D8000
-[ 35.972153 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 35.979097 0 driver_pci::root_complex:145] dev + 1
-[ 35.985086 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 28, function: 0 } to idx 0xFFFF0000401E0000
-[ 35.998540 0 driver_pci::root_complex:138] begin: 01:1c.0 @ 0xFFFF0000401E0000
-[ 36.006960 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 36.013903 0 driver_pci::root_complex:145] dev + 1
-[ 36.019893 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 29, function: 0 } to idx 0xFFFF0000401E8000
-[ 36.033347 0 driver_pci::root_complex:138] begin: 01:1d.0 @ 0xFFFF0000401E8000
-[ 36.041767 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 36.048710 0 driver_pci::root_complex:145] dev + 1
-[ 36.054699 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 30, function: 0 } to idx 0xFFFF0000401F0000
-[ 36.068153 0 driver_pci::root_complex:138] begin: 01:1e.0 @ 0xFFFF0000401F0000
-[ 36.076573 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 36.083517 0 driver_pci::root_complex:145] dev + 1
-[ 36.089506 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 31, function: 0 } to idx 0xFFFF0000401F8000
-[ 36.102960 0 driver_pci::root_complex:138] begin: 01:1f.0 @ 0xFFFF0000401F8000
-[ 36.111380 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 36.118324 0 driver_pci::root_complex:145] dev + 1
-[ 36.124313 0 driver_pci::root_complex:110] pop stack! 00:01.0
-[ 36.131257 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 1, function: 0 } to idx 0xFFFF000040008000
-[ 36.144624 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 2, function: 0 } to idx 0xFFFF000040010000
-[ 36.157991 0 driver_pci::root_complex:138] begin: 00:02.0 @ 0xFFFF000040010000
-[ 36.166411 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 36.173355 0 driver_pci::root_complex:145] dev + 1
-[ 36.179344 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 3, function: 0 } to idx 0xFFFF000040018000
-[ 36.192711 0 driver_pci::root_complex:138] begin: 00:03.0 @ 0xFFFF000040018000
-[ 36.201131 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 36.208075 0 driver_pci::root_complex:145] dev + 1
-[ 36.214064 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 4, function: 0 } to idx 0xFFFF000040020000
-[ 36.227431 0 driver_pci::root_complex:138] begin: 00:04.0 @ 0xFFFF000040020000
-[ 36.235851 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 36.242795 0 driver_pci::root_complex:145] dev + 1
-[ 36.248784 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 5, function: 0 } to idx 0xFFFF000040028000
-[ 36.262151 0 driver_pci::root_complex:138] begin: 00:05.0 @ 0xFFFF000040028000
-[ 36.270571 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 36.277515 0 driver_pci::root_complex:145] dev + 1
-[ 36.283504 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 6, function: 0 } to idx 0xFFFF000040030000
-[ 36.296871 0 driver_pci::root_complex:138] begin: 00:06.0 @ 0xFFFF000040030000
-[ 36.305291 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 36.312235 0 driver_pci::root_complex:145] dev + 1
-[ 36.318224 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 7, function: 0 } to idx 0xFFFF000040038000
-[ 36.331591 0 driver_pci::root_complex:138] begin: 00:07.0 @ 0xFFFF000040038000
-[ 36.340011 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 36.346955 0 driver_pci::root_complex:145] dev + 1
-[ 36.352944 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 8, function: 0 } to idx 0xFFFF000040040000
-[ 36.366311 0 driver_pci::root_complex:138] begin: 00:08.0 @ 0xFFFF000040040000
-[ 36.374731 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 36.381675 0 driver_pci::root_complex:145] dev + 1
-[ 36.387664 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 9, function: 0 } to idx 0xFFFF000040048000
-[ 36.401031 0 driver_pci::root_complex:138] begin: 00:09.0 @ 0xFFFF000040048000
-[ 36.409451 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 36.416395 0 driver_pci::root_complex:145] dev + 1
-[ 36.422384 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 10, function: 0 } to idx 0xFFFF000040050000
-[ 36.435838 0 driver_pci::root_complex:138] begin: 00:0a.0 @ 0xFFFF000040050000
-[ 36.444258 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 36.451202 0 driver_pci::root_complex:145] dev + 1
-[ 36.457191 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 11, function: 0 } to idx 0xFFFF000040058000
-[ 36.470645 0 driver_pci::root_complex:138] begin: 00:0b.0 @ 0xFFFF000040058000
-[ 36.479065 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 36.486008 0 driver_pci::root_complex:145] dev + 1
-[ 36.491998 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 12, function: 0 } to idx 0xFFFF000040060000
-[ 36.505452 0 driver_pci::root_complex:138] begin: 00:0c.0 @ 0xFFFF000040060000
-[ 36.513872 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 36.520815 0 driver_pci::root_complex:145] dev + 1
-[ 36.526805 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 13, function: 0 } to idx 0xFFFF000040068000
-[ 36.540259 0 driver_pci::root_complex:138] begin: 00:0d.0 @ 0xFFFF000040068000
-[ 36.548679 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 36.555622 0 driver_pci::root_complex:145] dev + 1
-[ 36.561611 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 14, function: 0 } to idx 0xFFFF000040070000
-[ 36.575065 0 driver_pci::root_complex:138] begin: 00:0e.0 @ 0xFFFF000040070000
-[ 36.583485 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 36.590429 0 driver_pci::root_complex:145] dev + 1
-[ 36.596418 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 15, function: 0 } to idx 0xFFFF000040078000
-[ 36.609872 0 driver_pci::root_complex:138] begin: 00:0f.0 @ 0xFFFF000040078000
-[ 36.618292 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 36.625236 0 driver_pci::root_complex:145] dev + 1
-[ 36.631225 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 16, function: 0 } to idx 0xFFFF000040080000
-[ 36.644679 0 driver_pci::root_complex:138] begin: 00:10.0 @ 0xFFFF000040080000
-[ 36.653099 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 36.660043 0 driver_pci::root_complex:145] dev + 1
-[ 36.666032 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 17, function: 0 } to idx 0xFFFF000040088000
-[ 36.679486 0 driver_pci::root_complex:138] begin: 00:11.0 @ 0xFFFF000040088000
-[ 36.687906 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 36.694849 0 driver_pci::root_complex:145] dev + 1
-[ 36.700839 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 18, function: 0 } to idx 0xFFFF000040090000
-[ 36.714292 0 driver_pci::root_complex:138] begin: 00:12.0 @ 0xFFFF000040090000
-[ 36.722712 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 36.729656 0 driver_pci::root_complex:145] dev + 1
-[ 36.735645 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 19, function: 0 } to idx 0xFFFF000040098000
-[ 36.749099 0 driver_pci::root_complex:138] begin: 00:13.0 @ 0xFFFF000040098000
-[ 36.757519 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 36.764463 0 driver_pci::root_complex:145] dev + 1
-[ 36.770452 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 20, function: 0 } to idx 0xFFFF0000400A0000
-[ 36.783906 0 driver_pci::root_complex:138] begin: 00:14.0 @ 0xFFFF0000400A0000
-[ 36.792326 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 36.799270 0 driver_pci::root_complex:145] dev + 1
-[ 36.805259 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 21, function: 0 } to idx 0xFFFF0000400A8000
-[ 36.818713 0 driver_pci::root_complex:138] begin: 00:15.0 @ 0xFFFF0000400A8000
-[ 36.827133 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 36.834077 0 driver_pci::root_complex:145] dev + 1
-[ 36.840066 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 22, function: 0 } to idx 0xFFFF0000400B0000
-[ 36.853520 0 driver_pci::root_complex:138] begin: 00:16.0 @ 0xFFFF0000400B0000
-[ 36.861940 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 36.868883 0 driver_pci::root_complex:145] dev + 1
-[ 36.874873 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 23, function: 0 } to idx 0xFFFF0000400B8000
-[ 36.888327 0 driver_pci::root_complex:138] begin: 00:17.0 @ 0xFFFF0000400B8000
-[ 36.896746 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 36.903690 0 driver_pci::root_complex:145] dev + 1
-[ 36.909679 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 24, function: 0 } to idx 0xFFFF0000400C0000
-[ 36.923133 0 driver_pci::root_complex:138] begin: 00:18.0 @ 0xFFFF0000400C0000
-[ 36.931553 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 36.938497 0 driver_pci::root_complex:145] dev + 1
-[ 36.944486 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 25, function: 0 } to idx 0xFFFF0000400C8000
-[ 36.957940 0 driver_pci::root_complex:138] begin: 00:19.0 @ 0xFFFF0000400C8000
-[ 36.966360 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 36.973304 0 driver_pci::root_complex:145] dev + 1
-[ 36.979293 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 26, function: 0 } to idx 0xFFFF0000400D0000
-[ 36.992747 0 driver_pci::root_complex:138] begin: 00:1a.0 @ 0xFFFF0000400D0000
-[ 37.001167 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 37.008111 0 driver_pci::root_complex:145] dev + 1
-[ 37.014100 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 27, function: 0 } to idx 0xFFFF0000400D8000
-[ 37.027554 0 driver_pci::root_complex:138] begin: 00:1b.0 @ 0xFFFF0000400D8000
-[ 37.035974 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 37.042917 0 driver_pci::root_complex:145] dev + 1
-[ 37.048906 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 28, function: 0 } to idx 0xFFFF0000400E0000
-[ 37.062361 0 driver_pci::root_complex:138] begin: 00:1c.0 @ 0xFFFF0000400E0000
-[ 37.070780 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 37.077724 0 driver_pci::root_complex:145] dev + 1
-[ 37.083713 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 29, function: 0 } to idx 0xFFFF0000400E8000
-[ 37.097167 0 driver_pci::root_complex:138] begin: 00:1d.0 @ 0xFFFF0000400E8000
-[ 37.105587 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 37.112531 0 driver_pci::root_complex:145] dev + 1
-[ 37.118520 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 30, function: 0 } to idx 0xFFFF0000400F0000
-[ 37.131974 0 driver_pci::root_complex:138] begin: 00:1e.0 @ 0xFFFF0000400F0000
-[ 37.140394 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 37.147338 0 driver_pci::root_complex:145] dev + 1
-[ 37.153327 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 31, function: 0 } to idx 0xFFFF0000400F8000
-[ 37.166781 0 driver_pci::root_complex:138] begin: 00:1f.0 @ 0xFFFF0000400F8000
-[ 37.175201 0 driver_pci::root_complex:141] vid FFFF, did FFFF
-[ 37.182144 0 driver_pci::root_complex:145] dev + 1
-[ 37.188134 0 driver_pci::root_complex:116] none!
-[ 37.193950 0 axdriver:190] number of usb host controller: 0
-[ 37.200720 0 axruntime:201] Primary CPU 512 init OK.
+[ 37.200809 0 axdriver::bus::pci:18] probing in pci.rs!
+[ 37.207146 0 driver_pci::root_complex:96] into next!
+[ 37.213309 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 0, function: 0 } to idx 0xFFFF000040000000
+[ 37.226675 0 driver_pci::root_complex:138] begin: 00:00.0 @ 0xFFFF000040000000
+[ 37.235095 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 37.242039 0 driver_pci::root_complex:145] dev + 1
+[ 37.248028 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 1, function: 0 } to idx 0xFFFF000040008000
+[ 37.261395 0 driver_pci::root_complex:138] begin: 00:01.0 @ 0xFFFF000040008000
+[ 37.269815 0 driver_pci::root_complex:141] vid 1DB7, did DC01
+[ 37.276760 0 driver_pci::root_complex:166] header_type:PciPciBridge
+[ 37.284224 0 driver_pci::root_complex:169] found bridge at PciAddress { bus: 0, device: 1, function: 0 }
+[ 37.294901 0 driver_pci::phytium:29] probe phytium weird pcie bridge 1
+[ 37.302626 0 axdriver::bus::pci:21] PCI 00:01.0: 1DB7:DC01 (class 06.04, rev 00) PciPciBridge
+[ 37.312347 0 axdriver::drivers:105] probing!
+[ 37.317816 0 driver_pci::root_complex:96] into next!
+[ 37.323978 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 0, function: 0 } to idx 0xFFFF000040100000
+[ 37.337345 0 driver_pci::root_complex:138] begin: 01:00.0 @ 0xFFFF000040100000
+[ 37.345765 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 37.352709 0 driver_pci::root_complex:145] dev + 1
+[ 37.358698 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 1, function: 0 } to idx 0xFFFF000040108000
+[ 37.372065 0 driver_pci::root_complex:138] begin: 01:01.0 @ 0xFFFF000040108000
+[ 37.380485 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 37.387429 0 driver_pci::root_complex:145] dev + 1
+[ 37.393418 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 2, function: 0 } to idx 0xFFFF000040110000
+[ 37.406785 0 driver_pci::root_complex:138] begin: 01:02.0 @ 0xFFFF000040110000
+[ 37.415205 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 37.422149 0 driver_pci::root_complex:145] dev + 1
+[ 37.428138 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 3, function: 0 } to idx 0xFFFF000040118000
+[ 37.441505 0 driver_pci::root_complex:138] begin: 01:03.0 @ 0xFFFF000040118000
+[ 37.449925 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 37.456869 0 driver_pci::root_complex:145] dev + 1
+[ 37.462858 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 4, function: 0 } to idx 0xFFFF000040120000
+[ 37.476225 0 driver_pci::root_complex:138] begin: 01:04.0 @ 0xFFFF000040120000
+[ 37.484645 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 37.491589 0 driver_pci::root_complex:145] dev + 1
+[ 37.497578 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 5, function: 0 } to idx 0xFFFF000040128000
+[ 37.510945 0 driver_pci::root_complex:138] begin: 01:05.0 @ 0xFFFF000040128000
+[ 37.519365 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 37.526309 0 driver_pci::root_complex:145] dev + 1
+[ 37.532298 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 6, function: 0 } to idx 0xFFFF000040130000
+[ 37.545665 0 driver_pci::root_complex:138] begin: 01:06.0 @ 0xFFFF000040130000
+[ 37.554085 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 37.561029 0 driver_pci::root_complex:145] dev + 1
+[ 37.567018 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 7, function: 0 } to idx 0xFFFF000040138000
+[ 37.580385 0 driver_pci::root_complex:138] begin: 01:07.0 @ 0xFFFF000040138000
+[ 37.588805 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 37.595749 0 driver_pci::root_complex:145] dev + 1
+[ 37.601738 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 8, function: 0 } to idx 0xFFFF000040140000
+[ 37.615105 0 driver_pci::root_complex:138] begin: 01:08.0 @ 0xFFFF000040140000
+[ 37.623525 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 37.630469 0 driver_pci::root_complex:145] dev + 1
+[ 37.636458 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 9, function: 0 } to idx 0xFFFF000040148000
+[ 37.649825 0 driver_pci::root_complex:138] begin: 01:09.0 @ 0xFFFF000040148000
+[ 37.658245 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 37.665189 0 driver_pci::root_complex:145] dev + 1
+[ 37.671178 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 10, function: 0 } to idx 0xFFFF000040150000
+[ 37.684632 0 driver_pci::root_complex:138] begin: 01:0a.0 @ 0xFFFF000040150000
+[ 37.693052 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 37.699996 0 driver_pci::root_complex:145] dev + 1
+[ 37.705985 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 11, function: 0 } to idx 0xFFFF000040158000
+[ 37.719439 0 driver_pci::root_complex:138] begin: 01:0b.0 @ 0xFFFF000040158000
+[ 37.727859 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 37.734802 0 driver_pci::root_complex:145] dev + 1
+[ 37.740792 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 12, function: 0 } to idx 0xFFFF000040160000
+[ 37.754246 0 driver_pci::root_complex:138] begin: 01:0c.0 @ 0xFFFF000040160000
+[ 37.762666 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 37.769609 0 driver_pci::root_complex:145] dev + 1
+[ 37.775598 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 13, function: 0 } to idx 0xFFFF000040168000
+[ 37.789052 0 driver_pci::root_complex:138] begin: 01:0d.0 @ 0xFFFF000040168000
+[ 37.797472 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 37.804416 0 driver_pci::root_complex:145] dev + 1
+[ 37.810405 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 14, function: 0 } to idx 0xFFFF000040170000
+[ 37.823859 0 driver_pci::root_complex:138] begin: 01:0e.0 @ 0xFFFF000040170000
+[ 37.832279 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 37.839223 0 driver_pci::root_complex:145] dev + 1
+[ 37.845212 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 15, function: 0 } to idx 0xFFFF000040178000
+[ 37.858666 0 driver_pci::root_complex:138] begin: 01:0f.0 @ 0xFFFF000040178000
+[ 37.867086 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 37.874030 0 driver_pci::root_complex:145] dev + 1
+[ 37.880019 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 16, function: 0 } to idx 0xFFFF000040180000
+[ 37.893473 0 driver_pci::root_complex:138] begin: 01:10.0 @ 0xFFFF000040180000
+[ 37.901893 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 37.908836 0 driver_pci::root_complex:145] dev + 1
+[ 37.914826 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 17, function: 0 } to idx 0xFFFF000040188000
+[ 37.928280 0 driver_pci::root_complex:138] begin: 01:11.0 @ 0xFFFF000040188000
+[ 37.936700 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 37.943643 0 driver_pci::root_complex:145] dev + 1
+[ 37.949632 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 18, function: 0 } to idx 0xFFFF000040190000
+[ 37.963086 0 driver_pci::root_complex:138] begin: 01:12.0 @ 0xFFFF000040190000
+[ 37.971506 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 37.978450 0 driver_pci::root_complex:145] dev + 1
+[ 37.984439 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 19, function: 0 } to idx 0xFFFF000040198000
+[ 37.997893 0 driver_pci::root_complex:138] begin: 01:13.0 @ 0xFFFF000040198000
+[ 38.006313 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 38.013257 0 driver_pci::root_complex:145] dev + 1
+[ 38.019246 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 20, function: 0 } to idx 0xFFFF0000401A0000
+[ 38.032700 0 driver_pci::root_complex:138] begin: 01:14.0 @ 0xFFFF0000401A0000
+[ 38.041120 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 38.048064 0 driver_pci::root_complex:145] dev + 1
+[ 38.054053 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 21, function: 0 } to idx 0xFFFF0000401A8000
+[ 38.067507 0 driver_pci::root_complex:138] begin: 01:15.0 @ 0xFFFF0000401A8000
+[ 38.075927 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 38.082870 0 driver_pci::root_complex:145] dev + 1
+[ 38.088860 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 22, function: 0 } to idx 0xFFFF0000401B0000
+[ 38.102314 0 driver_pci::root_complex:138] begin: 01:16.0 @ 0xFFFF0000401B0000
+[ 38.110734 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 38.117677 0 driver_pci::root_complex:145] dev + 1
+[ 38.123666 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 23, function: 0 } to idx 0xFFFF0000401B8000
+[ 38.137120 0 driver_pci::root_complex:138] begin: 01:17.0 @ 0xFFFF0000401B8000
+[ 38.145540 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 38.152484 0 driver_pci::root_complex:145] dev + 1
+[ 38.158473 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 24, function: 0 } to idx 0xFFFF0000401C0000
+[ 38.171927 0 driver_pci::root_complex:138] begin: 01:18.0 @ 0xFFFF0000401C0000
+[ 38.180347 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 38.187291 0 driver_pci::root_complex:145] dev + 1
+[ 38.193280 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 25, function: 0 } to idx 0xFFFF0000401C8000
+[ 38.206734 0 driver_pci::root_complex:138] begin: 01:19.0 @ 0xFFFF0000401C8000
+[ 38.215154 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 38.222098 0 driver_pci::root_complex:145] dev + 1
+[ 38.228087 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 26, function: 0 } to idx 0xFFFF0000401D0000
+[ 38.241541 0 driver_pci::root_complex:138] begin: 01:1a.0 @ 0xFFFF0000401D0000
+[ 38.249961 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 38.256904 0 driver_pci::root_complex:145] dev + 1
+[ 38.262894 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 27, function: 0 } to idx 0xFFFF0000401D8000
+[ 38.276348 0 driver_pci::root_complex:138] begin: 01:1b.0 @ 0xFFFF0000401D8000
+[ 38.284767 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 38.291711 0 driver_pci::root_complex:145] dev + 1
+[ 38.297700 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 28, function: 0 } to idx 0xFFFF0000401E0000
+[ 38.311154 0 driver_pci::root_complex:138] begin: 01:1c.0 @ 0xFFFF0000401E0000
+[ 38.319574 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 38.326518 0 driver_pci::root_complex:145] dev + 1
+[ 38.332507 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 29, function: 0 } to idx 0xFFFF0000401E8000
+[ 38.345961 0 driver_pci::root_complex:138] begin: 01:1d.0 @ 0xFFFF0000401E8000
+[ 38.354381 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 38.361325 0 driver_pci::root_complex:145] dev + 1
+[ 38.367314 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 30, function: 0 } to idx 0xFFFF0000401F0000
+[ 38.380768 0 driver_pci::root_complex:138] begin: 01:1e.0 @ 0xFFFF0000401F0000
+[ 38.389188 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 38.396132 0 driver_pci::root_complex:145] dev + 1
+[ 38.402121 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 1, device: 31, function: 0 } to idx 0xFFFF0000401F8000
+[ 38.415575 0 driver_pci::root_complex:138] begin: 01:1f.0 @ 0xFFFF0000401F8000
+[ 38.423995 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 38.430938 0 driver_pci::root_complex:145] dev + 1
+[ 38.436928 0 driver_pci::root_complex:110] pop stack! 00:01.0
+[ 38.443872 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 1, function: 0 } to idx 0xFFFF000040008000
+[ 38.457239 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 2, function: 0 } to idx 0xFFFF000040010000
+[ 38.470606 0 driver_pci::root_complex:138] begin: 00:02.0 @ 0xFFFF000040010000
+[ 38.479026 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 38.485970 0 driver_pci::root_complex:145] dev + 1
+[ 38.491959 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 3, function: 0 } to idx 0xFFFF000040018000
+[ 38.505326 0 driver_pci::root_complex:138] begin: 00:03.0 @ 0xFFFF000040018000
+[ 38.513746 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 38.520690 0 driver_pci::root_complex:145] dev + 1
+[ 38.526679 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 4, function: 0 } to idx 0xFFFF000040020000
+[ 38.540046 0 driver_pci::root_complex:138] begin: 00:04.0 @ 0xFFFF000040020000
+[ 38.548466 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 38.555410 0 driver_pci::root_complex:145] dev + 1
+[ 38.561399 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 5, function: 0 } to idx 0xFFFF000040028000
+[ 38.574766 0 driver_pci::root_complex:138] begin: 00:05.0 @ 0xFFFF000040028000
+[ 38.583186 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 38.590130 0 driver_pci::root_complex:145] dev + 1
+[ 38.596119 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 6, function: 0 } to idx 0xFFFF000040030000
+[ 38.609486 0 driver_pci::root_complex:138] begin: 00:06.0 @ 0xFFFF000040030000
+[ 38.617906 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 38.624850 0 driver_pci::root_complex:145] dev + 1
+[ 38.630839 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 7, function: 0 } to idx 0xFFFF000040038000
+[ 38.644206 0 driver_pci::root_complex:138] begin: 00:07.0 @ 0xFFFF000040038000
+[ 38.652626 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 38.659570 0 driver_pci::root_complex:145] dev + 1
+[ 38.665559 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 8, function: 0 } to idx 0xFFFF000040040000
+[ 38.678926 0 driver_pci::root_complex:138] begin: 00:08.0 @ 0xFFFF000040040000
+[ 38.687346 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 38.694290 0 driver_pci::root_complex:145] dev + 1
+[ 38.700279 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 9, function: 0 } to idx 0xFFFF000040048000
+[ 38.713646 0 driver_pci::root_complex:138] begin: 00:09.0 @ 0xFFFF000040048000
+[ 38.722066 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 38.729010 0 driver_pci::root_complex:145] dev + 1
+[ 38.734999 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 10, function: 0 } to idx 0xFFFF000040050000
+[ 38.748453 0 driver_pci::root_complex:138] begin: 00:0a.0 @ 0xFFFF000040050000
+[ 38.756873 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 38.763816 0 driver_pci::root_complex:145] dev + 1
+[ 38.769806 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 11, function: 0 } to idx 0xFFFF000040058000
+[ 38.783260 0 driver_pci::root_complex:138] begin: 00:0b.0 @ 0xFFFF000040058000
+[ 38.791680 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 38.798623 0 driver_pci::root_complex:145] dev + 1
+[ 38.804612 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 12, function: 0 } to idx 0xFFFF000040060000
+[ 38.818066 0 driver_pci::root_complex:138] begin: 00:0c.0 @ 0xFFFF000040060000
+[ 38.826486 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 38.833430 0 driver_pci::root_complex:145] dev + 1
+[ 38.839419 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 13, function: 0 } to idx 0xFFFF000040068000
+[ 38.852873 0 driver_pci::root_complex:138] begin: 00:0d.0 @ 0xFFFF000040068000
+[ 38.861293 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 38.868237 0 driver_pci::root_complex:145] dev + 1
+[ 38.874226 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 14, function: 0 } to idx 0xFFFF000040070000
+[ 38.887680 0 driver_pci::root_complex:138] begin: 00:0e.0 @ 0xFFFF000040070000
+[ 38.896100 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 38.903044 0 driver_pci::root_complex:145] dev + 1
+[ 38.909033 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 15, function: 0 } to idx 0xFFFF000040078000
+[ 38.922487 0 driver_pci::root_complex:138] begin: 00:0f.0 @ 0xFFFF000040078000
+[ 38.930907 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 38.937850 0 driver_pci::root_complex:145] dev + 1
+[ 38.943840 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 16, function: 0 } to idx 0xFFFF000040080000
+[ 38.957294 0 driver_pci::root_complex:138] begin: 00:10.0 @ 0xFFFF000040080000
+[ 38.965713 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 38.972657 0 driver_pci::root_complex:145] dev + 1
+[ 38.978646 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 17, function: 0 } to idx 0xFFFF000040088000
+[ 38.992100 0 driver_pci::root_complex:138] begin: 00:11.0 @ 0xFFFF000040088000
+[ 39.000520 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 39.007464 0 driver_pci::root_complex:145] dev + 1
+[ 39.013453 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 18, function: 0 } to idx 0xFFFF000040090000
+[ 39.026907 0 driver_pci::root_complex:138] begin: 00:12.0 @ 0xFFFF000040090000
+[ 39.035327 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 39.042271 0 driver_pci::root_complex:145] dev + 1
+[ 39.048260 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 19, function: 0 } to idx 0xFFFF000040098000
+[ 39.061714 0 driver_pci::root_complex:138] begin: 00:13.0 @ 0xFFFF000040098000
+[ 39.070134 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 39.077078 0 driver_pci::root_complex:145] dev + 1
+[ 39.083067 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 20, function: 0 } to idx 0xFFFF0000400A0000
+[ 39.096521 0 driver_pci::root_complex:138] begin: 00:14.0 @ 0xFFFF0000400A0000
+[ 39.104941 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 39.111884 0 driver_pci::root_complex:145] dev + 1
+[ 39.117874 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 21, function: 0 } to idx 0xFFFF0000400A8000
+[ 39.131328 0 driver_pci::root_complex:138] begin: 00:15.0 @ 0xFFFF0000400A8000
+[ 39.139748 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 39.146691 0 driver_pci::root_complex:145] dev + 1
+[ 39.152680 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 22, function: 0 } to idx 0xFFFF0000400B0000
+[ 39.166134 0 driver_pci::root_complex:138] begin: 00:16.0 @ 0xFFFF0000400B0000
+[ 39.174554 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 39.181498 0 driver_pci::root_complex:145] dev + 1
+[ 39.187487 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 23, function: 0 } to idx 0xFFFF0000400B8000
+[ 39.200941 0 driver_pci::root_complex:138] begin: 00:17.0 @ 0xFFFF0000400B8000
+[ 39.209361 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 39.216305 0 driver_pci::root_complex:145] dev + 1
+[ 39.222294 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 24, function: 0 } to idx 0xFFFF0000400C0000
+[ 39.235748 0 driver_pci::root_complex:138] begin: 00:18.0 @ 0xFFFF0000400C0000
+[ 39.244168 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 39.251112 0 driver_pci::root_complex:145] dev + 1
+[ 39.257101 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 25, function: 0 } to idx 0xFFFF0000400C8000
+[ 39.270555 0 driver_pci::root_complex:138] begin: 00:19.0 @ 0xFFFF0000400C8000
+[ 39.278975 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 39.285918 0 driver_pci::root_complex:145] dev + 1
+[ 39.291908 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 26, function: 0 } to idx 0xFFFF0000400D0000
+[ 39.305362 0 driver_pci::root_complex:138] begin: 00:1a.0 @ 0xFFFF0000400D0000
+[ 39.313782 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 39.320725 0 driver_pci::root_complex:145] dev + 1
+[ 39.326714 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 27, function: 0 } to idx 0xFFFF0000400D8000
+[ 39.340168 0 driver_pci::root_complex:138] begin: 00:1b.0 @ 0xFFFF0000400D8000
+[ 39.348588 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 39.355532 0 driver_pci::root_complex:145] dev + 1
+[ 39.361521 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 28, function: 0 } to idx 0xFFFF0000400E0000
+[ 39.374975 0 driver_pci::root_complex:138] begin: 00:1c.0 @ 0xFFFF0000400E0000
+[ 39.383395 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 39.390339 0 driver_pci::root_complex:145] dev + 1
+[ 39.396328 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 29, function: 0 } to idx 0xFFFF0000400E8000
+[ 39.409782 0 driver_pci::root_complex:138] begin: 00:1d.0 @ 0xFFFF0000400E8000
+[ 39.418202 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 39.425146 0 driver_pci::root_complex:145] dev + 1
+[ 39.431135 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 30, function: 0 } to idx 0xFFFF0000400F0000
+[ 39.444589 0 driver_pci::root_complex:138] begin: 00:1e.0 @ 0xFFFF0000400F0000
+[ 39.453009 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 39.459952 0 driver_pci::root_complex:145] dev + 1
+[ 39.465942 0 driver_pci::phytium:70] mapconf 0xffff000040000000-PciAddress { bus: 0, device: 31, function: 0 } to idx 0xFFFF0000400F8000
+[ 39.479396 0 driver_pci::root_complex:138] begin: 00:1f.0 @ 0xFFFF0000400F8000
+[ 39.487816 0 driver_pci::root_complex:141] vid FFFF, did FFFF
+[ 39.494759 0 driver_pci::root_complex:145] dev + 1
+[ 39.500749 0 driver_pci::root_complex:116] none!
+[ 39.506564 0 axdriver:190] number of usb host controller: 0
+[ 39.513335 0 axruntime:201] Primary CPU 512 init OK.
 Available commands:
   exit
   help
@@ -323,169 +324,95 @@ Available commands:
   str
   test_xhci
   enum_device
-arceos# test)x  _xhci
-[ 55.586474 0:2 driver_usb::host::xhci:49] resetting xhci controller
-[ 55.591235 0:2 driver_usb::host::xhci:50] before reset:UsbStatusRegister { hc_halted: false, host_system_error: false, event_interrupt: false, port_change_detect: true, save_state_status: false, restore_state_status: false, save_restore_error: false, controller_not_ready: false, host_controller_error: false },pagesize: 1
-[ 55.620833 0:2 driver_usb::host::xhci:136] stop
-[ 55.626562 0:2 driver_usb::host::xhci:141] wait until halt
-[ 55.633246 0:2 driver_usb::host::xhci:143] halted
-[ 55.639148 0:2 driver_usb::host::xhci:145] HCRST!
-[ 55.645052 0:2 driver_usb::host::xhci:171] Reset xHCI Controller Globally
-[ 55.653037 0:2 driver_usb::host::xhci:56] pagesize: 1
-[ 55.659286 0:2 driver_usb::host::structures::xhci_slot_manager:65] max slot: 16
-[ 55.667795 0:2 driver_usb::host::structures::xhci_slot_manager:87] initialized!
-[ 55.676302 0:2 driver_usb::host::structures::xhci_slot_manager:21] assign device: VA:0x90192000 to dcbaa 0
-[ 55.687150 0:2 driver_usb::host::structures::scratchpad:79] initialized!
-[ 55.695083 0:2 driver_usb::host::structures::xhci_command_manager:271] initialized!
-[ 55.703901 0:2 driver_usb::host::structures::xhci_event_manager:43] initilizating!
-[ 55.712702 0:2 driver_usb::host::structures::event_ring:33] created! event ring, check alignment of 4k: VA:0x90195000
-[ 55.724473 0:2 driver_usb::host::structures::xhci_event_manager:56] test
-[ 55.732377 0:2 driver_usb::host::structures::xhci_event_manager:96] initialized!
-[ 55.740966 0:2 driver_usb::host::structures::xhci_roothub:99] number of ports:2
-[ 55.749471 0:2 driver_usb::host::structures::xhci_roothub:104] allocating port 0
-[ 55.758066 0:2 driver_usb::host::structures:101] ----dumped port state: PortStatusAndControlRegister { current_connect_status: false, port_enabled_disabled: false, over_current_active: false, port_reset: false, port_link_state: 5, port_power: true, port_speed: 0, port_indicator_control: Off, port_link_state_write_strobe: false, connect_status_change: false, port_enabled_disabled_change: false, warm_port_reset_change: false, over_current_change: false, port_reset_change: false, port_link_state_change: false, port_config_error_change: false, cold_attach_status: false, wake_on_connect_enable: false, wake_on_disconnect_enable: false, wake_on_over_current_enable: false, device_removable: false, warm_port_reset: false }
-[ 55.822470 0:2 driver_usb::host::structures::xhci_roothub:111] assert:0 == 0
-[ 55.830716 0:2 driver_usb::host::structures::xhci_roothub:104] allocating port 1
-[ 55.839310 0:2 driver_usb::host::structures:101] ----dumped port state: PortStatusAndControlRegister { current_connect_status: true, port_enabled_disabled: true, over_current_active: false, port_reset: false, port_link_state: 0, port_power: true, port_speed: 4, port_indicator_control: Off, port_link_state_write_strobe: false, connect_status_change: false, port_enabled_disabled_change: false, warm_port_reset_change: false, over_current_change: false, port_reset_change: true, port_link_state_change: false, port_config_error_change: false, cold_attach_status: false, wake_on_connect_enable: false, wake_on_disconnect_enable: false, wake_on_over_current_enable: false, device_removable: false, warm_port_reset: false }
-[ 55.903455 0:2 driver_usb::host::structures::xhci_roothub:111] assert:1 == 1
-[ 55.911700 0:2 driver_usb::host::structures::xhci_roothub:115] ended
-[ 55.919252 0:2 driver_usb::host::structures::xhci_roothub:125] initialized!
-[ 55.927411 0:2 driver_usb::host::xhci:70] before start:UsbStatusRegister { hc_halted: true, host_system_error: false, event_interrupt: false, port_change_detect: true, save_state_status: false, restore_state_status: false, save_restore_error: false, controller_not_ready: false, host_controller_error: false }
-[ 55.955883 0:2 driver_usb::host::xhci:82] init completed!, coltroller state:UsbStatusRegister { hc_halted: false, host_system_error: false, event_interrupt: false, port_change_detect: true, save_state_status: false, restore_state_status: false, save_restore_error: false, controller_not_ready: false, host_controller_error: false }
-[ 55.986264 0:2 driver_usb::host::xhci:91] port0 : false
-[ 55.992686 0:2 driver_usb::host::xhci:91] port1 : true
-[ 55.999021 0:2 driver_usb::host::xhci:101] initializing roothub
-[ 56.006139 0:2 driver_usb::host::structures::xhci_roothub:45] initializing root ports
-[ 56.015166 0:2 driver_usb::host::structures::xhci_roothub:50] initializing port 0
-[ 56.023849 0:2 driver_usb::host::structures::root_port:25] port 0 not connected
-[ 56.032353 0:2 driver_usb::host::structures::xhci_roothub:50] initializing port 1
-[ 56.041034 0:2 driver_usb::host::structures::root_port:28] port 1 connected, continue
-[ 56.050060 0:2 driver_usb::host::structures:113] reseting port 1
-[ 56.057265 0:2 driver_usb::host::structures:115] before reset Port 1, status: PortStatusAndControlRegister { current_connect_status: true, port_enabled_disabled: true, over_current_active: false, port_reset: false, port_link_state: 0, port_power: true, port_speed: 4, port_indicator_control: Off, port_link_state_write_strobe: false, connect_status_change: false, port_enabled_disabled_change: false, warm_port_reset_change: false, over_current_change: false, port_reset_change: true, port_link_state_change: false, port_config_error_change: false, cold_attach_status: false, wake_on_connect_enable: false, wake_on_disconnect_enable: false, wake_on_over_current_enable: false, device_removable: false, warm_port_reset: false }
-[ 56.121941 0:2 driver_usb::host::structures:141] Port 1 reset ok, status: PortStatusAndControlRegister { current_connect_status: true, port_enabled_disabled: true, over_current_active: false, port_reset: false, port_link_state: 0, port_power: true, port_speed: 4, port_indicator_control: Off, port_link_state_write_strobe: false, connect_status_change: false, port_enabled_disabled_change: false, warm_port_reset_change: false, over_current_change: false, port_reset_change: true, port_link_state_change: false, port_config_error_change: false, cold_attach_status: false, wake_on_connect_enable: false, wake_on_disconnect_enable: false, wake_on_over_current_enable: false, device_removable: false, warm_port_reset: false }
-[ 56.186250 0:2 driver_usb::host::structures:101] ----dumped port state: PortStatusAndControlRegister { current_connect_status: true, port_enabled_disabled: true, over_current_active: false, port_reset: false, port_link_state: 0, port_power: true, port_speed: 4, port_indicator_control: Off, port_link_state_write_strobe: false, connect_status_change: false, port_enabled_disabled_change: false, warm_port_reset_change: false, over_current_change: false, port_reset_change: true, port_link_state_change: false, port_config_error_change: false, cold_attach_status: false, wake_on_connect_enable: false, wake_on_disconnect_enable: false, wake_on_over_current_enable: false, device_removable: false, warm_port_reset: false }
-[ 56.250395 0:2 driver_usb::host::structures::root_port:37] port speed: USBSpeedSuper
-[ 56.259334 0:2 driver_usb::host::structures::root_port:39] initializing device: USBSpeedSuper
-[ 56.269056 0:2 driver_usb::host::structures::xhci_usb_device:48] new device! port:1
-[ 56.277984 0:2 driver_usb::host::structures::root_port:42] writing ...
-[ 56.285635 0:2 driver_usb::host::structures::root_port:45] writing complete
-[ 56.293794 0:2 driver_usb::host::structures::xhci_usb_device:63] initialize/enum this device! port=1
-[ 56.304123 0:2 driver_usb::host::structures::xhci_command_manager:147] do command EnableSlot(EnableSlot { slot_type: 0, cycle_bit: true }) !
-[ 56.317924 0:2 driver_usb::host::structures::xhci_command_manager:151] enque trb, assert addr 16B aligned! 90193000
-[ 56.329556 0:2 driver_usb::host::structures::xhci_command_manager:167] waiting for interrupt handler complete!
-[ 56.340755 0:2 driver_usb::host::structures::xhci_event_manager:106] event handler has a trb:PortStatusChange(PortStatusChange { completion_code: Ok(Success), port_id: 2, cycle_bit: true })
-[ 56.358807 0:2 driver_usb::host::structures::xhci_event_manager:135] step into port status change.
+arceos# test_xhci
+[ 41.801818 0:2 driver_usb::host::xhci:49] resetting xhci controller
+[ 41.806580 0:2 driver_usb::host::xhci:50] before reset:UsbStatusRegister { hc_halted: false, host_system_error: false, event_interrupt: false, port_change_detect: true, save_state_status: false, restore_state_status: false, save_restore_error: false, controller_not_ready: false, host_controller_error: false },pagesize: 1
+[ 41.836178 0:2 driver_usb::host::xhci:136] stop
+[ 41.841907 0:2 driver_usb::host::xhci:141] wait until halt
+[ 41.848590 0:2 driver_usb::host::xhci:143] halted
+[ 41.854492 0:2 driver_usb::host::xhci:145] HCRST!
+[ 41.860396 0:2 driver_usb::host::xhci:154] get bios ownership
+[ 41.867341 0:2 driver_usb::host::xhci:168] taked xhci ownershop
+[ 41.874457 0:2 driver_usb::host::xhci:56] pagesize: 1
+[ 41.880708 0:2 driver_usb::host::structures::xhci_roothub:94] number of ports:2
+[ 41.889212 0:2 driver_usb::host::structures::xhci_roothub:99] allocating port 0
+[ 41.897721 0:2 driver_usb::host::structures:101] ----dumped port state: PortStatusAndControlRegister { current_connect_status: false, port_enabled_disabled: false, over_current_active: false, port_reset: false, port_link_state: 5, port_power: true, port_speed: 0, port_indicator_control: Off, port_link_state_write_strobe: false, connect_status_change: false, port_enabled_disabled_change: false, warm_port_reset_change: false, over_current_change: false, port_reset_change: false, port_link_state_change: false, port_config_error_change: false, cold_attach_status: false, wake_on_connect_enable: false, wake_on_disconnect_enable: false, wake_on_over_current_enable: false, device_removable: false, warm_port_reset: false }
+[ 41.962125 0:2 driver_usb::host::structures::xhci_roothub:106] assert:0 == 0
+[ 41.970370 0:2 driver_usb::host::structures::xhci_roothub:99] allocating port 1
+[ 41.978878 0:2 driver_usb::host::structures:101] ----dumped port state: PortStatusAndControlRegister { current_connect_status: true, port_enabled_disabled: true, over_current_active: false, port_reset: false, port_link_state: 0, port_power: true, port_speed: 4, port_indicator_control: Off, port_link_state_write_strobe: false, connect_status_change: false, port_enabled_disabled_change: false, warm_port_reset_change: false, over_current_change: false, port_reset_change: true, port_link_state_change: false, port_config_error_change: false, cold_attach_status: false, wake_on_connect_enable: false, wake_on_disconnect_enable: false, wake_on_over_current_enable: false, device_removable: false, warm_port_reset: false }
+[ 42.043022 0:2 driver_usb::host::structures::xhci_roothub:106] assert:1 == 1
+[ 42.051268 0:2 driver_usb::host::structures::xhci_roothub:110] ended
+[ 42.058820 0:2 driver_usb::host::structures::xhci_roothub:120] initialized!
+[ 42.066979 0:2 driver_usb::host::structures::xhci_slot_manager:69] max slot: 16
+[ 42.075487 0:2 driver_usb::host::structures::xhci_slot_manager:89] addr of dcbaa: 90193040
+[ 42.084947 0:2 driver_usb::host::structures::xhci_slot_manager:98] initialized!
+[ 42.093456 0:2 driver_usb::host::structures::xhci_slot_manager:24] assign device: VA:0x90194000 to dcbaa 0
+[ 42.104304 0:2 driver_usb::host::structures::scratchpad:79] initialized!
+[ 42.112238 0:2 driver_usb::host::structures::xhci_command_manager:271] initialized!
+[ 42.121055 0:2 driver_usb::host::structures::xhci_event_manager:43] initilizating!
+[ 42.129855 0:2 driver_usb::host::structures::event_ring:33] created! event ring, check alignment of 4k: VA:0x90197000
+[ 42.141628 0:2 driver_usb::host::structures::xhci_event_manager:56] test
+[ 42.149531 0:2 driver_usb::host::structures::xhci_event_manager:96] initialized!
+[ 42.158119 0:2 driver_usb::host::xhci:70] before start:UsbStatusRegister { hc_halted: true, host_system_error: false, event_interrupt: false, port_change_detect: true, save_state_status: false, restore_state_status: false, save_restore_error: false, controller_not_ready: false, host_controller_error: false }
+[ 42.186590 0:2 driver_usb::host::xhci:82] init completed!, coltroller state:UsbStatusRegister { hc_halted: false, host_system_error: false, event_interrupt: false, port_change_detect: true, save_state_status: false, restore_state_status: false, save_restore_error: false, controller_not_ready: false, host_controller_error: false }
+[ 42.216972 0:2 driver_usb::host::xhci:91] port0 : false
+[ 42.223394 0:2 driver_usb::host::xhci:91] port1 : true
+[ 42.229729 0:2 driver_usb::host::xhci:101] initializing roothub
+[ 42.236847 0:2 driver_usb::host::structures::xhci_roothub:40] initializing root ports
+[ 42.245874 0:2 driver_usb::host::structures::xhci_roothub:45] initializing port 0
+[ 42.254556 0:2 driver_usb::host::structures::root_port:24] port 0 not connected
+[ 42.263060 0:2 driver_usb::host::structures::xhci_roothub:45] initializing port 1
+[ 42.271741 0:2 driver_usb::host::structures::root_port:27] port 1 connected, continue
+[ 42.280767 0:2 driver_usb::host::structures:113] reseting port 1
+[ 42.287973 0:2 driver_usb::host::structures:115] before reset Port 1, status: PortStatusAndControlRegister { current_connect_status: true, port_enabled_disabled: true, over_current_active: false, port_reset: false, port_link_state: 0, port_power: true, port_speed: 4, port_indicator_control: Off, port_link_state_write_strobe: false, connect_status_change: false, port_enabled_disabled_change: false, warm_port_reset_change: false, over_current_change: false, port_reset_change: true, port_link_state_change: false, port_config_error_change: false, cold_attach_status: false, wake_on_connect_enable: false, wake_on_disconnect_enable: false, wake_on_over_current_enable: false, device_removable: false, warm_port_reset: false }
+[ 42.352646 0:2 driver_usb::host::structures:141] Port 1 reset ok, status: PortStatusAndControlRegister { current_connect_status: true, port_enabled_disabled: true, over_current_active: false, port_reset: false, port_link_state: 0, port_power: true, port_speed: 4, port_indicator_control: Off, port_link_state_write_strobe: false, connect_status_change: false, port_enabled_disabled_change: false, warm_port_reset_change: false, over_current_change: false, port_reset_change: true, port_link_state_change: false, port_config_error_change: false, cold_attach_status: false, wake_on_connect_enable: false, wake_on_disconnect_enable: false, wake_on_over_current_enable: false, device_removable: false, warm_port_reset: false }
+[ 42.416958 0:2 driver_usb::host::structures:101] ----dumped port state: PortStatusAndControlRegister { current_connect_status: true, port_enabled_disabled: true, over_current_active: false, port_reset: false, port_link_state: 0, port_power: true, port_speed: 4, port_indicator_control: Off, port_link_state_write_strobe: false, connect_status_change: false, port_enabled_disabled_change: false, warm_port_reset_change: false, over_current_change: false, port_reset_change: true, port_link_state_change: false, port_config_error_change: false, cold_attach_status: false, wake_on_connect_enable: false, wake_on_disconnect_enable: false, wake_on_over_current_enable: false, device_removable: false, warm_port_reset: false }
+[ 42.481103 0:2 driver_usb::host::structures::root_port:37] port speed: USBSpeedSuper
+[ 42.490042 0:2 driver_usb::host::structures::root_port:39] initializing device: USBSpeedSuper
+[ 42.499764 0:2 driver_usb::host::structures::xhci_usb_device:49] new device! port:1
+[ 42.508692 0:2 driver_usb::host::structures::root_port:42] writing ...
+[ 42.516342 0:2 driver_usb::host::structures::root_port:45] writing complete
+[ 42.524502 0:2 driver_usb::host::structures::xhci_usb_device:64] initialize/enum this device! port=1
+[ 42.534831 0:2 driver_usb::host::structures::xhci_command_manager:147] do command EnableSlot(EnableSlot { slot_type: 0, cycle_bit: true }) !
+[ 42.548632 0:2 driver_usb::host::structures::xhci_command_manager:151] enque trb, assert addr 16B aligned! 90195000
+[ 42.560264 0:2 driver_usb::host::structures::xhci_command_manager:167] waiting for interrupt handler complete!
+[ 42.571464 0:2 driver_usb::host::structures::xhci_event_manager:106] event handler has a trb:PortStatusChange(PortStatusChange { completion_code: Ok(Success), port_id: 2, cycle_bit: true })
+[ 42.589515 0:2 driver_usb::host::structures::xhci_event_manager:135] step into port status change.
 
-[ 56.369136 0:2 driver_usb::host::structures::xhci_roothub:78] port 1 changed!
-[ 56.377470 0:2 driver_usb::host::structures:101] ----dumped port state: PortStatusAndControlRegister { current_connect_status: true, port_enabled_disabled: true, over_current_active: false, port_reset: false, port_link_state: 0, port_power: true, port_speed: 4, port_indicator_control: Off, port_link_state_write_strobe: false, connect_status_change: false, port_enabled_disabled_change: false, warm_port_reset_change: false, over_current_change: false, port_reset_change: true, port_link_state_change: false, port_config_error_change: false, cold_attach_status: false, wake_on_connect_enable: false, wake_on_disconnect_enable: false, wake_on_over_current_enable: false, device_removable: false, warm_port_reset: false }
-[ 56.441615 0:2 driver_usb::host::structures::xhci_event_manager:106] event handler has a trb:PortStatusChange(PortStatusChange { completion_code: Ok(Success), port_id: 2, cycle_bit: true })
-[ 56.459668 0:2 driver_usb::host::structures::xhci_event_manager:135] step into port status change.
+[ 42.599844 0:2 driver_usb::host::structures::xhci_roothub:73] port 1 changed!
+[ 42.608178 0:2 driver_usb::host::structures:101] ----dumped port state: PortStatusAndControlRegister { current_connect_status: true, port_enabled_disabled: true, over_current_active: false, port_reset: false, port_link_state: 0, port_power: true, port_speed: 4, port_indicator_control: Off, port_link_state_write_strobe: false, connect_status_change: false, port_enabled_disabled_change: false, warm_port_reset_change: false, over_current_change: false, port_reset_change: true, port_link_state_change: false, port_config_error_change: false, cold_attach_status: false, wake_on_connect_enable: false, wake_on_disconnect_enable: false, wake_on_over_current_enable: false, device_removable: false, warm_port_reset: false }
+[ 42.672323 0:2 driver_usb::host::structures::xhci_event_manager:106] event handler has a trb:PortStatusChange(PortStatusChange { completion_code: Ok(Success), port_id: 2, cycle_bit: true })
+[ 42.690376 0:2 driver_usb::host::structures::xhci_event_manager:135] step into port status change.
 
-[ 56.469997 0:2 driver_usb::host::structures::xhci_roothub:78] port 1 changed!
-[ 56.478332 0:2 driver_usb::host::structures:101] ----dumped port state: PortStatusAndControlRegister { current_connect_status: true, port_enabled_disabled: true, over_current_active: false, port_reset: false, port_link_state: 0, port_power: true, port_speed: 4, port_indicator_control: Off, port_link_state_write_strobe: false, connect_status_change: false, port_enabled_disabled_change: false, warm_port_reset_change: false, over_current_change: false, port_reset_change: true, port_link_state_change: false, port_config_error_change: false, cold_attach_status: false, wake_on_connect_enable: false, wake_on_disconnect_enable: false, wake_on_over_current_enable: false, device_removable: false, warm_port_reset: false }
-[ 56.542477 0:2 driver_usb::host::structures::xhci_event_manager:106] event handler has a trb:CommandCompletion(CommandCompletion { completion_code: Ok(Success), command_trb_pointer: 2417569792, command_completion_parameter: 0, vf_id: 0, slot_id: 1, cycle_bit: true })
-[ 56.567301 0:2 driver_usb::host::structures::xhci_command_manager:230] handleing command complete:CommandCompletion { completion_code: Ok(Success), command_trb_pointer: 2417569792, command_completion_parameter: 0, vf_id: 0, slot_id: 1, cycle_bit: true }
-[ 56.590912 0:2 driver_usb::host::structures::xhci_command_manager:182] t o t a l success!
-[ 56.600285 0:2 driver_usb::host::structures::xhci_usb_device:88] enable slot success! CommandCompletion { completion_code: Ok(Success), command_trb_pointer: 2417569792, command_completion_parameter: 0, vf_id: 0, slot_id: 1, cycle_bit: true }
-[ 56.622853 0:2 driver_usb::host::structures::xhci_usb_device:97] init input ctx
-[ 56.631360 0:2 driver_usb::host::structures::xhci_usb_device:160] endpoint 0 state: Disabled, slot state: DisabledEnabled
-[ 56.643513 0:2 driver_usb::host::structures::xhci_usb_device:132] begin config endpoint 0 and assign dev!
-[ 56.654276 0:2 driver_usb::host::structures::xhci_usb_device:135] config ep0
-[ 56.662520 0:2 driver_usb::host::structures::xhci_usb_device:160] endpoint 0 state: Disabled, slot state: DisabledEnabled
-[ 56.674673 0:2 driver_usb::host::structures::xhci_usb_device:143] address of transfer ring: 9019b000
-[ 56.685003 0:2 driver_usb::host::structures::xhci_usb_device:169] assigning device into dcbaa, slot number= 1,output addr: VA:0x9019a000
-[ 56.698455 0:2 driver_usb::host::structures::xhci_slot_manager:21] assign device: VA:0x9019a000 to dcbaa 1
-[ 56.709306 0:2 driver_usb::host::structures::xhci_usb_device:183] addressing device
-[ 56.718159 0:2 driver_usb::host::structures::xhci_usb_device:185] address to input VA:0x90199000, check 4k alignment!
-[ 56.729964 0:2 driver_usb::host::structures::xhci_command_manager:105] addressing device!
-[ 56.739338 0:2 driver_usb::host::structures::xhci_command_manager:147] do command AddressDevice(AddressDevice { input_context_pointer: 2417594368, block_set_address_request: false, slot_id: 1, cycle_bit: true }) !
-[ 56.759476 0:2 driver_usb::host::structures::xhci_command_manager:151] enque trb, assert addr 16B aligned! 90193010
-[ 56.771108 0:2 driver_usb::host::structures::xhci_command_manager:167] waiting for interrupt handler complete!
-[ 56.782305 0:2 driver_usb::host::structures::xhci_event_manager:106] event handler has a trb:CommandCompletion(CommandCompletion { completion_code: Ok(ParameterError), command_trb_pointer: 2417569808, command_completion_parameter: 0, vf_id: 0, slot_id: 1, cycle_bit: true })
-[ 56.807736 0:2 driver_usb::host::structures::xhci_command_manager:230] handleing command complete:CommandCompletion { completion_code: Ok(ParameterError), command_trb_pointer: 2417569808, command_completion_parameter: 0, vf_id: 0, slot_id: 1, cycle_bit: true }
-[ 56.831955 0:2 driver_usb::host::structures::xhci_command_manager:186] ok, but: ParameterError
- full trb: CommandCompletion { completion_code: Ok(ParameterError), command_trb_pointer: 2417569808, command_completion_parameter: 0, vf_id: 0, slot_id: 1, cycle_bit: true }
-[ 56.856952 0:2 driver_usb::host::structures::xhci_usb_device:197] error while address device at slot id 1
-[ 56.867715 0:2 driver_usb::host::structures::xhci_usb_device:205] assert ep0 running!
-[ 56.876743 0:2 driver_usb::host::structures::xhci_usb_device:160] endpoint 0 state: Disabled, slot state: DisabledEnabled
-[ 56.888895 0:2 driver_usb::host::structures::xhci_usb_device:160] endpoint 0 state: Disabled, slot state: DisabledEnabled
-[ 56.901048 0:2 driver_usb::host::structures:101] ----dumped port state: PortStatusAndControlRegister { current_connect_status: true, port_enabled_disabled: true, over_current_active: false, port_reset: false, port_link_state: 0, port_power: true, port_speed: 4, port_indicator_control: Off, port_link_state_write_strobe: false, connect_status_change: false, port_enabled_disabled_change: false, warm_port_reset_change: false, over_current_change: false, port_reset_change: true, port_link_state_change: false, port_config_error_change: false, cold_attach_status: false, wake_on_connect_enable: false, wake_on_disconnect_enable: false, wake_on_over_current_enable: false, device_removable: false, warm_port_reset: false }
-[ 56.965192 0:2 driver_usb::host::structures::root_port:49] initialize complete
-[ 56.973612 0:2 driver_usb::host::structures::xhci_roothub:54] configuring root ports
-arceos# 
-arceos# ldr     test    ldr 90193000 16
-ldr
-offset: 0x00: 00000000000000000000000000000000
-offset: 0x04: 00000000000000000000000000000000
-offset: 0x08: 00000000000000000000000000000000
-offset: 0x0c: 00000000000000000010010000000001
-offset: 0x10: 10010000000110011001000000000000
-offset: 0x14: 00000000000000000000000000000000
-offset: 0x18: 00000000000000000000000000000000
-offset: 0x1c: 00000001000000000010110000000001
-offset: 0x20: 00000000000000000000000000000000
-offset: 0x24: 00000000000000000000000000000000
-offset: 0x28: 00000000000000000000000000000000
-offset: 0x2c: 00000000000000000000000000000000
-offset: 0x30: 00000000000000000000000000000000
-offset: 0x34: 00000000000000000000000000000000
-offset: 0x38: 00000000000000000000000000000000
-offset: 0x3c: 00000000000000000000000000000000
-offset: 0x40: 00000000000000000000000000000000
-offset: 0x44: 00000000000000000000000000000000
-offset: 0x48: 00000000000000000000000000000000
-offset: 0x4c: 00000000000000000000000000000000
-offset: 0x50: 00000000000000000000000000000000
-offset: 0x54: 00000000000000000000000000000000
-offset: 0x58: 00000000000000000000000000000000
-offset: 0x5c: 00000000000000000000000000000000
-offset: 0x60: 00000000000000000000000000000000
-offset: 0x64: 00000000000000000000000000000000
-offset: 0x68: 00000000000000000000000000000000
-offset: 0x6c: 00000000000000000000000000000000
-offset: 0x70: 00000000000000000000000000000000
-offset: 0x74: 00000000000000000000000000000000
-offset: 0x78: 00000000000000000000000000000000
-offset: 0x7c: 00000000000000000000000000000000
-arceos# ldr 90193000 2
-ldr
-offset: 0x00: 00000000000000000000000000000000
-offset: 0x04: 00000000000000000000000000000000
-offset: 0x08: 00000000000000000000000000000000
-offset: 0x0c: 00000000000000000010010000000001
-arceos# 
-arceos# ldr 40008000 16
-ldr
-offset: 0x00: 11011100000000010001110110110111
-offset: 0x04: 00000000000100000000000000000111
-offset: 0x08: 00000110000001000000000000000000
-offset: 0x0c: 00000000000000010000000000001000
-offset: 0x10: 00000000000000000000000000001100
-offset: 0x14: 00000000000000000000000000010000
-offset: 0x18: 00000000000000010000000100000000
-offset: 0x1c: 00000000000000000000000100010001
-offset: 0x20: 01010111111100000101100000000000
-offset: 0x24: 00000000000000010000000000010001
-offset: 0x28: 00000000000000000000000000010000
-offset: 0x2c: 00000000000000000000000000010000
-offset: 0x30: 00000000000000000000000000000000
-offset: 0x34: 00000000000000000000000010000000
-offset: 0x38: 00000000000000000000000000000000
-offset: 0x3c: 00000000000000000000000100000000
-offset: 0x40: 00000000000000000000000000000000
-offset: 0x44: 00000000000000000000000000000000
-offset: 0x48: 00000000000000000000000000000000
-offset: 0x4c: 00000000000000000000000000000000
-offset: 0x50: 00000000000000000000000000000000
-offset: 0x54: 00000000000000000000000000000000
-offset: 0x58: 00000000000000000000000000000000
-offset: 0x5c: 00000000000000000000000000000000
-offset: 0x60: 00000000000000000000000000000000
-offset: 0x64: 00000000000000000000000000000000
-offset: 0x68: 00000000000000000000000000000000
-offset: 0x6c: 00000000000000000000000000000000
-offset: 0x70: 00000000000000000000000000000000
-offset: 0x74: 00000000000000000000000000000000
-offset: 0x78: 00000000000000000000000000000000
-offset: 0x7c: 00000000000000000000000000000000
-arceos# 
+[ 42.700705 0:2 driver_usb::host::structures::xhci_roothub:73] port 1 changed!
+[ 42.709040 0:2 driver_usb::host::structures:101] ----dumped port state: PortStatusAndControlRegister { current_connect_status: true, port_enabled_disabled: true, over_current_active: false, port_reset: false, port_link_state: 0, port_power: true, port_speed: 4, port_indicator_control: Off, port_link_state_write_strobe: false, connect_status_change: false, port_enabled_disabled_change: false, warm_port_reset_change: false, over_current_change: false, port_reset_change: true, port_link_state_change: false, port_config_error_change: false, cold_attach_status: false, wake_on_connect_enable: false, wake_on_disconnect_enable: false, wake_on_over_current_enable: false, device_removable: false, warm_port_reset: false }
+[ 42.773185 0:2 driver_usb::host::structures::xhci_event_manager:106] event handler has a trb:CommandCompletion(CommandCompletion { completion_code: Ok(Success), command_trb_pointer: 2417577984, command_completion_parameter: 0, vf_id: 0, slot_id: 1, cycle_bit: true })
+[ 42.798009 0:2 driver_usb::host::structures::xhci_command_manager:230] handleing command complete:CommandCompletion { completion_code: Ok(Success), command_trb_pointer: 2417577984, command_completion_parameter: 0, vf_id: 0, slot_id: 1, cycle_bit: true }
+[ 42.821619 0:2 driver_usb::host::structures::xhci_command_manager:182] t o t a l success!
+[ 42.830992 0:2 driver_usb::host::structures::xhci_usb_device:90] enable slot success! CommandCompletion { completion_code: Ok(Success), command_trb_pointer: 2417577984, command_completion_parameter: 0, vf_id: 0, slot_id: 1, cycle_bit: true }
+[ 42.853560 0:2 driver_usb::host::structures::xhci_usb_device:99] init input ctx
+[ 42.862068 0:2 driver_usb::host::structures::xhci_usb_device:162] endpoint 0 state: Disabled, slot state: DisabledEnabled
+[ 42.874220 0:2 driver_usb::host::structures::xhci_usb_device:134] begin config endpoint 0 and assign dev!
+[ 42.884984 0:2 driver_usb::host::structures::xhci_usb_device:137] config ep0
+[ 42.893228 0:2 driver_usb::host::structures::xhci_usb_device:162] endpoint 0 state: Disabled, slot state: DisabledEnabled
+[ 42.905381 0:2 driver_usb::host::structures::xhci_usb_device:145] address of transfer ring: 9019c000
+[ 42.915711 0:2 driver_usb::host::structures::xhci_usb_device:171] assigning device into dcbaa, slot number= 1,output addr: VA:0x9019b000
+[ 42.929163 0:2 driver_usb::host::structures::xhci_slot_manager:24] assign device: VA:0x9019b000 to dcbaa 1
+[ 42.940013 0:2 driver_usb::host::structures::xhci_usb_device:185] addressing device
+[ 42.948867 0:2 driver_usb::host::structures::xhci_usb_device:187] address to input VA:0x9019a000, check 4k alignment!
+[ 42.960672 0:2 driver_usb::host::structures::xhci_command_manager:105] addressing device!
+[ 42.970046 0:2 driver_usb::host::structures::xhci_command_manager:147] do command AddressDevice(AddressDevice { input_context_pointer: 2417598464, block_set_address_request: false, slot_id: 1, cycle_bit: true }) !
+[ 42.990184 0:2 driver_usb::host::structures::xhci_command_manager:151] enque trb, assert addr 16B aligned! 90195010
+[ 43.001815 0:2 driver_usb::host::structures::xhci_command_manager:167] waiting for interrupt handler complete!
+[ 43.013013 0:2 driver_usb::host::structures::xhci_event_manager:106] event handler has a trb:CommandCompletion(CommandCompletion { completion_code: Ok(ParameterError), command_trb_pointer: 2417578000, command_completion_parameter: 0, vf_id: 0, slot_id: 1, cycle_bit: true })
+[ 43.038444 0:2 driver_usb::host::structures::xhci_command_manager:230] handleing command complete:CommandCompletion { completion_code: Ok(ParameterError), command_trb_pointer: 2417578000, command_completion_parameter: 0, vf_id: 0, slot_id: 1, cycle_bit: true }
+[ 43.062663 0:2 driver_usb::host::structures::xhci_command_manager:186] ok, but: ParameterError
+ full trb: CommandCompletion { completion_code: Ok(ParameterError), command_trb_pointer: 2417578000, command_completion_parameter: 0, vf_id: 0, slot_id: 1, cycle_bit: true }
+[ 43.087660 0:2 driver_usb::host::structures::xhci_usb_device:199] error while address device at slot id 1
+[ 43.098423 0:2 driver_usb::host::structures::xhci_usb_device:207] assert ep0 running!
+[ 43.107451 0:2 driver_usb::host::structures::xhci_usb_device:162] endpoint 0 state: Disabled, slot state: DisabledEnabled
+[ 43.119603 0:2 driver_usb::host::structures::xhci_usb_device:162] endpoint 0 state: Disabled, slot state: DisabledEnabled
+[ 43.131756 0:2 driver_usb::host::structures:101] ----dumped port state: PortStatusAndControlRegister { current_connect_status: true, port_enabled_disabled: true, over_current_active: false, port_reset: false, port_link_state: 0, port_power: true, port_speed: 4, port_indicator_control: Off, port_link_state_write_strobe: false, connect_status_change: false, port_enabled_disabled_change: false, warm_port_reset_change: false, over_current_change: false, port_reset_change: true, port_link_state_change: false, port_config_error_change: false, cold_attach_status: false, wake_on_connect_enable: false, wake_on_disconnect_enable: false, wake_on_over_current_enable: false, device_removable: false, warm_port_reset: false }
+[ 43.295899 0:2 driver_usb::host::structures::xhci_usb_device:381] get descriptor!
+[ 43.301708 0:2 driver_usb::host::structures::xhci_usb_device:162] endpoint 0 state: Disabled, slot state: DisabledEnabled
+[ 43.313860 0:2 driver_usb::host::structures::xhci_usb_device:387] device output ctx: Byte64(

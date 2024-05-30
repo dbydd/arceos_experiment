@@ -7,11 +7,15 @@ use core::{
 
 use log::debug;
 
+#[derive(Debug)]
 pub struct DMAVec<A: Allocator, T> {
     layout: Layout,
     ptr: NonNull<[T]>,
     allocator: A,
 }
+
+unsafe impl<A: Allocator, T> Send for DMAVec<A, T> {}
+unsafe impl<A: Allocator, T> Sync for DMAVec<A, T> {}
 
 impl<A: Allocator, T> DMAVec<A, T> {
     /// DMAVec的新建方法。

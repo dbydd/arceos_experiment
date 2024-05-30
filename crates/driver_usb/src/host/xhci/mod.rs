@@ -58,11 +58,11 @@ pub(crate) fn init(mmio_base: usize) {
         registers::handle(|r| r.operational.pagesize.read_volatile().get())
     );
 
+    xhci_roothub::new();
     xhci_slot_manager::new();
     scratchpad::new();
     xhci_command_manager::new();
     xhci_event_manager::new();
-    xhci_roothub::new();
 
     // axhal::irq::register_handler(ARM_IRQ_PCIE_HOST_INTA, interrupt_handler);
     // axhal::irq::register_handler(ARM_IRQ_PCIE_HOST_INTA + 1, interrupt_handler);
@@ -151,22 +151,24 @@ fn reset_xhci_controller() {
             || r.operational.usbsts.read_volatile().controller_not_ready()
         {}
 
-        // debug!("get bios ownership");
-        // for c in extended_capabilities::iter()
-        //     .unwrap()
-        //     .filter_map(Result::ok)
-        // {
-        //     if let ExtendedCapability::UsbLegacySupport(mut u) = c {
-        //         let l = &mut u.usblegsup;
-        //         l.update_volatile(|s| {
-        //             s.set_hc_os_owned_semaphore();
-        //         });
+        debug!("get bios ownership");
+        for c in extended_capabilities::iter()
+            .unwrap()
+            .filter_map(Result::ok)
+        {
+            if let ExtendedCapability::UsbLegacySupport(mut u) = c {
+                let l = &mut u.usblegsup;
+                l.update_volatile(|s| {
+                    s.set_hc_os_owned_semaphore();
+                });
 
-        //         while l.read_volatile().hc_bios_owned_semaphore()
-        //             || !l.read_volatile().hc_os_owned_semaphore()
-        //         {}
-        //     }
-        // }
+                while l.read_volatile().hc_bios_owned_semaphore()
+                    || !l.read_volatile().hc_os_owned_semaphore()
+                {}
+                debug!("taked xhci ownershop");
+                return;
+            }
+        }
 
         debug!("Reset xHCI Controller Globally");
     });
