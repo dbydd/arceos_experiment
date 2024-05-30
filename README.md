@@ -1,3 +1,6 @@
+# 参赛相关
+[项目说明文档](./crates/driver_usb/guide/quickstart.md)
+
 # ArceOS
 
 [![CI](https://github.com/rcore-os/arceos/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/rcore-os/arceos/actions/workflows/build.yml)
