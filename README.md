@@ -1,5 +1,5 @@
 # 参赛相关
-[项目说明文档](./crates/driver_usb/guide/quickstart.md)
+[项目说明文档/代码结构导读](./crates/driver_usb/guide/)
 
 # ArceOS
 
