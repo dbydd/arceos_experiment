@@ -16,8 +16,8 @@ use page_box::PageBox;
 use spinning_top::Spinlock;
 use xhci::{
     context::{
-        Device, Device64Byte, DeviceHandler, EndpointState, EndpointType, Input64Byte, Slot,
-        SlotHandler,
+        Device, Device64Byte, DeviceHandler, EndpointState, EndpointType, Input64Byte,
+        InputHandler, Slot, SlotHandler,
     },
     extended_capabilities::debug::ContextPointer,
     ring::trb::{
@@ -38,7 +38,8 @@ use super::{
 };
 
 pub struct XHCIUSBDevice {
-    context: Context, //rewrite this struct, use 64 type directly
+    input: PageBox<Input64Byte>,
+    output: PageBox<Device64Byte>,
     transfer_ring: Box<TransferRing, GlobalNoCacheAllocator>,
     slot_id: u8,
     port_id: u8,
@@ -53,12 +54,8 @@ impl XHCIUSBDevice {
                 transfer_ring: Box::new_in(TransferRing::new(), global_no_cache_allocator()),
                 port_id,
                 slot_id: 0,
-                input: PageBox::from_layout_zeroed(
-                    Layout::new::<Input64Byte>().align_to(64usize).unwrap(),
-                ),
-                output: PageBox::from_layout_zeroed(
-                    Layout::new::<Device64Byte>().align_to(64usize).unwrap(),
-                ),
+                input: PageBox::alloc_4k_zeroed_page_for_single_item(),
+                output: PageBox::alloc_4k_zeroed_page_for_single_item(),
             };
 
             xhciusbdevice
@@ -103,12 +100,14 @@ impl XHCIUSBDevice {
     fn slot_ctx_init(&mut self) {
         debug!("init input ctx");
         self.dump_ep0();
-        let input_control = self.context.input.control_mut();
+        let input_control = self.input.control_mut();
+        // input_control.set_drop_context_flag(0);
         input_control.set_add_context_flag(0);
         input_control.set_add_context_flag(1);
 
-        let slot = self.context.input.device_mut().slot_mut();
-        slot.set_root_hub_port_number(self.port_id + 1);
+        let slot = self.input.device_mut().slot_mut();
+        debug!("root port id: {}", self.port_id);
+        slot.set_root_hub_port_number(self.port_id);
         slot.set_route_string(0);
         slot.set_context_entries(1);
     }
@@ -140,7 +139,7 @@ impl XHCIUSBDevice {
         debug!("config ep0");
         self.dump_ep0();
 
-        let endpoint_mut = self.context.input.device_mut().endpoint_mut(1);
+        let endpoint_mut = self.input.device_mut().endpoint_mut(1);
         endpoint_mut.set_endpoint_type(EndpointType::Control);
         endpoint_mut.set_max_packet_size(s);
         endpoint_mut.set_max_burst_size(0);
@@ -164,13 +163,13 @@ impl XHCIUSBDevice {
     fn dump_ep0(&mut self) {
         debug!(
             "endpoint 0 state: {:?}, slot state: {:?}",
-            self.context.input.device_mut().endpoint(1).endpoint_state(),
-            self.context.input.device_mut().slot().slot_state()
+            self.input.device_mut().endpoint(1).endpoint_state(),
+            self.input.device_mut().slot().slot_state()
         )
     }
 
     pub fn assign_device(&mut self) {
-        let virt_addr = self.context.output.virt_addr();
+        let virt_addr = self.output.virt_addr();
         debug!(
             "assigning device into dcbaa, slot number= {},output addr: {:x}",
             self.slot_id, virt_addr
@@ -186,8 +185,8 @@ impl XHCIUSBDevice {
 
     fn address_device(&mut self, bsr: bool) {
         debug!("addressing device");
-        let input_addr = self.context.input.virt_addr();
-        debug!("address to input {:?}, check 4k alignment!", input_addr);
+        let input_addr = self.input.virt_addr();
+        debug!("address to input {:?}, check 64 alignment!", input_addr);
         assert!(input_addr.is_aligned(64usize), "input not aligned to 64!");
         match COMMAND_MANAGER
             .get()
@@ -205,87 +204,9 @@ impl XHCIUSBDevice {
         debug!("assert ep0 running!");
         self.dump_ep0();
     }
-    fn check_endpoint(&mut self) {
-        debug!("checking endpoint!");
-        match self.context.input.device_mut().endpoint(1).endpoint_state() {
-            xhci::context::EndpointState::Disabled => {
-                debug!("endpoint disabled!");
-                return;
-            }
-            xhci::context::EndpointState::Running => debug!("endpoint running, ok!"),
-            other_state => {
-                debug!("state error: {:?}", other_state);
-                debug!("start reset!");
-                let mut current_state = other_state;
-                loop {
-                    match other_state {
-                        xhci::context::EndpointState::Halted => {
-                            match COMMAND_MANAGER
-                                .get()
-                                .unwrap()
-                                .lock()
-                                .reset_endpoint(1, self.slot_id)
-                            {
-                                CommandResult::Success(comp) => {
-                                    match comp.completion_code() {
-                                        Ok(success) if success == CompletionCode::Success => {
-                                            debug!("c o m p l e t e s u c c e s s again!");
-                                            current_state = self
-                                                .context
-                                                .input
-                                                .device_mut()
-                                                .endpoint(1)
-                                                .endpoint_state();
-                                        }
-                                        Ok(but) => {
-                                            debug!("transfer success but : {:?}", but);
-                                            return;
-                                        }
-                                        Err(impossible) => {
-                                            debug!("error bug complete, what?? : {impossible}");
-                                            return;
-                                        }
-                                    };
-                                }
-                                other => {
-                                    error!("error while reset endpoint: {:?}", other);
-                                    return;
-                                }
-                            }
-                        } //TODO not complete,
-                        xhci::context::EndpointState::Running => {
-                            debug!("endpoint is running!");
-                            return;
-                        }
-                        other => {
-                            //disabled is impossible since we filtered it
-                            if let CommandResult::Success(comp) = COMMAND_MANAGER
-                                .get()
-                                .unwrap()
-                                .lock()
-                                .set_transfer_ring_deque(1, self.slot_id)
-                                && comp
-                                    .completion_code()
-                                    .is_ok_and(|code| code == CompletionCode::Success)
-                            {
-                                self.transfer_ring.init();
-                                debug!("transfer ring complete");
-                                current_state =
-                                    self.context.input.device_mut().endpoint(1).endpoint_state();
-                            } else {
-                                debug!("reset transfer ring deque failed!");
-                                return;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     fn check_input(&mut self) {
-        debug!("input addr: {:x}", self.context.input.virt_addr());
-        // debug!("input state: {:?}", self.context.input.dump_device_state());
+        debug!("input addr: {:x}", self.input.virt_addr());
+        // debug!("input state: {:?}", self.input.dump_device_state());
     }
 
     fn enqueue_trb_to_transfer(
@@ -366,7 +287,7 @@ impl XHCIUSBDevice {
 
         let buffer = PageBox::from(descriptor::Device::default());
         let mut has_data_stage = false;
-        let get_output = &mut self.context.output;
+        let get_output = &mut self.output;
         // debug!("device output ctx: {:?}", get_output); //目前卡在这里
 
         // let doorbell_id: u8 = {
@@ -416,7 +337,7 @@ impl XHCIUSBDevice {
     }
 
     fn set_endpoint_speed(&mut self, speed: u16) {
-        let mut binding = &mut self.context.input;
+        let mut binding = &mut self.input;
         let ep_0 = binding.device_mut().endpoint_mut(1);
 
         ep_0.set_max_packet_size(speed);
@@ -424,7 +345,7 @@ impl XHCIUSBDevice {
 
     fn evaluate_context_enable_ep0(&mut self) {
         debug!("eval ctx and enable ep0!");
-        let input = &mut self.context.input;
+        let input = &mut self.input;
         match COMMAND_MANAGER
             .get()
             .unwrap()

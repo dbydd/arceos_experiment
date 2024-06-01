@@ -42,12 +42,6 @@ pub(crate) fn transfer_event(
     trb: TransferEvent,
 ) -> Result<TypeXhciTrb, ()> {
     assert!((1 <= trb.slot_id()) && (usize::from(trb.slot_id()) <= XHCI_CONFIG_MAX_SLOTS));
-    // TODO: check device exists
-    // let slot_manager = SLOT_MANAGER.try_get().unwrap().lock();
-    // // let device = &slot_manager.device[(uch_slot_id - 1) as usize] as &Device64Byte;
-    // let endpoint = slot_manager
-    //     .deref_device_at(uch_slot_id as usize)
-    //     .endpoint((uch_endpoint_id - 1).try_into().unwrap());
     debug!("transfer event! param: {:?},{:?}", uch_completion_code, trb);
     match uch_completion_code {
         CompletionCode::Success => {
@@ -77,11 +71,15 @@ pub(crate) fn new() {
             //     VirtAddr::from(0 as usize),
             //     (count_device_slots + 1) as usize,
             // ),
-            dcbaa: DMAVec::new(
-                (count_device_slots + 1) as usize,
-                64,
-                global_no_cache_allocator(),
-            ), // device: PageBox::new_slice(Device::new_64byte(), XHCI_CONFIG_MAX_SLOTS + 1),
+            dcbaa: {
+                let mut dmavec = DMAVec::new(
+                    (count_device_slots + 1) as usize,
+                    64,
+                    global_no_cache_allocator(),
+                );
+                dmavec.iter_mut().for_each(|slice| *slice = 0usize.into());
+                dmavec
+            }, // device: PageBox::new_slice(Device::new_64byte(), XHCI_CONFIG_MAX_SLOTS + 1),
         };
 
         r.operational.dcbaap.update_volatile(|d| {

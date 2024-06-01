@@ -17,6 +17,7 @@ use core::ptr::NonNull;
 use core::slice;
 use lazy_static::lazy_static;
 use os_units::Bytes;
+use page_table::PageSize;
 
 /// A `Box`-like type that locates the inner value at a 4K bytes page boundary.
 ///
@@ -49,6 +50,17 @@ impl<T: ?Sized> PageBox<T> {
 
         Self {
             addr: VirtAddr::from(addr.addr()),
+            layout,
+            _marker: PhantomData,
+        }
+    }
+
+    pub fn alloc_4k_zeroed_page_for_single_item() -> Self {
+        let layout =
+            Layout::from_size_align(PageSize::Size4K.into(), PageSize::Size4K.into()).unwrap();
+        let allocate_zeroed = global_no_cache_allocator().allocate_zeroed(layout).unwrap();
+        Self {
+            addr: allocate_zeroed.addr().get().into(),
             layout,
             _marker: PhantomData,
         }
