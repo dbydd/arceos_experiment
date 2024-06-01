@@ -38,8 +38,7 @@ use super::{
 };
 
 pub struct XHCIUSBDevice {
-    input: PageBox<Input64Byte>,
-    output: PageBox<Device64Byte>,
+    context: Context, //rewrite this struct, use 64 type directly
     transfer_ring: Box<TransferRing, GlobalNoCacheAllocator>,
     slot_id: u8,
     port_id: u8,
@@ -79,9 +78,9 @@ impl XHCIUSBDevice {
         self.dump_ep0();
         dump_port_status(self.port_id as usize);
         // only available after address device
-        sleep(Duration::from_millis(100));
-        let get_descriptor = self.get_descriptor(); //damn, just assume speed is same lowest!
-        debug!("get desc: {:?}", get_descriptor);
+        // sleep(Duration::from_millis(100));
+        // let get_descriptor = self.get_descriptor(); //damn, just assume speed is same lowest!
+        // debug!("get desc: {:?}", get_descriptor);
         // dump_port_status(self.port_id as usize);
         // // self.check_endpoint();
         // // sleep(Duration::from_millis(2));
@@ -112,8 +111,6 @@ impl XHCIUSBDevice {
         slot.set_root_hub_port_number(self.port_id + 1);
         slot.set_route_string(0);
         slot.set_context_entries(1);
-        // input_control.clear_add_context_flag(0);
-        // input_control.clear_add_context_flag(1);
     }
 
     fn get_max_len(&mut self) -> u16 {
@@ -204,31 +201,11 @@ impl XHCIUSBDevice {
             }
             err => error!("error while address device at slot id {}", self.slot_id),
         }
-        // self.context
-        //     .input
-        //     .device_mut()
-        //     .endpoint_mut(1)
-        //     .set_endpoint_state(EndpointState::Running);
 
         debug!("assert ep0 running!");
         self.dump_ep0();
     }
-
-    fn disable_ep0(&mut self) {
-        // let mut lock = COMMAND_MANAGER.get().unwrap().lock();
-        // // dump_port_status(self.port_id as usize);
-        // // if let CommandResult::Success(complete) = lock.reset_endpoint(1, self.slot_id) {
-        // //     debug!("reset endpoint 0! result: {:?}", complete);
-        // // }
-        // dump_port_status(self.port_id as usize);
-        // lock.config_endpoint(slot_id)
-    }
-
     fn check_endpoint(&mut self) {
-        //registers::handle(|r|{
-        //    r.port_register_set.read_volatile_at(self.port_id).portli.
-        //})
-        //
         debug!("checking endpoint!");
         match self.context.input.device_mut().endpoint(1).endpoint_state() {
             xhci::context::EndpointState::Disabled => {
@@ -390,7 +367,7 @@ impl XHCIUSBDevice {
         let buffer = PageBox::from(descriptor::Device::default());
         let mut has_data_stage = false;
         let get_output = &mut self.context.output;
-        debug!("device output ctx: {:?}", get_output); //目前卡在这里
+        // debug!("device output ctx: {:?}", get_output); //目前卡在这里
 
         // let doorbell_id: u8 = {
         //     let endpoint = get_input.ep(1);
