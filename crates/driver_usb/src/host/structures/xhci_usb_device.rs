@@ -16,7 +16,8 @@ use page_box::PageBox;
 use spinning_top::Spinlock;
 use xhci::{
     context::{
-        Device, Device64Byte, DeviceHandler, EndpointState, EndpointType, Slot, SlotHandler,
+        Device, Device64Byte, DeviceHandler, EndpointState, EndpointType, Input64Byte, Slot,
+        SlotHandler,
     },
     extended_capabilities::debug::ContextPointer,
     ring::trb::{
@@ -31,14 +32,14 @@ use crate::host::structures::{
 };
 
 use super::{
-    context::Context,
     dump_port_status, registers,
     xhci_command_manager::{CommandResult, COMMAND_MANAGER},
     xhci_slot_manager::SLOT_MANAGER,
 };
 
 pub struct XHCIUSBDevice {
-    context: Context,
+    input: PageBox<Input64Byte>,
+    output: PageBox<Device64Byte>,
     transfer_ring: Box<TransferRing, GlobalNoCacheAllocator>,
     slot_id: u8,
     port_id: u8,
@@ -49,11 +50,16 @@ impl XHCIUSBDevice {
         debug!("new device! port:{}", port_id);
 
         Ok({
-            let xhciusbdevice = Self {
-                context: Context::default(),
+            let xhciusbdevice: _ = Self {
                 transfer_ring: Box::new_in(TransferRing::new(), global_no_cache_allocator()),
-                port_id: port_id,
+                port_id,
                 slot_id: 0,
+                input: PageBox::from_layout_zeroed(
+                    Layout::new::<Input64Byte>().align_to(64usize).unwrap(),
+                ),
+                output: PageBox::from_layout_zeroed(
+                    Layout::new::<Device64Byte>().align_to(64usize).unwrap(),
+                ),
             };
 
             xhciusbdevice
