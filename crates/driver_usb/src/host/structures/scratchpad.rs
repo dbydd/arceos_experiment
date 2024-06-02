@@ -21,7 +21,7 @@ pub(crate) static SCRATCH_PAD: OnceCell<Spinlock<ScratchPad>> = OnceCell::uninit
 
 struct ScratchPad {
     // buffer: PageBox<[[usize; mem::PAGE_SIZE_4K]]>,
-    array: PageBox<[VirtAddr]>,
+    array: PageBox<[u64]>,
     bufs: Vec<PageBox<[u8]>, GlobalNoCacheAllocator>,
 }
 
@@ -46,7 +46,7 @@ impl ScratchPad {
     fn write_buffer_addresses(&mut self) {
         let page_size = Self::page_size();
         for (x, buf) in self.array.iter_mut().zip(self.bufs.iter()) {
-            *x = buf.virt_addr().align_up(page_size);
+            *x = buf.virt_addr().align_up(page_size).as_usize() as u64;
         }
     }
 
@@ -66,7 +66,7 @@ impl ScratchPad {
 pub fn new() {
     let max_scratch_pad_buffers = num_of_buffers();
     let mut scratchpad = ScratchPad {
-        array: PageBox::new_slice(VirtAddr::default(), max_scratch_pad_buffers),
+        array: PageBox::new_slice(0, max_scratch_pad_buffers),
         bufs: Vec::new_in(global_no_cache_allocator()),
     };
 

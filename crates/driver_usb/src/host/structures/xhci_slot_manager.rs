@@ -15,7 +15,7 @@ use super::{event_ring::TypeXhciTrb, registers};
 
 const XHCI_CONFIG_MAX_SLOTS: usize = 64;
 pub(crate) struct SlotManager {
-    dcbaa: DMAVec<GlobalNoCacheAllocator, VirtAddr>,
+    dcbaa: DMAVec<GlobalNoCacheAllocator, u64>,
     // device: PageBox<[Device64Byte]>,
 }
 
@@ -25,14 +25,14 @@ impl SlotManager {
         assert!(device.is_aligned(64usize), "device not aligned to 64");
 
         // self.device[valid_slot_id as usize - 1] = device;
-        self.dcbaa[port_id as usize] = device
+        self.dcbaa[port_id as usize] = device.as_usize() as u64;
         //TODO 需要考虑内存同步问题
         //TODO 内存位置可能不对
     }
 
-    pub fn deref_device_at(&self, slot_id: usize) -> Device64Byte {
-        unsafe { *(self.dcbaa[slot_id].as_mut_ptr() as *mut Device64Byte) }
-    }
+    // pub fn deref_device_at(&self, slot_id: usize) -> Device64Byte {
+    //     unsafe { *(self.dcbaa[slot_id].as_mut_ptr() as *mut Device64Byte) }
+    // }
 }
 
 pub(crate) static SLOT_MANAGER: OnceCell<Spinlock<SlotManager>> = OnceCell::uninit();
@@ -77,7 +77,7 @@ pub(crate) fn new() {
                     64,
                     global_no_cache_allocator(),
                 );
-                dmavec.iter_mut().for_each(|slice| *slice = 0usize.into());
+                dmavec.iter_mut().for_each(|slice| *slice = 0_u64);
                 dmavec
             }, // device: PageBox::new_slice(Device::new_64byte(), XHCI_CONFIG_MAX_SLOTS + 1),
         };
@@ -96,10 +96,10 @@ pub(crate) fn new() {
     debug!("initialized!");
 }
 
-pub fn set_dcbaa(buffer_array: &[VirtAddr]) {
-    let mut dcbaa_box = &mut SLOT_MANAGER.get().unwrap().lock().dcbaa;
-    buffer_array
-        .iter()
-        .zip(dcbaa_box.iter_mut())
-        .for_each(|(l, r)| *r = *l);
-}
+// pub fn set_dcbaa(buffer_array: &[VirtAddr]) {
+//     let mut dcbaa_box = &mut SLOT_MANAGER.get().unwrap().lock().dcbaa;
+//     buffer_array
+//         .iter()
+//         .zip(dcbaa_box.iter_mut())
+//         .for_each(|(l, r)| *r = *l);
+// }

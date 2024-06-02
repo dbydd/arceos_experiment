@@ -107,7 +107,13 @@ impl XHCIUSBDevice {
 
         let slot = self.input.device_mut().slot_mut();
         debug!("root port id: {}", self.port_id);
-        slot.set_root_hub_port_number(self.port_id);
+        slot.set_root_hub_port_number(self.port_id + 1);
+        slot.set_speed(registers::handle(|r| {
+            r.port_register_set
+                .read_volatile_at((self.port_id).into())
+                .portsc
+                .port_speed()
+        }));
         slot.set_route_string(0);
         slot.set_context_entries(1);
     }
