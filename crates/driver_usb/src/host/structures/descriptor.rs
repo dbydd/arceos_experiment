@@ -1,8 +1,11 @@
 use core::ptr;
 
+use alloc::vec::Vec;
 use bit_field::BitField;
+use log::debug;
 use num_derive::FromPrimitive;
 use num_traits::FromPrimitive;
+use page_box::PageBox;
 use xhci::context::EndpointType;
 
 #[derive(Copy, Clone, Debug)]
@@ -125,7 +128,7 @@ pub(crate) struct Endpoint {
     pub(crate) interval: u8,
 }
 impl Endpoint {
-    pub(crate) fn ty(self) -> EndpointType {
+    pub(crate) fn endpoint_type(self) -> EndpointType {
         EndpointType::from_u8(if self.attributes == 0 {
             4
         } else {
@@ -158,4 +161,43 @@ pub(crate) enum Ty {
 #[derive(Debug)]
 pub(crate) enum Error {
     UnrecognizedType(u8),
+}
+pub(crate) struct RawDescriptorParser {
+    raw: PageBox<[u8]>,
+    current: usize,
+    len: usize,
+}
+impl RawDescriptorParser {
+    pub fn new(raw: PageBox<[u8]>) -> Self {
+        let len = raw.len();
+
+        Self {
+            raw,
+            current: 0,
+            len,
+        }
+    }
+
+    pub fn parse(&mut self) -> Vec<Descriptor> {
+        let mut v = Vec::new();
+        while self.current < self.len && self.raw[self.current] > 0 {
+            match self.parse_first_descriptor() {
+                Ok(t) => v.push(t),
+                Err(e) => debug!("Unrecognized USB descriptor: {:?}", e),
+            }
+        }
+        v
+    }
+
+    fn parse_first_descriptor(&mut self) -> Result<Descriptor, Error> {
+        let raw = self.cut_raw_descriptor();
+        Descriptor::from_slice(&raw)
+    }
+
+    fn cut_raw_descriptor(&mut self) -> Vec<u8> {
+        let len: usize = self.raw[self.current].into();
+        let v = self.raw[self.current..(self.current + len)].to_vec();
+        self.current += len;
+        v
+    }
 }

@@ -10,6 +10,7 @@ use alloc::{borrow::ToOwned, boxed::Box, sync::Arc, vec, vec::Vec};
 use axalloc::{global_no_cache_allocator, GlobalNoCacheAllocator};
 use axhal::time::busy_wait;
 use axtask::sleep;
+use bit_field::BitField;
 use log::{debug, error};
 use num_traits::ToPrimitive;
 use page_box::PageBox;
@@ -28,21 +29,31 @@ use xhci::{
 };
 
 use crate::host::structures::{
-    descriptor, reset_port, transfer_ring::TransferRing, xhci_event_manager, PortLinkState,
+    descriptor::{self, RawDescriptorParser},
+    reset_port,
+    transfer_ring::TransferRing,
+    xhci_event_manager, PortLinkState,
 };
 
 use super::{
+    descriptor::{Descriptor, Endpoint},
     dump_port_status, registers,
     xhci_command_manager::{CommandResult, COMMAND_MANAGER},
     xhci_slot_manager::SLOT_MANAGER,
 };
 
+struct TransferableEndpoint {
+    endpoint: Endpoint,
+    transfer: Box<TransferRing, GlobalNoCacheAllocator>,
+}
+
 pub struct XHCIUSBDevice {
-    input: PageBox<Input64Byte>,
-    output: PageBox<Device64Byte>,
-    transfer_ring: Box<TransferRing, GlobalNoCacheAllocator>,
-    slot_id: u8,
-    port_id: u8,
+    pub input: PageBox<Input64Byte>,
+    pub output: PageBox<Device64Byte>,
+    pub transfer_ring_control: Box<TransferRing, GlobalNoCacheAllocator>,
+    pub non_control_endpoints: Vec<TransferableEndpoint>,
+    pub slot_id: u8,
+    pub port_id: u8,
 }
 
 impl XHCIUSBDevice {
@@ -51,11 +62,15 @@ impl XHCIUSBDevice {
 
         Ok({
             let xhciusbdevice: _ = Self {
-                transfer_ring: Box::new_in(TransferRing::new(), global_no_cache_allocator()),
+                transfer_ring_control: Box::new_in(
+                    TransferRing::new(),
+                    global_no_cache_allocator(),
+                ),
                 port_id,
                 slot_id: 0,
                 input: PageBox::alloc_4k_zeroed_page_for_single_item(),
                 output: PageBox::alloc_4k_zeroed_page_for_single_item(),
+                non_control_endpoints: Vec::new(),
             };
 
             xhciusbdevice
@@ -65,18 +80,36 @@ impl XHCIUSBDevice {
     pub fn initialize(&mut self) {
         debug!("initialize/enum this device! port={}", self.port_id);
 
-        // self.address_device(true);
         self.enable_slot();
         self.slot_ctx_init();
         self.config_endpoint_0();
-        // self.check_input();
         self.assign_device();
         self.address_device(false);
-        let max_packet_size = self.get_max_packet_size(); //damn, just assume speed is same lowest!
+        let max_packet_size = self.get_max_packet_size();
         debug!("get max packet size: {}", max_packet_size);
 
-        self.set_endpoint_speed(max_packet_size); //just let it be lowest speed!
+        self.set_endpoint_speed(max_packet_size);
         self.evaluate_context_enable_ep0();
+        self.desc_to_endpoints(self.fetch_config_desc());
+    }
+
+    fn desc_to_endpoints(&mut self, descriptors: Vec<Descriptor>) {
+        self.non_control_endpoints = descriptors
+            .iter()
+            .filter_map(|desc| {
+                if let Descriptor::Endpoint(e) = desc {
+                    // let d = DoorbellWriter::new(f.slot_number(), e.doorbell_value());
+                    // let s = transfer::Sender::new(d);
+                    // Some(endpoint::NonDefault::new(*e, s))
+                    Some((
+                        e.clone(),
+                        Box::new_in(TransferRing::new(), global_no_cache_allocator()),
+                    ))
+                } else {
+                    None
+                }
+            })
+            .collect()
     }
 
     fn enable_slot(&mut self) {
@@ -88,6 +121,40 @@ impl XHCIUSBDevice {
             //需要让device分配在指定的内存空间中
             err => debug!("failed to enable slot"),
         }
+    }
+
+    fn fetch_config_desc(&mut self) -> Vec<Descriptor> {
+        let buffer = PageBox::new_slice(0u8, 4096);
+        let (setup, data, status) = Self::construct_trbs_for_getting_descriptors(
+            &buffer,
+            DescTyIdx::new(descriptor::Ty::Configuration, 0),
+        );
+        self.enque_trbs_to_transger(vec![setup, data, status], 1, self.slot_id);
+        debug!("fetched!");
+        let descriptors = RawDescriptorParser::new(buffer).parse();
+        debug!("descriptors: {:?}", self.descriptors);
+        descriptors
+    }
+
+    fn construct_trbs_for_getting_descriptors<T: ?Sized>(
+        b: &PageBox<T>,
+        t: DescTyIdx,
+    ) -> (transfer::Allowed, transfer::Allowed, transfer::Allowed) {
+        let setup = *transfer::SetupStage::default()
+            .set_request_type(0b1000_0000)
+            .set_request(6u8) //get_desc
+            .set_value(t.bits())
+            .set_length(b.bytes().as_usize().try_into().unwrap())
+            .set_transfer_type(TransferType::In);
+
+        let data = *transfer::DataStage::default()
+            .set_data_buffer_pointer(b.virt_addr().as_usize() as u64)
+            .set_trb_transfer_length(b.bytes().as_usize().try_into().unwrap())
+            .set_direction(Direction::In);
+
+        let status = *transfer::StatusStage::default().set_interrupt_on_completion();
+
+        (setup.into(), data.into(), status.into())
     }
 
     fn slot_ctx_init(&mut self) {
@@ -142,10 +209,10 @@ impl XHCIUSBDevice {
         endpoint_mut.set_endpoint_type(EndpointType::Control);
         endpoint_mut.set_max_packet_size(s);
         endpoint_mut.set_max_burst_size(0);
-        let transfer_addr = self.transfer_ring.get_ring_addr().as_usize() as u64;
+        let transfer_addr = self.transfer_ring_control.get_ring_addr().as_usize() as u64;
         debug!("address of transfer ring: {:x}", transfer_addr);
         endpoint_mut.set_tr_dequeue_pointer(transfer_addr);
-        if (self.transfer_ring.cycle_state() != 0) {
+        if (self.transfer_ring_control.cycle_state() != 0) {
             endpoint_mut.set_dequeue_cycle_state();
         } else {
             endpoint_mut.clear_dequeue_cycle_state();
@@ -154,9 +221,6 @@ impl XHCIUSBDevice {
         endpoint_mut.set_max_primary_streams(0);
         endpoint_mut.set_mult(0);
         endpoint_mut.set_error_count(3);
-        // ep_0.set_endpoint_state(EndpointState::Disabled);
-
-        //confitional compile needed
     }
 
     fn dump_ep0(&mut self) {
@@ -205,7 +269,6 @@ impl XHCIUSBDevice {
     }
     fn check_input(&mut self) {
         debug!("input addr: {:x}", self.input.virt_addr());
-        // debug!("input state: {:?}", self.input.dump_device_state());
     }
 
     fn enqueue_trb_to_transfer(
@@ -213,10 +276,8 @@ impl XHCIUSBDevice {
         trb: transfer::Allowed,
         endpoint_id: u8,
     ) -> Result<[u32; 4], ()> {
-        self.transfer_ring.enqueue(trb);
+        self.transfer_ring_control.enqueue(trb);
         barrier::dmb(SY);
-
-        // self.optional_resume_port_state();
 
         self.dump_ep0();
         dump_port_status(self.port_id as usize);
@@ -244,31 +305,15 @@ impl XHCIUSBDevice {
         slot_id: u8,
     ) -> Result<[u32; 4], ()> {
         let size = trbs.len();
-        self.transfer_ring.enqueue_trbs(&trbs);
+        self.transfer_ring_control.enqueue_trbs(&trbs);
         barrier::dmb(SY);
 
         debug!("doorbell ing");
         registers::handle(|r| {
             r.doorbell.update_volatile_at(slot_id as usize, |doorbell| {
-                doorbell.set_doorbell_target(endpoint_id_dci - 1); //assume 1
+                doorbell.set_doorbell_target(endpoint_id_dci); //assume 1
             })
         });
-
-        // let mut ret = Vec::with_capacity(size);
-        // let mut mark = 0;
-        // while let handle_event = xhci_event_manager::handle_event() {
-        //     if handle_event.is_ok() {
-        //         debug!(
-        //             "interrupt handler complete! mark={mark} result = {:?}",
-        //             handle_event
-        //         );
-        //         ret.push(handle_event.unwrap());
-        //         mark += 1;
-        //         if mark >= size {
-        //             break;
-        //         }
-        //     }
-        // }
 
         debug!("waiting for event");
         while let handle_event = xhci_event_manager::handle_event() {
@@ -287,9 +332,9 @@ impl XHCIUSBDevice {
         let buffer = PageBox::from(descriptor::Device::default());
         let mut has_data_stage = false;
         let get_output = &mut self.output;
-        let doorbell_id = 1;
+        let endpoint_id_dci = 1; //TODO modify, calculate endpoint //Default ep0
 
-        debug!("doorbell id: {}", doorbell_id);
+        debug!("doorbell id: {}", endpoint_id_dci);
         let setup_stage = Allowed::SetupStage(
             *SetupStage::default()
                 .set_transfer_type(TransferType::In)
@@ -314,7 +359,7 @@ impl XHCIUSBDevice {
 
         self.enque_trbs_to_transger(
             vec![setup_stage, data_stage, status_stage],
-            doorbell_id + 1,
+            endpoint_id_dci,
             self.slot_id,
         );
         debug!("getted! buffer:{:?}", *buffer);
@@ -347,5 +392,53 @@ impl XHCIUSBDevice {
             }
             other_error => error!("error! {:?}", other_error),
         }
+    }
+}
+
+impl TransferableEndpoint {
+    fn calculate_dci(&self) -> u8 {
+        let a = self.endpoint.endpoint_address;
+        2 * a.get_bits(0..=3) + a.get_bit(7) as u8
+    }
+
+    pub fn init_context(&mut self, dev: &mut XHCIUSBDevice, port_number: usize) {
+        let dci: usize = self.calculate_dci().into();
+        let c = dev.input.control_mut();
+
+        c.set_add_context_flag(0);
+        c.clear_add_context_flag(1); // See xHCI dev manual 4.6.6.
+        c.set_add_context_flag(dci);
+
+        // self.set_interval();
+
+        // let ep_ty = self.endpoint.endpoint_type();
+        // self.endpoint.ep_cx().set_endpoint_type(ep_ty);
+
+        // // TODO: This initializes the context only for USB2. Branch if the version of a device is
+        // // USB3.
+        // match ep_ty {
+        //     EndpointType::Control => this.init_for_control(),
+        //     EndpointType::BulkOut | EndpointType::BulkIn => this.init_for_bulk(),
+        //     EndpointType::IsochOut
+        //     | EndpointType::IsochIn
+        //     | EndpointType::InterruptOut
+        //     | EndpointType::InterruptIn => this.init_for_isoch_or_interrupt(),
+        //     EndpointType::NotValid => {
+        //         unreachable!("Not Valid Endpoint should not exist.")
+        //     }
+        // }
+    }
+}
+
+pub(crate) struct DescTyIdx {
+    ty: descriptor::Ty,
+    i: u8,
+}
+impl DescTyIdx {
+    pub(crate) fn new(ty: descriptor::Ty, i: u8) -> Self {
+        Self { ty, i }
+    }
+    pub(crate) fn bits(self) -> u16 {
+        (self.ty as u16) << 8 | u16::from(self.i)
     }
 }
