@@ -72,18 +72,11 @@ impl XHCIUSBDevice {
         // self.check_input();
         self.assign_device();
         self.address_device(false);
-        self.dump_ep0();
-        dump_port_status(self.port_id as usize);
-        // only available after address device
-        // sleep(Duration::from_millis(100));
-        // let get_descriptor = self.get_descriptor(); //damn, just assume speed is same lowest!
-        // debug!("get desc: {:?}", get_descriptor);
-        // dump_port_status(self.port_id as usize);
-        // // self.check_endpoint();
-        // // sleep(Duration::from_millis(2));
+        let max_packet_size = self.get_max_packet_size(); //damn, just assume speed is same lowest!
+        debug!("get max packet size: {}", max_packet_size);
 
-        // self.set_endpoint_speed(get_descriptor.max_packet_size()); //just let it be lowest speed!
-        // self.evaluate_context_enable_ep0();
+        self.set_endpoint_speed(max_packet_size); //just let it be lowest speed!
+        self.evaluate_context_enable_ep0();
     }
 
     fn enable_slot(&mut self) {
@@ -287,25 +280,13 @@ impl XHCIUSBDevice {
         Err(())
     }
 
-    fn get_descriptor(&mut self) -> PageBox<super::descriptor::Device> {
+    fn get_max_packet_size(&mut self) -> u16 {
         debug!("get descriptor!");
         self.dump_ep0();
 
         let buffer = PageBox::from(descriptor::Device::default());
         let mut has_data_stage = false;
         let get_output = &mut self.output;
-        // debug!("device output ctx: {:?}", get_output); //目前卡在这里
-
-        // let doorbell_id: u8 = {
-        //     let endpoint = get_input.ep(1);
-        //     let addr = endpoint.as_ref().as_ptr().addr();
-        //     let endpoint_type = endpoint.endpoint_type();
-        //     ((addr & 0x7f) * 2
-        //         + match endpoint_type {
-        //             EndpointType::BulkOut => 0,
-        //             _ => 1,
-        //         }) as u8
-        // };
         let doorbell_id = 1;
 
         debug!("doorbell id: {}", doorbell_id);
@@ -333,13 +314,13 @@ impl XHCIUSBDevice {
 
         self.enque_trbs_to_transger(
             vec![setup_stage, data_stage, status_stage],
-            doorbell_id,
+            doorbell_id + 1,
             self.slot_id,
         );
-        debug!("getted! buffer:{:?}", buffer);
+        debug!("getted! buffer:{:?}", *buffer);
 
         debug!("return!");
-        buffer
+        buffer.max_packet_size()
     }
 
     fn set_endpoint_speed(&mut self, speed: u16) {
