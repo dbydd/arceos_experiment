@@ -12,13 +12,14 @@ use axhal::time::busy_wait;
 use axtask::sleep;
 use bit_field::BitField;
 use log::{debug, error};
-use num_traits::ToPrimitive;
+use num_derive::FromPrimitive;
+use num_traits::{FromPrimitive, ToPrimitive};
 use page_box::PageBox;
 use spinning_top::Spinlock;
 use xhci::{
     context::{
-        Device, Device64Byte, DeviceHandler, EndpointState, EndpointType, Input64Byte,
-        InputHandler, Slot, SlotHandler,
+        Device, Device64Byte, DeviceHandler, EndpointHandler, EndpointState, EndpointType,
+        Input64Byte, InputHandler, Slot, SlotHandler,
     },
     extended_capabilities::debug::ContextPointer,
     ring::trb::{
@@ -51,7 +52,7 @@ pub struct XHCIUSBDevice {
     pub input: PageBox<Input64Byte>,
     pub output: PageBox<Device64Byte>,
     pub transfer_ring_control: Box<TransferRing, GlobalNoCacheAllocator>,
-    pub non_control_endpoints: Vec<TransferableEndpoint>,
+    pub non_ep0_endpoints: Vec<TransferableEndpoint>,
     pub slot_id: u8,
     pub port_id: u8,
 }
@@ -70,7 +71,7 @@ impl XHCIUSBDevice {
                 slot_id: 0,
                 input: PageBox::alloc_4k_zeroed_page_for_single_item(),
                 output: PageBox::alloc_4k_zeroed_page_for_single_item(),
-                non_control_endpoints: Vec::new(),
+                non_ep0_endpoints: Vec::new(),
             };
 
             xhciusbdevice
@@ -90,26 +91,40 @@ impl XHCIUSBDevice {
 
         self.set_endpoint_speed(max_packet_size);
         self.evaluate_context_enable_ep0();
-        self.desc_to_endpoints(self.fetch_config_desc());
     }
 
+    pub fn configure(&mut self) {
+        let fetch_config_desc = self.fetch_config_desc();
+        self.desc_to_endpoints(fetch_config_desc);
+        self.input.device_mut().slot_mut().set_context_entries(31);
+        self.configure_endpoints()
+    }
+
+    fn configure_endpoints(&mut self) {}
+
     fn desc_to_endpoints(&mut self, descriptors: Vec<Descriptor>) {
-        self.non_control_endpoints = descriptors
+        let collect = descriptors
             .iter()
             .filter_map(|desc| {
                 if let Descriptor::Endpoint(e) = desc {
                     // let d = DoorbellWriter::new(f.slot_number(), e.doorbell_value());
                     // let s = transfer::Sender::new(d);
                     // Some(endpoint::NonDefault::new(*e, s))
-                    Some((
-                        e.clone(),
-                        Box::new_in(TransferRing::new(), global_no_cache_allocator()),
-                    ))
+                    Some({
+                        let mut transferable_endpoint = TransferableEndpoint {
+                            endpoint: e.clone(),
+                            transfer: Box::new_in(TransferRing::new(), global_no_cache_allocator()),
+                        };
+                        transferable_endpoint.init_context(self);
+                        transferable_endpoint
+                    })
                 } else {
                     None
                 }
             })
-            .collect()
+            .collect();
+
+        self.non_ep0_endpoints = collect;
     }
 
     fn enable_slot(&mut self) {
@@ -132,7 +147,7 @@ impl XHCIUSBDevice {
         self.enque_trbs_to_transger(vec![setup, data, status], 1, self.slot_id);
         debug!("fetched!");
         let descriptors = RawDescriptorParser::new(buffer).parse();
-        debug!("descriptors: {:?}", self.descriptors);
+        debug!("descriptors: {:?}", descriptors);
         descriptors
     }
 
@@ -401,32 +416,135 @@ impl TransferableEndpoint {
         2 * a.get_bits(0..=3) + a.get_bit(7) as u8
     }
 
-    pub fn init_context(&mut self, dev: &mut XHCIUSBDevice, port_number: usize) {
+    pub fn init_context(&mut self, dev: &mut XHCIUSBDevice) {
+        self.set_add_context_flag(dev);
+        self.set_interval(dev, dev.port_id);
+        self.init_for_endpoint_type(dev);
+    }
+
+    fn init_for_endpoint_type(&mut self, dev: &mut XHCIUSBDevice) {
+        let endpoint_type = self.endpoint.endpoint_type();
+        self.endpoint_context(dev).set_endpoint_type(endpoint_type);
+
+        // TODO: This initializes the context only for USB2. Branch if the version of a device is
+        // USB3.
+        match endpoint_type {
+            EndpointType::Control => self.init_for_control(dev),
+            EndpointType::BulkOut | EndpointType::BulkIn => self.init_for_bulk(dev),
+            EndpointType::IsochOut
+            | EndpointType::IsochIn
+            | EndpointType::InterruptOut
+            | EndpointType::InterruptIn => self.init_for_isoch_or_interrupt(dev),
+            EndpointType::NotValid => unreachable!("Not Valid Endpoint should not exist."),
+        }
+    }
+
+    fn init_for_isoch_or_interrupt(&mut self, dev: &mut XHCIUSBDevice) {
+        let t = self.endpoint.endpoint_type();
+        assert!(
+            self.is_isoch_or_interrupt(),
+            "Not the Isochronous or the Interrupt Endpoint."
+        );
+
+        let sz = self.endpoint.max_packet_size;
+        let a = self.transfer.get_ring_addr();
+        let c = self.endpoint_context(dev);
+
+        c.set_max_packet_size(sz & 0x7ff);
+        c.set_max_burst_size(((sz & 0x1800) >> 11).try_into().unwrap());
+        c.set_mult(0);
+
+        if let EndpointType::IsochOut | EndpointType::IsochIn = t {
+            c.set_error_count(0);
+        } else {
+            c.set_error_count(3);
+        }
+        c.set_tr_dequeue_pointer(a.as_usize() as u64);
+        c.set_dequeue_cycle_state();
+    }
+
+    fn is_isoch_or_interrupt(&self) -> bool {
+        let t = self.endpoint.endpoint_type();
+        [
+            EndpointType::IsochOut,
+            EndpointType::IsochIn,
+            EndpointType::InterruptOut,
+            EndpointType::InterruptIn,
+        ]
+        .contains(&t)
+    }
+
+    fn init_for_bulk(&mut self, dev: &mut XHCIUSBDevice) {
+        assert!(self.is_bulk(), "Not the Bulk Endpoint.");
+
+        let sz = self.endpoint.max_packet_size;
+        let a = self.transfer.get_ring_addr();
+        let c = self.endpoint_context(dev);
+
+        c.set_max_packet_size(sz);
+        c.set_max_burst_size(0);
+        c.set_error_count(3);
+        c.set_max_primary_streams(0);
+        c.set_tr_dequeue_pointer(a.as_usize() as u64);
+        c.set_dequeue_cycle_state();
+    }
+
+    fn is_bulk(&self) -> bool {
+        let t = self.endpoint.endpoint_type();
+
+        [EndpointType::BulkOut, EndpointType::BulkIn].contains(&t)
+    }
+
+    fn init_for_control(&mut self, dev: &mut XHCIUSBDevice) {
+        assert_eq!(
+            self.endpoint.endpoint_type(),
+            EndpointType::Control,
+            "Not the Control Endpoint."
+        );
+
+        let size = self.endpoint.max_packet_size;
+        let a = self.transfer.get_ring_addr();
+        let c = self.endpoint_context(dev);
+
+        c.set_max_packet_size(size);
+        c.set_error_count(3);
+        c.set_tr_dequeue_pointer(a.as_usize() as u64);
+        c.set_dequeue_cycle_state();
+    }
+
+    fn set_add_context_flag(&self, dev: &mut XHCIUSBDevice) {
         let dci: usize = self.calculate_dci().into();
         let c = dev.input.control_mut();
 
         c.set_add_context_flag(0);
         c.clear_add_context_flag(1); // See xHCI dev manual 4.6.6.
         c.set_add_context_flag(dci);
+    }
 
-        // self.set_interval();
+    fn set_interval(&self, dev: &mut XHCIUSBDevice, port_number: u8) {
+        let port_speed = PortSpeed::get(port_number);
+        let endpoint_type = self.endpoint.endpoint_type();
+        let interval = self.endpoint.interval;
 
-        // let ep_ty = self.endpoint.endpoint_type();
-        // self.endpoint.ep_cx().set_endpoint_type(ep_ty);
+        let i = if let PortSpeed::FullSpeed | PortSpeed::LowSpeed = port_speed {
+            if let EndpointType::IsochOut | EndpointType::IsochIn = endpoint_type {
+                interval + 2
+            } else {
+                interval + 3
+            }
+        } else {
+            interval - 1
+        };
 
-        // // TODO: This initializes the context only for USB2. Branch if the version of a device is
-        // // USB3.
-        // match ep_ty {
-        //     EndpointType::Control => this.init_for_control(),
-        //     EndpointType::BulkOut | EndpointType::BulkIn => this.init_for_bulk(),
-        //     EndpointType::IsochOut
-        //     | EndpointType::IsochIn
-        //     | EndpointType::InterruptOut
-        //     | EndpointType::InterruptIn => this.init_for_isoch_or_interrupt(),
-        //     EndpointType::NotValid => {
-        //         unreachable!("Not Valid Endpoint should not exist.")
-        //     }
-        // }
+        self.endpoint_context(dev).set_interval(i);
+    }
+
+    fn endpoint_context<'a>(&self, dev: &'a mut XHCIUSBDevice) -> &'a mut dyn EndpointHandler {
+        let ep_i: usize = self.endpoint.endpoint_address.get_bits(0..=3).into();
+        let is_input: usize = self.endpoint.endpoint_address.get_bit(7) as _;
+        let dpi = 2 * ep_i + is_input;
+
+        dev.input.device_mut().endpoint_mut(dpi)
     }
 }
 
@@ -440,5 +558,26 @@ impl DescTyIdx {
     }
     pub(crate) fn bits(self) -> u16 {
         (self.ty as u16) << 8 | u16::from(self.i)
+    }
+}
+
+#[derive(Copy, Clone, FromPrimitive)]
+enum PortSpeed {
+    FullSpeed = 1,
+    LowSpeed = 2,
+    HighSpeed = 3,
+    SuperSpeed = 4,
+    SuperSpeedPlus = 5,
+}
+
+impl PortSpeed {
+    pub fn get(port_number: u8) -> Self {
+        FromPrimitive::from_u8(registers::handle(|r| {
+            r.port_register_set
+                .read_volatile_at((port_number).into())
+                .portsc
+                .port_speed()
+        }))
+        .unwrap()
     }
 }

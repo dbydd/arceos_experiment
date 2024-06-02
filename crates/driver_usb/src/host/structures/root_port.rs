@@ -17,7 +17,9 @@ pub struct RootPort {
 }
 
 impl RootPort {
-    pub fn configure(&mut self) {}
+    pub fn configure(&mut self) {
+        unsafe { self.device.assume_init_mut().configure() }
+    }
 
     pub fn initialize(&mut self) {
         if !self.connected() {
