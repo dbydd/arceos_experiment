@@ -49,6 +49,9 @@ impl RootPort {
 
         unsafe { self.device.assume_init_mut().initialize() };
         debug!("initialize complete");
+
+        self.configure();
+        debug!("configure complete")
     }
 
     pub fn status_changed(&self) {

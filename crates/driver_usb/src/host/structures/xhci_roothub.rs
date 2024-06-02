@@ -45,14 +45,6 @@ impl Roothub {
                 debug!("initializing port {}", arc.lock().root_port_id);
                 arc.lock().initialize();
             });
-
-        debug!("configuring root ports");
-        self.root_ports
-            .iter_mut()
-            .map(|a| unsafe { a.clone().assume_init() })
-            .for_each(|arc| {
-                arc.lock().configure();
-            });
     }
 }
 

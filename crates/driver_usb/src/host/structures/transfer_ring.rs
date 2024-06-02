@@ -1,8 +1,14 @@
-use core::{char::REPLACEMENT_CHARACTER, marker::PhantomData, mem};
+use core::{
+    borrow::{Borrow, BorrowMut},
+    char::REPLACEMENT_CHARACTER,
+    marker::PhantomData,
+    mem,
+};
 
-use alloc::vec::Vec;
+use alloc::{format, vec::Vec};
 use axhal::mem::VirtAddr;
 use futures_util::stream::All;
+use log::debug;
 use page_box::PageBox;
 use xhci::ring::trb::{
     self,
@@ -106,7 +112,12 @@ impl TransferRing {
     }
 
     pub fn get_enque_trb(&mut self) -> Option<&mut [u32; 4]> {
-        assert!(self.enqueue_index < self.get_trb_count());
+        assert!(
+            self.enqueue_index < self.get_trb_count(),
+            "overflow! index: {},addr of index: {}",
+            self.enqueue_index,
+            (self.enqueue_index.borrow() as *const usize).addr()
+        );
         let xhci_trb = &mut self.ring[self.enqueue_index];
         if (xhci_trb[3] & XHCI_TRB_CONTROL_C as u32) == self.cycle_state {
             return None;
@@ -123,6 +134,7 @@ impl TransferRing {
             self.cycle_state
         );
         self.enqueue_index += 1;
+        debug!("enque_index: {}", self.enqueue_index);
 
         if self.enqueue_index == self.get_trb_count() - 1 {
             let mut xhci_trb = self.ring[self.enqueue_index];
