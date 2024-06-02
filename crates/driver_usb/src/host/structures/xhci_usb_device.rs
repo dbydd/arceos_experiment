@@ -33,7 +33,8 @@ use crate::host::structures::{
     descriptor::{self, RawDescriptorParser},
     reset_port,
     transfer_ring::TransferRing,
-    xhci_event_manager, PortLinkState,
+    xhci_event_manager::{self, EventManager, EVENT_MANAGER},
+    PortLinkState,
 };
 
 use super::{
@@ -100,7 +101,17 @@ impl XHCIUSBDevice {
         self.configure_endpoints()
     }
 
-    fn configure_endpoints(&mut self) {}
+    fn configure_endpoints(&mut self) {
+        COMMAND_MANAGER.get().unwrap().lock().config_endpoint(
+            self.slot_id,
+            self.input.virt_addr(),
+            false,
+        );
+
+        xhci_event_manager::handle_event();
+
+        debug!("configure endpoint complete")
+    }
 
     fn desc_to_endpoints(&mut self, descriptors: Vec<Descriptor>) {
         let collect = descriptors
