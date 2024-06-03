@@ -54,6 +54,7 @@ pub struct XHCIUSBDevice {
     pub output: PageBox<Device64Byte>,
     pub transfer_ring_control: Box<TransferRing, GlobalNoCacheAllocator>,
     pub non_ep0_endpoints: Vec<TransferableEndpoint>,
+    pub device_desc: Option<descriptor::Device>,
     pub slot_id: u8,
     pub port_id: u8,
 }
@@ -73,6 +74,7 @@ impl XHCIUSBDevice {
                 input: PageBox::alloc_4k_zeroed_page_for_single_item(),
                 output: PageBox::alloc_4k_zeroed_page_for_single_item(),
                 non_ep0_endpoints: Vec::new(),
+                device_desc: None,
             };
 
             xhciusbdevice
@@ -92,6 +94,7 @@ impl XHCIUSBDevice {
 
         self.set_endpoint_speed(max_packet_size);
         self.evaluate_context_enable_ep0();
+        self.fetch_dev_desc();
     }
 
     pub fn configure(&mut self) {
@@ -148,17 +151,35 @@ impl XHCIUSBDevice {
             err => debug!("failed to enable slot"),
         }
     }
+    fn fetch_dev_desc(&mut self) {
+        let buffer = PageBox::new_slice(0u8, 4096);
+        let (setup, data, status) = Self::construct_trbs_for_getting_descriptors(
+            &buffer,
+            DescTyIdx::new(descriptor::Type::Device, 0),
+        );
+        self.enque_trbs_to_transger(vec![setup, data, status], 1, self.slot_id);
+        debug!("fetched!");
+        let descriptors = RawDescriptorParser::new(buffer).parse();
+        debug!("dev descriptors: {:?}", descriptors);
+        match descriptors[0] {
+            Descriptor::Device(dev) => self.device_desc = { Some(dev) },
+            other => error!(
+                "fetch device descriptor encounted some issue, fetch value: {:?}",
+                other
+            ),
+        }
+    }
 
     fn fetch_config_desc(&mut self) -> Vec<Descriptor> {
         let buffer = PageBox::new_slice(0u8, 4096);
         let (setup, data, status) = Self::construct_trbs_for_getting_descriptors(
             &buffer,
-            DescTyIdx::new(descriptor::Ty::Configuration, 0),
+            DescTyIdx::new(descriptor::Type::Configuration, 0),
         );
         self.enque_trbs_to_transger(vec![setup, data, status], 1, self.slot_id);
         debug!("fetched!");
         let descriptors = RawDescriptorParser::new(buffer).parse();
-        debug!("descriptors: {:?}", descriptors);
+        debug!("config descriptors: {:?}", descriptors);
         descriptors
     }
 
@@ -560,11 +581,11 @@ impl TransferableEndpoint {
 }
 
 pub(crate) struct DescTyIdx {
-    ty: descriptor::Ty,
+    ty: descriptor::Type,
     i: u8,
 }
 impl DescTyIdx {
-    pub(crate) fn new(ty: descriptor::Ty, i: u8) -> Self {
+    pub(crate) fn new(ty: descriptor::Type, i: u8) -> Self {
         Self { ty, i }
     }
     pub(crate) fn bits(self) -> u16 {
