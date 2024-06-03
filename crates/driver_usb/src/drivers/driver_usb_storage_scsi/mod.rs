@@ -10,7 +10,7 @@ impl USBDriverBasicOps for USBSCSIDriver {
         desc: &crate::host::structures::descriptor::Interface,
     ) -> Option<Self::Driver> {
         match desc.ty() {
-            (8, 6, _) => Some(USBSCSIDriver),
+            (8, 6, 0x50) => Some(USBSCSIDriver),
             _ => None,
         }
     }

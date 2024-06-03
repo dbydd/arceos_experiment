@@ -107,27 +107,54 @@ impl XHCIUSBDevice {
     pub fn configure(&mut self) {
         let fetch_config_desc = self.fetch_config_desc();
 
-        self.desc_to_endpoints(&fetch_config_desc);
-        self.input.device_mut().slot_mut().set_context_entries(31);
-        self.configure_endpoints();
-
         self.extract_configurationss(&fetch_config_desc);
         self.extract_interfaces(&fetch_config_desc);
         //from this part, we will only try to made a usb storage device for an example, more drivers need to migrate these codes into new world;
+        self.desc_to_endpoints(&fetch_config_desc);
+        self.configure_endpoints();
+
         self.interface_desc
             .and_then(|interface| (USBSCSIDriver {}).filter(&interface));
+        //for our simple usb disk, there is only one configuration exist
     }
 
     fn configure_endpoints(&mut self) {
-        COMMAND_MANAGER.get().unwrap().lock().config_endpoint(
-            self.slot_id,
-            self.input.virt_addr(),
-            false,
-        );
+        {
+            let last_entry = self
+                .non_ep0_endpoints
+                .iter()
+                .max_by_key(|e| e.endpoint.doorbell_value_aka_dci())
+                .unwrap();
+            debug!("found last entry: {:?}", last_entry.endpoint);
+            let mut input = self.input;
+            let slot_mut = input.device().slot_mut();
+            slot_mut.set_context_entries(last_entry);
 
-        xhci_event_manager::handle_event();
+            let control_mut = input.control_mut();
+            self.interface_desc.inspect(|int| {
+                control_mut.set_interface_number(int.interface_number);
+                control_mut.set_alternate_setting(int.alternate_setting);
+                //actually, only 0 here?
+            });
+            control_mut.set_add_context_flag(1);
+            control_mut.set_drop_context_flag(0);
+            control_mut.set_configuration_value(self.config_desc[0].config_val());
+        }
 
-        debug!("configure endpoint complete")
+        let mut vec = self.non_ep0_endpoints;
+        vec.iter_mut().for_each(|ep| {
+            ep.init_context(self);
+        });
+
+        // COMMAND_MANAGER.get().unwrap().lock().config_endpoint(
+        //     self.slot_id,
+        //     self.input.virt_addr(),
+        //     false,
+        // );
+
+        // xhci_event_manager::handle_event();
+
+        // debug!("configure endpoint complete")
     }
 
     fn desc_to_endpoints(&mut self, descriptors: &Vec<Descriptor>) {
@@ -143,7 +170,6 @@ impl XHCIUSBDevice {
                             endpoint: e.clone(),
                             transfer: Box::new_in(TransferRing::new(), global_no_cache_allocator()),
                         };
-                        transferable_endpoint.init_context(self);
                         transferable_endpoint
                     })
                 } else {
@@ -195,12 +221,12 @@ impl XHCIUSBDevice {
         self.enque_trbs_to_transger(vec![setup, data, status], 1, self.slot_id);
         debug!("fetched!");
         let descriptors = RawDescriptorParser::new(buffer).parse();
-        debug!("dev descriptors: {:?}", descriptors);
+        debug!("fetched dev descriptors: {:?}", descriptors);
 
         match descriptors[0] {
             Descriptor::Device(dev) => self.device_desc = { Some(dev) },
             other => error!(
-                "fetch device descriptor encounted some issue, fetch value: {:?}",
+                "fetched device descriptor encounted some issue, fetch value: {:?}",
                 other
             ),
         }
@@ -485,8 +511,8 @@ impl TransferableEndpoint {
     }
 
     pub fn init_context(&mut self, dev: &mut XHCIUSBDevice) {
-        self.set_add_context_flag(dev);
-        self.set_interval(dev, dev.port_id);
+        self.set_add_context_flag(dev); //ok
+        self.set_interval(dev, dev.port_id); //?
         self.init_for_endpoint_type(dev);
     }
 
