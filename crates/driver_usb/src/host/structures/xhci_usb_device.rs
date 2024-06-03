@@ -55,6 +55,7 @@ pub struct XHCIUSBDevice {
     pub transfer_ring_control: Box<TransferRing, GlobalNoCacheAllocator>,
     pub non_ep0_endpoints: Vec<TransferableEndpoint>,
     pub device_desc: Option<descriptor::Device>,
+    pub config_desc: Vec<descriptor::Configuration>,
     pub slot_id: u8,
     pub port_id: u8,
 }
@@ -75,6 +76,7 @@ impl XHCIUSBDevice {
                 output: PageBox::alloc_4k_zeroed_page_for_single_item(),
                 non_ep0_endpoints: Vec::new(),
                 device_desc: None,
+                config_desc: Vec::new(),
             };
 
             xhciusbdevice
@@ -99,9 +101,12 @@ impl XHCIUSBDevice {
 
     pub fn configure(&mut self) {
         let fetch_config_desc = self.fetch_config_desc();
-        self.desc_to_endpoints(fetch_config_desc);
+
+        self.desc_to_endpoints(&fetch_config_desc);
         self.input.device_mut().slot_mut().set_context_entries(31);
-        self.configure_endpoints()
+        self.configure_endpoints();
+
+        self.extract_configs(&fetch_config_desc);
     }
 
     fn configure_endpoints(&mut self) {
@@ -116,7 +121,7 @@ impl XHCIUSBDevice {
         debug!("configure endpoint complete")
     }
 
-    fn desc_to_endpoints(&mut self, descriptors: Vec<Descriptor>) {
+    fn desc_to_endpoints(&mut self, descriptors: &Vec<Descriptor>) {
         let collect = descriptors
             .iter()
             .filter_map(|desc| {
@@ -139,6 +144,17 @@ impl XHCIUSBDevice {
             .collect();
 
         self.non_ep0_endpoints = collect;
+    }
+
+    fn extract_configs(&mut self, descriptors: &Vec<Descriptor>) {
+        descriptors
+            .iter()
+            .filter_map(|desc| match desc {
+                Descriptor::Configuration(config) => Some(config.clone()),
+                _ => None,
+            })
+            .collect_into(&mut self.config_desc);
+        debug!("fetched configurations: {:?}", self.config_desc);
     }
 
     fn enable_slot(&mut self) {
