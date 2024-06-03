@@ -29,12 +29,15 @@ use xhci::{
     },
 };
 
-use crate::host::structures::{
-    descriptor::{self, RawDescriptorParser},
-    reset_port,
-    transfer_ring::TransferRing,
-    xhci_event_manager::{self, EventManager, EVENT_MANAGER},
-    PortLinkState,
+use crate::{
+    drivers::{driver_usb_storage_scsi::USBSCSIDriver, USBDriverBasicOps},
+    host::structures::{
+        descriptor::{self, RawDescriptorParser},
+        reset_port,
+        transfer_ring::TransferRing,
+        xhci_event_manager::{self, EventManager, EVENT_MANAGER},
+        PortLinkState,
+    },
 };
 
 use super::{
@@ -55,6 +58,7 @@ pub struct XHCIUSBDevice {
     pub transfer_ring_control: Box<TransferRing, GlobalNoCacheAllocator>,
     pub non_ep0_endpoints: Vec<TransferableEndpoint>,
     pub device_desc: Option<descriptor::Device>,
+    pub interface_desc: Option<descriptor::Interface>, //should be a vector? Would a device provide multiple interface?
     pub config_desc: Vec<descriptor::Configuration>,
     pub slot_id: u8,
     pub port_id: u8,
@@ -77,6 +81,7 @@ impl XHCIUSBDevice {
                 non_ep0_endpoints: Vec::new(),
                 device_desc: None,
                 config_desc: Vec::new(),
+                interface_desc: None,
             };
 
             xhciusbdevice
@@ -106,7 +111,11 @@ impl XHCIUSBDevice {
         self.input.device_mut().slot_mut().set_context_entries(31);
         self.configure_endpoints();
 
-        self.extract_configs(&fetch_config_desc);
+        self.extract_configurationss(&fetch_config_desc);
+        self.extract_interfaces(&fetch_config_desc);
+        //from this part, we will only try to made a usb storage device for an example, more drivers need to migrate these codes into new world;
+        self.interface_desc
+            .and_then(|interface| (USBSCSIDriver {}).filter(&interface));
     }
 
     fn configure_endpoints(&mut self) {
@@ -146,7 +155,17 @@ impl XHCIUSBDevice {
         self.non_ep0_endpoints = collect;
     }
 
-    fn extract_configs(&mut self, descriptors: &Vec<Descriptor>) {
+    fn extract_interfaces(&mut self, descriptors: &Vec<Descriptor>) {
+        self.interface_desc = descriptors.iter().find_map(|desc| {
+            if let Descriptor::Interface(interface) = desc {
+                Some(interface.clone())
+            } else {
+                None
+            }
+        })
+    }
+
+    fn extract_configurationss(&mut self, descriptors: &Vec<Descriptor>) {
         descriptors
             .iter()
             .filter_map(|desc| match desc {
@@ -177,6 +196,7 @@ impl XHCIUSBDevice {
         debug!("fetched!");
         let descriptors = RawDescriptorParser::new(buffer).parse();
         debug!("dev descriptors: {:?}", descriptors);
+
         match descriptors[0] {
             Descriptor::Device(dev) => self.device_desc = { Some(dev) },
             other => error!(

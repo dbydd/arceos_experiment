@@ -1,8 +1,8 @@
 use log::debug;
 use num_derive::{FromPrimitive, ToPrimitive};
 
-mod descriptor;
-mod xhci_usb_device;
+pub mod descriptor;
+pub mod xhci_usb_device;
 // 命令管理器、事件管理器和插槽管理器等模块。
 pub(super) mod extended_capabilities;
 pub(super) mod registers;

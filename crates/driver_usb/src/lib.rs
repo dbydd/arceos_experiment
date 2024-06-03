@@ -10,9 +10,11 @@
 #![feature(let_chains)]
 #![feature(generic_arg_infer)]
 #![feature(pointer_is_aligned_to)]
+#![feature(iter_collect_into)]
 
 extern crate alloc;
 pub(crate) mod dma;
+pub mod drivers;
 pub mod host;
 use core::alloc::Allocator;
 mod device_types;

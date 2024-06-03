@@ -1,4 +1,4 @@
-mod structures;
+pub(crate) mod structures;
 pub mod xhci;
 use axhal::mem::PhysAddr;
 use driver_common::BaseDriverOps;
