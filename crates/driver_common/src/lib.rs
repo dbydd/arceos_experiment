@@ -56,7 +56,6 @@ pub enum DevError {
 pub type DevResult<T = ()> = Result<T, DevError>;
 
 /// Common operations that require all device drivers to implement.
-#[const_trait]
 pub trait BaseDriverOps: Send + Sync {
     /// The name of the device.
     fn device_name(&self) -> &str;
