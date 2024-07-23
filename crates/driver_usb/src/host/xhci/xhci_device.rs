@@ -506,7 +506,7 @@ where
                         });
                     })
                     .or_else(|| {
-                        // debug!("got report: {:?}", report_buffer);
+                        trace!("got report: {:?}", report_buffer);
                         fallback_solve_hid_mouse_report(&report_buffer);
                         None
                     });
