@@ -388,3 +388,168 @@ TODO
 
 ## 系统架构
 
+![structure](doc/figures/main_architecture.svg)
+
+在这张图中，我们可以看到这些要点：
+
+* 主机驱动层：usb系统发展至今，已经到了第四代了，目前市面上大多数usb主机控制器都是usb3.0主机控制器-xhci(eXtensible Host Controller Interface)，由于其可扩展性，因此usb4也在使用它，在可预见的将来，xhci还会存在相当长一段时间，但这并不意味着我们就可以忽略过去的几种主机控制器-ehci/ohci/uhci，甚至是在虚拟化的环境下-vhci，因此，对于不同的主机，抽象出一套统一的接口上有必要的。
+
+* 驱动无关的设备抽象：usb协议的上层建筑，各种驱动千变万化，但是它们都有着共同的操作对象，因此我们在这里将所有驱动都会用到的设备数据抽象出来，进一步的说，其内包含：
+
+  * 设备的描述符
+
+    * 设备的描述符通过控制传输从设备获取，由厂家定义，描述符为树形结构，其拓扑一般如下：
+
+      　　![descriptor-topology](https://chenlongos.com/Phytium-Car/assert/ch2-1_1.png)
+
+  * 设备当前所使用的interface与config值与端点的概念
+
+    * config-设备的配置-对应着上图中的配置描述符，有一个设备一次只能选择一个配置
+
+    * interface-设备的功能，举个例子，无线鼠标接收器，在主机看来，其实往往是一个复合设备——他同时有鼠标/键盘/手柄的功能，每个功能都对应着一个接口描述符
+
+    * endpoint-设备端点-对应着图中的端点描述符，“端点”在usb系统中，是主机与设备沟通的最小通道，端点本身也是一种状态机
+
+      ![endpoint state machine](doc/figures/endpoint-state-machine.png)
+
+      在初始状态下，除了永远保持开启的0号端点（控制端点），其余端点都处于未被配置的Disabled状态，当一个配置被选择时，主机需要根据这个配置下的所有端点描述符对对应的端点做初始化（确定端点的传输方式，传输间隔，传输大小等）。
+
+  * 设备的slot id-当设备被插入时，主机就会为设备分配一个唯一的slot id，这么做的原因是物理接口往往是可扩展的，因此用物理接口号来识别设备会造成混淆
+
+* USB驱动层：这一层则是对USB协议的封装，与主机控制器的内容并不相关，就像是其他的常见usb主机侧驱动一样（比如：linux，windows，circle os，redox...)它们都有一种叫做URB(USB Request Block)的结构体，其内记录了发起一次usb请求所需要的全部信息，这些信息在主机驱动层被解析为不同的主机控制器所对应的特定操作。而在我们的usb系统中，我们也设计了类似的结构：
+
+  * URB:我们的系统中也具有URB的概念，但与其他的系统略有不同
+
+    * 模版匹配：得益于rust强大的模版匹配机制，我们并不需要像其他系统一样设计一个庞大的结构体:
+
+      ```rust
+      //...
+      #[derive(Clone)]
+      pub struct URB<'a, O>
+      where
+          O: PlatformAbstractions,
+      {
+          pub device_slot_id: usize,
+          pub operation: RequestedOperation<'a>,
+          pub sender: Option<Arc<SpinNoIrq<dyn USBSystemDriverModuleInstance<'a, O>>>>,
+      }
+      //...
+      #[derive(Debug, Clone)]
+      pub enum RequestedOperation<'a> {
+          Control(ControlTransfer),//<--------------|
+          Bulk,//																		|
+          Interrupt(InterruptTransfer),//						|
+          Isoch,//																	|
+          ConfigureDevice(Configuration<'a>),//			|
+      }//																						|
+      //...																					|
+      #[derive(Debug, Clone)]			//								|
+      pub struct ControlTransfer {// >---------------|
+          pub request_type: bmRequestType,
+          pub request: bRequest,
+          pub index: u16,
+          pub value: u16,
+          pub data: Option<(usize, usize)>,
+      }
+      //...
+      
+      
+      ```
+
+      * 注意到RequestOperation这个枚举类型，其对应了usb的四种传输(控制，中断，块，同步)以及一种额外的请求：设备配置（如，为设备分配地址，硬重置设备端口等），在实际使用中，这种模式这给予了我们不同往日的灵活。
+
+    * UCB：这个结构体包含了URB所发起的事件的完成信息（完成状态，是否有错误，回报信息），与urb形成了对称，当URB的时间完成时，UCB将会被创建，并通过URB中的“sender”字段所保存的请求发起者的引用，回报给请求发起者（即被驱动创建的设备实例）
+
+  * 驱动api：可以在图中看到，我们的驱动部分是可扩展的，甚至可以动态的加载驱动模块，有着非常巧妙的设计：
+
+    * 首先，我们的驱动采用部分工厂模式+状态机的思想，其api定义如下：
+
+      ```rust
+      pub trait USBSystemDriverModule<'a, O>: Send + Sync
+      where
+          O: PlatformAbstractions,
+      {
+          fn should_active(
+              &self,
+              independent_dev: &DriverIndependentDeviceInstance<O>,
+              config: Arc<SpinNoIrq<USBSystemConfig<O>>>,
+          ) -> Option<Vec<Arc<SpinNoIrq<dyn USBSystemDriverModuleInstance<'a, O>>>>>;
+      
+          fn preload_module(&self);
+      }
+      
+      pub trait USBSystemDriverModuleInstance<'a, O>: Send + Sync
+      where
+          O: PlatformAbstractions,
+      {
+          fn prepare_for_drive(&mut self) -> Option<Vec<URB<'a, O>>>;
+      
+          fn gather_urb(&mut self) -> Option<URB<'a, O>>;
+      
+          fn receive_complete_event(&mut self, event: event::Allowed);
+      }
+      
+      ```
+
+      * USBSystemDriverModule：这是创建“驱动设备”的工厂，当有新设备被初始化完成时，usb层就会对每个驱动模块进行查询，当确定到有合适的驱动模块时，就会使对应的模块创建一个“驱动设备”的实例
+
+      * USBSystemDriverModuleInstance：即上文所提到的“驱动设备”，该设备与下层的“驱动无关设备”并不耦合，具体的来说，驱动设备应当被设计为一种状态机，usb系统在开始运行后，就会在每个loop的通过轮询所有“驱动设备”的`gather_urb`方法收集URB请求（根据驱动设备的状态，可能得到不同的，甚至干脆就没有URB,这些都是根据驱动设备的当前状态及其内部实现来决定的，我们称为-tick），在获取到了一大堆的URB后，就会将他们统一提交给主机控制器层，并等待任务完成后将UCB提交回驱动设备以改变驱动设备的状态（我们称为-tock）
+
+      * 也就是说，在正常运行的前提下，我们整个usb系统都是在不断的进行"tick-tock"，就像是时间轮一样：
+
+        ![tick-tock-machine](/Users/dbydd/Documents/oscpmp/doc/figures/tick-tock-machine.png)
+
+## 驱动案例：usb-hid鼠标驱动
+
+## 代码结构
+
+```log
+.
+├── abstractions
+│   ├── dma.rs
+│   └── mod.rs
+├── err.rs
+├── glue
+│   ├── driver_independent_device_instance.rs
+│   ├── glue_usb_host.rs
+│   └── mod.rs
+├── host
+│   ├── data_structures
+│   │   ├── host_controllers
+│   │   │   ├── mod.rs
+│   │   │   └── xhci
+│   │   │       ├── context.rs
+│   │   │       ├── event_ring.rs
+│   │   │       ├── mod.rs
+│   │   │       └── ring.rs
+│   │   └── mod.rs
+│   └── mod.rs
+├── lib.rs
+└── usb
+    ├── descriptors
+    │   ├── desc_configuration.rs
+    │   ├── desc_device.rs
+    │   ├── desc_endpoint.rs
+    │   ├── desc_hid.rs
+    │   ├── desc_interface.rs
+    │   ├── desc_str.rs
+    │   └── mod.rs
+    ├── drivers
+    │   ├── driverapi.rs
+    │   └── mod.rs
+    ├── mod.rs
+    ├── operation
+    │   └── mod.rs
+    ├── trasnfer
+    │   ├── control.rs
+    │   ├── endpoints
+    │   │   └── mod.rs
+    │   ├── interrupt.rs
+    │   └── mod.rs
+    ├── universal_drivers
+    │   ├── hid_drivers
+    │   │   ├── hid_mouse.rs
+    │   │   └── mod.rs
+    │   └── mod.rs
+    └── urb.rs
+```
