@@ -1,12 +1,19 @@
 # proj2210132-基于飞腾派的Arceos移植与外设驱动开发
 
+[TOC]
+
+
+
 ## 如何运行？这里是使用手册
+
 使用手册遵循Arceos开发的惯例，位于[doc目录](./doc/)下
 
 ## 目标概述：
 飞腾派开发板是飞腾公司针对教育行业推出的一款国产开源硬件平台，兼容 ARMv8-A 处理器架构。飞腾小车是一款利用飞腾派开发板组装的小车，它是一个计算机编程实验平台，包含电机驱动、红外传感器、超声传感器、AI加速棒、视觉摄像云台等，可以满足学生学习计算机编程、人工智能训练等课题。
 
 ArceOS是基于组件化设计的思路，用Rust语言的丰富语言特征，设计实现不同功能的独立操作系统内核模块和操作系统框架，可形成不同特征/形态/架构的操作系统内核。
+
+![arceos](/Users/dbydd/Documents/oscpmp/doc/figures/ArceOS.svg)
 
 本项目需要参赛队伍**将ArceOS移植到飞腾派开发板**，实现**UART串口通信**、**以太网口通信（HTTP server和HTTP client 可以上传下载文件）**，并且可以通过实现**I2C驱动**和**USB驱动**去驱动小车行走。
 * 完成ArceOS操作系统移植到飞腾派开发板。
@@ -23,7 +30,7 @@ ArceOS是基于组件化设计的思路，用Rust语言的丰富语言特征，�
 * USB驱动：情况较为复杂，详见进展情况说明
     * XHCI主机驱动：完成
     * HID：完成，已有鼠标测试用例
-    * UVC（摄像头）：未完成，但是提出了一套可行的驱动框架
+    * UVC（摄像头）：未完成，但是编写了一套可行的驱动框架
 
 ### 在一切开始前，前人所作的工作&开发进展情况说明
 本仓库基于[该分支](https://github.com/limingth/arceos)进行开发
@@ -729,7 +736,7 @@ where
 
   ```log
     Interface 0 HID Report Descriptor Mouse
-
+  
     Item Tag (Value) Raw Data                                   //左边是解读结果，右侧hex值为实际上拿到手的原始数据
     Usage Page (Generic Desktop) 05 01  
     Usage (Mouse) 09 02  
