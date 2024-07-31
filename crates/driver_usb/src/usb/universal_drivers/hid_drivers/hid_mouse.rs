@@ -39,6 +39,7 @@ where
     O: PlatformAbstractions,
 {
     Binary(SpinNoIrq<DMA<u8, O::DMA>>),
+    Decoded()
 }
 
 pub struct HidMouseDriver<O>
