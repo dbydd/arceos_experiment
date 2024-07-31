@@ -75,7 +75,8 @@ members = [
     "apps/cli",
     "apps/usb",
     "apps/boards/raspi4",   
-    "apps/boards/raspi4-usb", "apps/uvc",
+    "apps/boards/raspi4-usb", 
+    "apps/usb-hid",
 ]
 
 

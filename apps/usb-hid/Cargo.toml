@@ -1,5 +1,5 @@
 [package]
-name = "arceos-uvc"
+name = "arceos-usb-hid"
 version = "0.1.0"
 edition = "2021"
 authors = ["dbydd <dbydd@outlook.com>"]
