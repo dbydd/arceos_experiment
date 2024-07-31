@@ -1143,6 +1143,8 @@ where
 
 接下来让我们看看[主机层在xhci上的实现](crates/driver_usb/src/host/data_structures/host_controllers/xhci/mod.rs)：
 
+注意-这仅仅是**单个文件**的代码量
+
 ```rust
 //...
 
