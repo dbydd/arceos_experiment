@@ -1,5 +1,5 @@
 use alloc::string::String;
-use core::fmt::Display;
+use core::fmt::{write, Display};
 use xhci::ring::trb::event::CompletionCode;
 
 #[derive(Debug)]
@@ -9,6 +9,7 @@ pub enum Error {
     CMD(CompletionCode),
     Pip,
     TimeOut,
+    DontDoThatOnControlPipe,
 }
 
 impl Display for Error {
@@ -19,6 +20,9 @@ impl Display for Error {
             Error::TimeOut => write!(f, "timeout"),
             Error::CMD(cmd) => write!(f, "cmd fail: {:#?}", cmd),
             Error::Pip => write!(f, "piped"),
+            Error::DontDoThatOnControlPipe => {
+                write!(f, "don't do that on controller pipe! illegal operation!")
+            }
         }
     }
 }

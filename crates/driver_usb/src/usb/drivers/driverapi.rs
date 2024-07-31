@@ -6,7 +6,8 @@ use xhci::ring::trb::event;
 
 use crate::{
     abstractions::PlatformAbstractions,
-    glue::driver_independent_device_instance::DriverIndependentDeviceInstance, usb::urb::URB,
+    glue::{driver_independent_device_instance::DriverIndependentDeviceInstance, ucb::UCB},
+    usb::urb::URB,
     USBSystemConfig,
 };
 
@@ -29,7 +30,7 @@ where
 {
     fn prepare_for_drive(&mut self) -> Option<Vec<URB<'a, O>>>;
 
-    fn gather_urb(&mut self) -> Option<URB<'a, O>>;
+    fn gather_urb(&mut self) -> Option<Vec<URB<'a, O>>>;
 
-    fn receive_complete_event(&mut self, event: event::Allowed);
+    fn receive_complete_event(&mut self, ucb: UCB<O>);
 }

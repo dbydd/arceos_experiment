@@ -76,7 +76,13 @@ where
     pub fn tick(&mut self) -> Vec<Vec<URB<'a, O>>> {
         self.driver_device_instances
             .iter()
-            .map(|drv_dev| drv_dev.lock().gather_urb())
+            .filter_map(|drv_dev| {
+                drv_dev.lock().gather_urb().map(|mut vec| {
+                    vec.iter_mut()
+                        .for_each(|urb| urb.set_sender(drv_dev.clone()));
+                    vec
+                })
+            })
             .collect()
     }
 }

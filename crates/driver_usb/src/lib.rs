@@ -122,10 +122,11 @@ where
 
         loop {
             let tick = self.usb_driver_layer.tick();
-            let tock = self.host_driver_layer.tock(tick);
-            trace!("result:{:#?}", tock);
-            // let tack = self.usb_driver_layer.tack(tock);
-            // let tark = self.host_driver_layer.tark(tack);
+            if tick.len() != 0 {
+                trace!("tick! {:?}", tick.len());
+                self.host_driver_layer.tock(tick);
+            }
+            // trace!("tock!");
         }
         self
     }

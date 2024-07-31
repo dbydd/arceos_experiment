@@ -12,8 +12,9 @@ use spinlock::SpinNoIrq;
 use crate::{
     abstractions::{dma::DMA, OSAbstractions, PlatformAbstractions},
     err::Result,
+    glue::ucb::UCB,
     usb::{
-        operation::Configuration,
+        operation::{Configuration, ExtraStep},
         trasnfer::{control::ControlTransfer, interrupt::InterruptTransfer},
     },
     USBSystemConfig,
@@ -33,19 +34,21 @@ where
         &mut self,
         dev_slot_id: usize,
         urb_req: ControlTransfer,
-    ) -> crate::err::Result;
+    ) -> crate::err::Result<UCB<O>>;
 
     fn interrupt_transfer(
         &mut self,
         dev_slot_id: usize,
         urb_req: InterruptTransfer,
-    ) -> crate::err::Result;
+    ) -> crate::err::Result<UCB<O>>;
 
     fn configure_device(
         &mut self,
         dev_slot_id: usize,
         urb_req: Configuration,
-    ) -> crate::err::Result;
+    ) -> crate::err::Result<UCB<O>>;
+
+    fn extra_step(&mut self, dev_slot_id: usize, urb_req: ExtraStep) -> crate::err::Result<UCB<O>>;
 
     fn device_slot_assignment(&mut self) -> usize;
     fn address_device(&mut self, slot_id: usize, port_id: usize);

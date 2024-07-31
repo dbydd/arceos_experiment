@@ -7,7 +7,7 @@ use xhci::ring::trb::event;
 use crate::{
     abstractions::PlatformAbstractions,
     err,
-    glue::driver_independent_device_instance::DriverIndependentDeviceInstance,
+    glue::{driver_independent_device_instance::DriverIndependentDeviceInstance, ucb::UCB},
     usb::{self, operation::Configuration, trasnfer::control::ControlTransfer, urb::URB},
     USBSystemConfig,
 };
@@ -78,7 +78,7 @@ where
         &mut self,
         dev_slot_id: usize,
         urb_req: ControlTransfer,
-    ) -> crate::err::Result {
+    ) -> crate::err::Result<UCB<O>> {
         self.controller
             .lock()
             .control_transfer(dev_slot_id, urb_req)
@@ -88,13 +88,13 @@ where
         &mut self,
         dev_slot_id: usize,
         urb_req: Configuration,
-    ) -> crate::err::Result {
+    ) -> crate::err::Result<UCB<O>> {
         self.controller
             .lock()
             .configure_device(dev_slot_id, urb_req)
     }
 
-    pub fn urb_request(&mut self, request: URB<O>) -> crate::err::Result {
+    pub fn urb_request(&mut self, request: URB<O>) -> crate::err::Result<UCB<O>> {
         match request.operation {
             usb::urb::RequestedOperation::Control(control) => {
                 trace!("request transfer!");
@@ -110,13 +110,24 @@ where
                 .controller
                 .lock()
                 .configure_device(request.device_slot_id, configure),
+            usb::urb::RequestedOperation::ExtraStep(step) => self
+                .controller
+                .lock()
+                .extra_step(request.device_slot_id, step),
         }
     }
 
-    pub fn tock(&mut self, todo_list_list: Vec<Vec<URB<O>>>) -> Vec<Vec<err::Result>> {
-        todo_list_list
-            .iter()
-            .map(|list| list.iter().map(|todo| self.urb_request(todo)).collect())
-            .collect();
+    pub fn tock(&mut self, todo_list_list: Vec<Vec<URB<O>>>) {
+        trace!("tock! check deadlock!");
+        todo_list_list.iter().for_each(|list| {
+            list.iter().for_each(|todo| {
+                if let Ok(ok) = self.urb_request(todo.clone())
+                    && let Some(sender) = &todo.sender
+                {
+                    trace!("tock! check deadlock! 2");
+                    sender.lock().receive_complete_event(ok);
+                };
+            })
+        })
     }
 }

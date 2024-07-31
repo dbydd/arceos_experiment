@@ -10,10 +10,13 @@ use xhci::context::EndpointType;
 use xhci::ring::trb::transfer::Direction;
 
 use crate::abstractions::dma::DMA;
+use crate::glue::ucb::{TransferEventCompleteCode, UCB};
 use crate::usb::descriptors::DescriptorType;
+use crate::usb::operation::ExtraStep;
 use crate::usb::trasnfer::control::{
     bRequest, bmRequestType, ControlTransfer, DataTransferType, Recipient,
 };
+use crate::usb::trasnfer::interrupt::InterruptTransfer;
 use crate::usb::urb::{RequestedOperation, URB};
 use crate::USBSystemConfig;
 use crate::{
@@ -53,6 +56,13 @@ where
     interface_alternative_value: usize,
     config_value: usize, // same
     report_descriptor: Option<ReportDescState<O>>,
+    driver_state_machine: HidMouseStateMachine,
+    receiption_buffer: Option<SpinNoIrq<DMA<[u8], O::DMA>>>,
+}
+
+pub enum HidMouseStateMachine {
+    Waiting,
+    Sending,
 }
 
 impl<'a, O> HidMouseDriver<O>
@@ -94,6 +104,8 @@ where
             interface_alternative_value: alternative_val,
             bootable: bootable as usize,
             report_descriptor: None,
+            driver_state_machine: HidMouseStateMachine::Sending,
+            receiption_buffer: None,
         }))
     }
 }
@@ -102,12 +114,53 @@ impl<'a, O> USBSystemDriverModuleInstance<'a, O> for HidMouseDriver<O>
 where
     O: PlatformAbstractions,
 {
-    fn gather_urb(&mut self) -> Option<crate::usb::urb::URB<'a, O>> {
-        None
+    fn gather_urb(&mut self) -> Option<Vec<crate::usb::urb::URB<'a, O>>> {
+        match self.driver_state_machine {
+            HidMouseStateMachine::Waiting => None,
+            HidMouseStateMachine::Sending => {
+                self.driver_state_machine = HidMouseStateMachine::Waiting;
+                match &self.receiption_buffer {
+                    Some(buffer) => buffer.lock().fill_with(|| 0u8),
+                    None => {
+                        self.receiption_buffer = Some(SpinNoIrq::new(DMA::new_vec(
+                            0u8,
+                            8,
+                            O::PAGE_SIZE,
+                            self.config.lock().os.dma_alloc(),
+                        )))
+                    }
+                }
+
+                if let Some(buffer) = &mut self.receiption_buffer {
+                    trace!("some!");
+                    return Some(vec![URB::<O>::new(
+                        self.device_slot_id,
+                        RequestedOperation::Interrupt(InterruptTransfer {
+                            endpoint_id: self.interrupt_in_channels.last().unwrap().clone()
+                                as usize,
+                            buffer_addr_len: buffer.lock().addr_len_tuple(),
+                        }),
+                    )]);
+                }
+                None
+            }
+        }
     }
 
-    fn receive_complete_event(&mut self, event: xhci::ring::trb::event::Allowed) {
-        todo!()
+    fn receive_complete_event(&mut self, ucb: UCB<O>) {
+        match ucb.code {
+            crate::glue::ucb::CompleteCode::Event(TransferEventCompleteCode::Success) => {
+                trace!("completed!");
+                self.receiption_buffer
+                    .as_ref()
+                    .map(|a| a.lock().to_vec().clone())
+                    .inspect(|a| {
+                        trace!("current buffer:{:?}", a);
+                    });
+                self.driver_state_machine = HidMouseStateMachine::Sending
+            }
+            other => panic!("received {:?}", other),
+        }
     }
 
     fn prepare_for_drive(&mut self) -> Option<Vec<URB<'a, O>>> {
@@ -167,18 +220,31 @@ where
         ))));
 
         if let Some(ReportDescState::Binary(buf)) = &self.report_descriptor {
-            RequestedOperation::Control(ControlTransfer {
-                request_type: bmRequestType::new(
-                    Direction::In,
-                    DataTransferType::Standard,
-                    Recipient::Interface,
-                ),
-                request: bRequest::GetDescriptor,
-                index: self.interface_alternative_value as u16,
-                value: DescriptorType::HIDReport.forLowBit(0).bits(),
-                data: Some({ buf.lock().addr_len_tuple() }),
-            });
+            todo_list.push(URB::new(
+                self.device_slot_id,
+                RequestedOperation::Control(ControlTransfer {
+                    request_type: bmRequestType::new(
+                        Direction::In,
+                        DataTransferType::Standard,
+                        Recipient::Interface,
+                    ),
+                    request: bRequest::GetDescriptor,
+                    index: self.interface_alternative_value as u16,
+                    value: DescriptorType::HIDReport.forLowBit(0).bits(),
+                    data: Some({ buf.lock().addr_len_tuple() }),
+                }),
+            ));
         }
+
+        self.interrupt_in_channels
+            .iter()
+            .chain(self.interrupt_out_channels.iter())
+            .for_each(|dci| {
+                todo_list.push(URB::new(
+                    self.device_slot_id,
+                    RequestedOperation::ExtraStep(ExtraStep::PrepareForTransfer(*dci as _)),
+                ));
+            });
 
         Some(todo_list)
     }

@@ -1,9 +1,4 @@
-use alloc::{
-    borrow::ToOwned,
-    boxed::Box,
-    sync::Arc,
-    vec::{self, Vec},
-};
+use alloc::{borrow::ToOwned, boxed::Box, sync::Arc, vec, vec::Vec};
 use context::{DeviceContextList, ScratchpadBufferArray};
 use core::{
     mem::{self, MaybeUninit},
@@ -22,7 +17,7 @@ use xhci::{
     ring::trb::{
         command,
         event::{self, CommandCompletion, CompletionCode, HostController},
-        transfer::{self, Direction, TransferType},
+        transfer::{self, Direction, Normal, TransferType},
     },
     ExtendedCapability,
 };
@@ -30,10 +25,11 @@ use xhci::{
 use crate::{
     abstractions::{dma::DMA, PlatformAbstractions},
     err::Error,
+    glue::ucb::{CompleteCode, TransferEventCompleteCode, UCB},
     host::data_structures::MightBeInited,
     usb::{
         descriptors::{desc_configuration, DescriptorType, TopologicalUSBDescriptorConfiguration},
-        operation::Configuration,
+        operation::{Configuration, ExtraStep},
         trasnfer::{
             self,
             control::{bRequest, bmRequestType, ControlTransfer, DataTransferType},
@@ -492,7 +488,7 @@ where
         &mut self,
         device_slot_id: usize,
         configure: &TopologicalUSBDescriptorConfiguration,
-    ) -> crate::err::Result {
+    ) -> crate::err::Result<UCB<O>> {
         configure.child.iter().for_each(|func| match func {
             crate::usb::descriptors::TopologicalUSBDescriptorFunction::InterfaceAssociation(_) => {
                 todo!()
@@ -581,17 +577,40 @@ where
                     (input as *const Input<16>).addr() as u64
                 };
 
-                self.post_cmd(command::Allowed::ConfigureEndpoint(
-                    *command::ConfigureEndpoint::default()
-                        .set_slot_id(device_slot_id as _)
-                        .set_input_context_pointer(input_addr),
-                ))
-                .unwrap();
+                let command_completion = self
+                    .post_cmd(command::Allowed::ConfigureEndpoint(
+                        *command::ConfigureEndpoint::default()
+                            .set_slot_id(device_slot_id as _)
+                            .set_input_context_pointer(input_addr),
+                    ))
+                    .unwrap();
 
                 self.trace_dump_context(device_slot_id);
+                match command_completion.completion_code() {
+                    Ok(ok) => match ok {
+                        CompletionCode::Success => {
+                            UCB::<O>::new(CompleteCode::Event(TransferEventCompleteCode::Success))
+                        }
+                        other => panic!("err:{:?}", other),
+                    },
+                    Err(err) => {
+                        UCB::new(CompleteCode::Event(TransferEventCompleteCode::Unknown(err)))
+                    }
+                };
             }
         });
-        Ok(())
+        //TODO: Improve
+        Ok(UCB::new(CompleteCode::Event(
+            TransferEventCompleteCode::Success,
+        )))
+    }
+
+    fn prepare_transfer_normal(&mut self, device_slot_id: usize, dci: u8) {
+        //in our code , the init state of transfer ring always has ccs = 0, so we use ccs =1 to fill transfer ring
+        let mut normal = transfer::Normal::default();
+        normal.set_cycle_bit();
+        let ring = self.ep_ring_mut(device_slot_id, dci);
+        ring.enque_trbs(vec![normal.into_raw(); 31]) //the 32 is link trb
     }
 }
 
@@ -708,7 +727,7 @@ where
         &mut self,
         dev_slot_id: usize,
         urb_req: ControlTransfer,
-    ) -> crate::err::Result {
+    ) -> crate::err::Result<UCB<O>> {
         let direction = urb_req.request_type.direction.clone();
         let buffer = urb_req.data;
 
@@ -782,16 +801,28 @@ where
             r.set_doorbell_target(1);
         });
 
-        let r = self.event_busy_wait_transfer(*trb_pointers.last().unwrap() as _)?;
+        let complete = self
+            .event_busy_wait_transfer(*trb_pointers.last().unwrap() as _)
+            .unwrap();
 
-        Ok(())
+        match complete.completion_code() {
+            Ok(complete) => match complete {
+                CompletionCode::Success => Ok(UCB::new(CompleteCode::Event(
+                    TransferEventCompleteCode::Success,
+                ))),
+                err => panic!("{:?}", err),
+            },
+            Err(fail) => Ok(UCB::new(CompleteCode::Event(
+                TransferEventCompleteCode::Unknown(fail),
+            ))),
+        }
     }
 
     fn configure_device(
         &mut self,
         dev_slot_id: usize,
         urb_req: Configuration,
-    ) -> crate::err::Result {
+    ) -> crate::err::Result<UCB<O>> {
         match urb_req {
             Configuration::SetupDevice(config) => self.setup_device(dev_slot_id, &config),
             Configuration::SwitchInterface(_, _) => todo!(),
@@ -948,7 +979,50 @@ where
         &mut self,
         dev_slot_id: usize,
         urb_req: trasnfer::interrupt::InterruptTransfer,
-    ) -> crate::err::Result {
-        todo!()
+    ) -> crate::err::Result<UCB<O>> {
+        let (addr, len) = urb_req.buffer_addr_len;
+        self.ep_ring_mut(dev_slot_id, urb_req.endpoint_id as _)
+            .enque_transfer(transfer::Allowed::Normal(
+                *Normal::new()
+                    .set_data_buffer_pointer(addr as _)
+                    .set_trb_transfer_length(len as _)
+                    .set_interrupter_target(0)
+                    .set_interrupt_on_short_packet()
+                    .set_interrupt_on_completion(),
+            ));
+        self.regs.doorbell.update_volatile_at(dev_slot_id, |r| {
+            r.set_doorbell_target(urb_req.endpoint_id as _);
+        });
+
+        let transfer_event = self.event_busy_wait_transfer(addr as _).unwrap();
+        match transfer_event.completion_code() {
+            Ok(complete) => match complete {
+                CompletionCode::Success | CompletionCode::ShortPacket => {
+                    trace!("ok! return a success ucb!");
+                    Ok(UCB::new(CompleteCode::Event(
+                        TransferEventCompleteCode::Success,
+                    )))
+                }
+                err => panic!("{:?}", err),
+            },
+            Err(fail) => Ok(UCB::new(CompleteCode::Event(
+                TransferEventCompleteCode::Unknown(fail),
+            ))),
+        }
+    }
+
+    fn extra_step(&mut self, dev_slot_id: usize, urb_req: ExtraStep) -> crate::err::Result<UCB<O>> {
+        match urb_req {
+            ExtraStep::PrepareForTransfer(dci) => {
+                if dci > 1 {
+                    self.prepare_transfer_normal(dev_slot_id, dci as u8);
+                    Ok(UCB::<O>::new(CompleteCode::Event(
+                        TransferEventCompleteCode::Success,
+                    )))
+                } else {
+                    Err(Error::DontDoThatOnControlPipe)
+                }
+            }
+        }
     }
 }

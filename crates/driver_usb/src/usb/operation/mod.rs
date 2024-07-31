@@ -9,3 +9,9 @@ pub enum Configuration<'a> {
 pub type ConfigurationID = usize;
 pub type InterfaceNumber = usize;
 pub type AltnativeNumber = usize;
+
+#[derive(Debug, Clone)]
+pub enum ExtraStep {
+    PrepareForTransfer(EndpointIndex),
+}
+pub type EndpointIndex = usize;
