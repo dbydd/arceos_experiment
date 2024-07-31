@@ -33,6 +33,9 @@ ArceOS是基于组件化设计的思路，用Rust语言的丰富语言特征，�
 
 2. UART串口通信：完成
 
+运行截图:
+![运行截图](./doc/figures/arceos_cli.png)
+
 3. i2c驱动：已跑通，尚未在小车上的驱动板进行测试
 
 4. USB驱动：已完成，但情况较为复杂，详见下文开发进展情况说明中的USB驱动部分
@@ -42,6 +45,10 @@ ArceOS是基于组件化设计的思路，用Rust语言的丰富语言特征，�
       4.1.1. 通用性usb主机端驱动框架重构：完成
    
    4.2.  USB-HID：完成，已有鼠标测试用例
+
+[运行日志](./doc/resources/res/usb-hid.log)
+以上日志部分截图：
+![usb-hid](./doc/resources/res/usb-hid.png)
 
 ## 在一切开始前，前人所作的工作&开发进展情况说明
 
