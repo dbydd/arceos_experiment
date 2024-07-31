@@ -579,7 +579,7 @@ where
 
 
 //在以下的结构体中，我们需要注意的字段有这么几个
-pub struct HidMouseDriver<O>
+pub struct HidMouseDriver<O> //Hid鼠标-驱动设备实例-结构体
 where
     O: PlatformAbstractions,
 {
