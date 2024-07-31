@@ -9,6 +9,7 @@
 ![usb-hid](./doc/resources/res/usb-hid.png)
 
 # I2C系统正常运行，并进行数据读写
+注：i2c代码位于usb-learnlings1分支
 ![i2c_1](./doc/resources/i2c/i2c_1.png)
 ![i2c_2](./doc/resources/i2c/i2c_2.png)
 
