@@ -338,28 +338,28 @@ where
         // //     RequestedOperation::Debug(Debugop::DumpDevice),
         // // ));
 
-        // todo_list.push(URB::new(
-        //     self.device_slot_id,
-        //     RequestedOperation::Control(ControlTransfer {
-        //         request_type: bmRequestType::new(
-        //             Direction::Out,
-        //             DataTransferType::Standard,
-        //             Recipient::Device,
-        //         ),
-        //         request: StandardbRequest::SetConfiguration.into(),
-        //         index: 0,
-        //         value: 1,
-        //         data: None,
-        //     }),
-        // ));
-
         todo_list.push(URB::new(
             self.device_slot_id,
-            RequestedOperation::ConfigureDevice(Configuration::SwitchInterface(
-                self.interface_value,
-                self.interface_alternative_value,
-            )),
+            RequestedOperation::Control(ControlTransfer {
+                request_type: bmRequestType::new(
+                    Direction::Out,
+                    DataTransferType::Standard,
+                    Recipient::Device,
+                ),
+                request: StandardbRequest::SetConfiguration.into(),
+                index: 0,
+                value: 1,
+                data: None,
+            }),
         ));
+
+        // todo_list.push(URB::new(
+        //     self.device_slot_id,
+        //     RequestedOperation::ConfigureDevice(Configuration::SwitchInterface(
+        //         self.interface_value,
+        //         self.interface_alternative_value,
+        //     )),
+        // ));
 
         // todo_list.push(URB::new(
         //     self.device_slot_id,

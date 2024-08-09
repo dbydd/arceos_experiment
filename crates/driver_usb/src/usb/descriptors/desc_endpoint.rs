@@ -65,6 +65,11 @@ impl Endpoint {
         self.endpoint_type() == EndpointType::BulkOut
     }
 
+    pub(crate) fn is_isoch(&self) -> bool {
+        self.endpoint_type() == EndpointType::IsochOut
+            || self.endpoint_type() == EndpointType::IsochIn
+    }
+
     pub(crate) fn calculate_max_streams(&self) -> u8 {
         self.ssc
             .as_ref()

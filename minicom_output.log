@@ -10,696 +10,148 @@ smp = 1
 build_mode = release
 log_level = trace
 
-[ 44.166357 0 axruntime:143] Logging is enabled.
-[ 44.172085 0 axruntime:144] Primary CPU 512 started, dtb = 0x1.
-[ 44.179203 0 axruntime:146] Found physcial memory regions:
-[ 44.185888 0 axruntime:149]   [PA:0x90100000, PA:0x9013e000) .text (READ | EXECUTE | RESERVED)
-[ 44.195695 0 axruntime:149]   [PA:0x9013e000, PA:0x90148000) .rodata (READ | RESERVED)
-[ 44.204809 0 axruntime:149]   [PA:0x90148000, PA:0x9014c000) .data .tdata .tbss .percpu (READ | WRITE | RESERVED)
-[ 44.216266 0 axruntime:149]   [PA:0x9014c000, PA:0x9018c000) boot stack (READ | WRITE | RESERVED)
-[ 44.226335 0 axruntime:149]   [PA:0x9018c000, PA:0x901b2000) .bss (READ | WRITE | RESERVED)
-[ 44.235883 0 axruntime:149]   [PA:0x0, PA:0x1000) spintable (READ | WRITE | RESERVED)
-[ 44.244910 0 axruntime:149]   [PA:0x901b2000, PA:0x908b2000) nocache memory (READ | WRITE | DEVICE)
-[ 44.255153 0 axruntime:149]   [PA:0x908b2000, PA:0xff900000) free memory (READ | WRITE | FREE)
-[ 44.264961 0 axruntime:149]   [PA:0x2800c000, PA:0x2800d000) mmio (READ | WRITE | DEVICE | RESERVED)
-[ 44.275290 0 axruntime:149]   [PA:0x2800d000, PA:0x2800e000) mmio (READ | WRITE | DEVICE | RESERVED)
-[ 44.285619 0 axruntime:149]   [PA:0x2800e000, PA:0x2800f000) mmio (READ | WRITE | DEVICE | RESERVED)
-[ 44.295948 0 axruntime:149]   [PA:0x2800f000, PA:0x28010000) mmio (READ | WRITE | DEVICE | RESERVED)
-[ 44.306278 0 axruntime:149]   [PA:0x30000000, PA:0x38000000) mmio (READ | WRITE | DEVICE | RESERVED)
-[ 44.316607 0 axruntime:149]   [PA:0x40000000, PA:0x80000000) mmio (READ | WRITE | DEVICE | RESERVED)
-[ 44.326936 0 axruntime:149]   [PA:0x1000000000, PA:0x3000000000) mmio (READ | WRITE | DEVICE | RESERVED)
-[ 44.337613 0 axruntime:228] Initialize global memory allocator...
-[ 44.344904 0 axruntime:229]   use TLSF allocator.
-[ 44.350808 0 axalloc:284] initialize global allocator at: free-[0xffff0000908b2000, 0xffff0000ff900000)
-[ 44.361720 0 axruntime:163] Initialize kernel page table...
-[ 44.368171 0 page_table::bits64:159] map_region(PA:0x908ba000): [VA:0xffff000090100000, VA:0xffff00009013e000) -> [PA:0x90100000, PA:0x9013e000) MappingFlags(READ | EXECUTE)
-[ 44.384841 0 page_table::bits64:159] map_region(PA:0x908ba000): [VA:0xffff00009013e000, VA:0xffff000090148000) -> [PA:0x9013e000, PA:0x90148000) MappingFlags(READ)
-[ 44.400630 0 page_table::bits64:159] map_region(PA:0x908ba000): [VA:0xffff000090148000, VA:0xffff00009014c000) -> [PA:0x90148000, PA:0x9014c000) MappingFlags(READ | WRITE)
-[ 44.417122 0 page_table::bits64:159] map_region(PA:0x908ba000): [VA:0xffff00009014c000, VA:0xffff00009018c000) -> [PA:0x9014c000, PA:0x9018c000) MappingFlags(READ | WRITE)
-[ 44.433616 0 page_table::bits64:159] map_region(PA:0x908ba000): [VA:0xffff00009018c000, VA:0xffff0000901b2000) -> [PA:0x9018c000, PA:0x901b2000) MappingFlags(READ | WRITE)
-[ 44.450107 0 page_table::bits64:159] map_region(PA:0x908ba000): [VA:0xffff000000000000, VA:0xffff000000001000) -> [PA:0x0, PA:0x1000) MappingFlags(READ | WRITE)
-[ 44.465645 0 page_table::bits64:159] map_region(PA:0x908ba000): [VA:0x901b2000, VA:0x908b2000) -> [PA:0x901b2000, PA:0x908b2000) MappingFlags(READ | WRITE | DEVICE)
-[ 44.481540 0 page_table::bits64:159] map_region(PA:0x908ba000): [VA:0xffff0000908b2000, VA:0xffff0000ff900000) -> [PA:0x908b2000, PA:0xff900000) MappingFlags(READ | WRITE)
-[ 44.498086 0 page_table::bits64:159] map_region(PA:0x908ba000): [VA:0xffff00002800c000, VA:0xffff00002800d000) -> [PA:0x2800c000, PA:0x2800d000) MappingFlags(READ | WRITE | DEVICE)
-[ 44.515293 0 page_table::bits64:159] map_region(PA:0x908ba000): [VA:0xffff00002800d000, VA:0xffff00002800e000) -> [PA:0x2800d000, PA:0x2800e000) MappingFlags(READ | WRITE | DEVICE)
-[ 44.532565 0 page_table::bits64:159] map_region(PA:0x908ba000): [VA:0xffff00002800e000, VA:0xffff00002800f000) -> [PA:0x2800e000, PA:0x2800f000) MappingFlags(READ | WRITE | DEVICE)
-[ 44.549839 0 page_table::bits64:159] map_region(PA:0x908ba000): [VA:0xffff00002800f000, VA:0xffff000028010000) -> [PA:0x2800f000, PA:0x28010000) MappingFlags(READ | WRITE | DEVICE)
-[ 44.567112 0 page_table::bits64:159] map_region(PA:0x908ba000): [VA:0xffff000030000000, VA:0xffff000038000000) -> [PA:0x30000000, PA:0x38000000) MappingFlags(READ | WRITE | DEVICE)
-[ 44.584388 0 page_table::bits64:159] map_region(PA:0x908ba000): [VA:0xffff000040000000, VA:0xffff000080000000) -> [PA:0x40000000, PA:0x80000000) MappingFlags(READ | WRITE | DEVICE)
-[ 44.601658 0 page_table::bits64:159] map_region(PA:0x908ba000): [VA:0xffff001000000000, VA:0xffff003000000000) -> [PA:0x1000000000, PA:0x3000000000) MappingFlags(READ | WRITE | DEVICE)
-[ 44.619283 0 axhal::arch::aarch64:67] set page table root: PA:0x90148000 => PA:0x908ba000
-[ 44.628654 0 axruntime:263] Initialize global no cache memory allocator...
-[ 44.636726 0 axalloc:300] initialize global allocator at: nocache-[0x901b2000,0x908b2000)
-[ 44.646102 0 axruntime:170] Initialize platform devices...
-[ 44.652783 0 axhal::platform::aarch64_common::gic:51] Initialize GICv2...
-[ 44.660769 0 axhal::platform::aarch64_common::gic:27] GICD set enable: 30 true
-[ 44.669189 0 axhal::platform::aarch64_common::gic:27] GICD set enable: 56 true
-[ 44.677608 0 axtask::api:66] Initialize scheduling...
-[ 44.683861 0 axtask::task:146] new task: Task(1, "idle")
-[ 44.690372 0 axtask::task:146] new task: Task(3, "gc")
-[ 44.696708 0 axalloc:126] expand heap memory: [0xffff0000908c4000, 0xffff000090904000)
-[ 44.705825 0 axalloc:126] expand heap memory: [0xffff000090904000, 0xffff000090984000)
-[ 44.714935 0 axtask::api:72]   use Round-robin scheduler.
-[ 44.721529 0 axruntime:196] Initialize interrupt handlers...
-[ 44.728386 0 axhal::platform::aarch64_common::gic:36] register handler irq 30
-[ 44.736719 0 axhal::platform::aarch64_common::gic:27] GICD set enable: 30 true
-[ 44.745139 0 axruntime:206] Primary CPU 512 init OK.
-[ 44.751306 0:2 driver_usb::host::data_structures::host_controllers::xhci:839] [XHCI] Max_slots: 16, max_ports: 2, max_irqs: 1, page size: 1
-[ 44.765944 0:2 driver_usb::host::data_structures::host_controllers::xhci:852] [XHCI] ring size 256
-[ 44.775174 0:2 driver_usb:84] initializing!
-[ 44.780553 0:2 driver_usb::host::data_structures::host_controllers::xhci:120] [XHCI] Reset begin
-[ 44.790535 0:2 driver_usb::host::data_structures::host_controllers::xhci:121] [XHCI] Stop
-[ 44.799910 0:2 driver_usb::host::data_structures::host_controllers::xhci:126] [XHCI] Until halt
-[ 44.809805 0:2 driver_usb::host::data_structures::host_controllers::xhci:128] [XHCI] Halted
-[ 44.819353 0:2 driver_usb::host::data_structures::host_controllers::xhci:133] [XHCI] Wait for ready...
-[ 44.829856 0:2 driver_usb::host::data_structures::host_controllers::xhci:135] [XHCI] Ready
-[ 44.839318 0:2 driver_usb::host::data_structures::host_controllers::xhci:143] [XHCI] Reset HC
-[ 44.849039 0:2 driver_usb::host::data_structures::host_controllers::xhci:159] [XHCI] XCHI reset ok
-[ 44.859194 0:2 driver_usb::host::data_structures::host_controllers::xhci:165] [XHCI] Setting enabled slots to 16.
-[ 44.870652 0:2 driver_usb::host::data_structures::host_controllers::xhci:174] [XHCI] Writing DCBAAP: 901B3000
-[ 44.881763 0:2 driver_usb::host::data_structures::host_controllers::xhci:187] [XHCI] Writing CRCR: 901D3880
-[ 44.892699 0:2 driver_usb::host::data_structures::host_controllers::xhci:220] [XHCI] Disable interrupts
-[ 44.903289 0:2 driver_usb::host::data_structures::host_controllers::xhci:229] [XHCI] Writing ERSTZ
-[ 44.913444 0:2 driver_usb::host::data_structures::host_controllers::xhci:233] [XHCI] Writing ERDP: 901D4900
-[ 44.924381 0:2 driver_usb::host::data_structures::host_controllers::xhci:240] [XHCI] Writing ERSTBA: 901D48C0
-[ 44.935492 0:2 driver_usb::host::data_structures::host_controllers::xhci:250] [XHCI] Enabling primary interrupter.
-[ 44.947037 0:2 driver_usb::host::data_structures::host_controllers::xhci:329] [XHCI] Scratch buf count: 0
-[ 44.957799 0:2 driver_usb::host::data_structures::host_controllers::xhci:333] buf count=0,is it a error?
-[ 44.968475 0:2 driver_usb::host::data_structures::host_controllers::xhci:202] [XHCI] Start run
-[ 44.978285 0:2 driver_usb::host::data_structures::host_controllers::xhci:209] [XHCI] Is running
-[ 44.988179 0:2 driver_usb::host::data_structures::host_controllers::xhci:355] [XHCI] Test command ring
-[ 44.998683 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 0 @0x901D3880
+[ 51.214984 0 axruntime:143] Logging is enabled.
+[ 51.220712 0 axruntime:144] Primary CPU 512 started, dtb = 0x1.
+[ 51.227830 0 axruntime:146] Found physcial memory regions:
+[ 51.234514 0 axruntime:149]   [PA:0x90100000, PA:0x9013e000) .text (READ | EXECUTE | RESERVED)
+[ 51.244321 0 axruntime:149]   [PA:0x9013e000, PA:0x90148000) .rodata (READ | RESERVED)
+[ 51.253435 0 axruntime:149]   [PA:0x90148000, PA:0x9014c000) .data .tdata .tbss .percpu (READ | WRITE | RESERVED)
+[ 51.264893 0 axruntime:149]   [PA:0x9014c000, PA:0x9018c000) boot stack (READ | WRITE | RESERVED)
+[ 51.274962 0 axruntime:149]   [PA:0x9018c000, PA:0x901b2000) .bss (READ | WRITE | RESERVED)
+[ 51.284510 0 axruntime:149]   [PA:0x0, PA:0x1000) spintable (READ | WRITE | RESERVED)
+[ 51.293537 0 axruntime:149]   [PA:0x901b2000, PA:0x908b2000) nocache memory (READ | WRITE | DEVICE)
+[ 51.303779 0 axruntime:149]   [PA:0x908b2000, PA:0xff900000) free memory (READ | WRITE | FREE)
+[ 51.313588 0 axruntime:149]   [PA:0x2800c000, PA:0x2800d000) mmio (READ | WRITE | DEVICE | RESERVED)
+[ 51.323917 0 axruntime:149]   [PA:0x2800d000, PA:0x2800e000) mmio (READ | WRITE | DEVICE | RESERVED)
+[ 51.334246 0 axruntime:149]   [PA:0x2800e000, PA:0x2800f000) mmio (READ | WRITE | DEVICE | RESERVED)
+[ 51.344575 0 axruntime:149]   [PA:0x2800f000, PA:0x28010000) mmio (READ | WRITE | DEVICE | RESERVED)
+[ 51.354905 0 axruntime:149]   [PA:0x30000000, PA:0x38000000) mmio (READ | WRITE | DEVICE | RESERVED)
+[ 51.365234 0 axruntime:149]   [PA:0x40000000, PA:0x80000000) mmio (READ | WRITE | DEVICE | RESERVED)
+[ 51.375563 0 axruntime:149]   [PA:0x1000000000, PA:0x3000000000) mmio (READ | WRITE | DEVICE | RESERVED)
+[ 51.386239 0 axruntime:228] Initialize global memory allocator...
+[ 51.393531 0 axruntime:229]   use TLSF allocator.
+[ 51.399435 0 axalloc:284] initialize global allocator at: free-[0xffff0000908b2000, 0xffff0000ff900000)
+[ 51.410345 0 axruntime:163] Initialize kernel page table...
+[ 51.416799 0 page_table::bits64:159] map_region(PA:0x908ba000): [VA:0xffff000090100000, VA:0xffff00009013e000) -> [PA:0x90100000, PA:0x9013e000) MappingFlags(READ | EXECUTE)
+[ 51.433467 0 page_table::bits64:159] map_region(PA:0x908ba000): [VA:0xffff00009013e000, VA:0xffff000090148000) -> [PA:0x9013e000, PA:0x90148000) MappingFlags(READ)
+[ 51.449257 0 page_table::bits64:159] map_region(PA:0x908ba000): [VA:0xffff000090148000, VA:0xffff00009014c000) -> [PA:0x90148000, PA:0x9014c000) MappingFlags(READ | WRITE)
+[ 51.465748 0 page_table::bits64:159] map_region(PA:0x908ba000): [VA:0xffff00009014c000, VA:0xffff00009018c000) -> [PA:0x9014c000, PA:0x9018c000) MappingFlags(READ | WRITE)
+[ 51.482243 0 page_table::bits64:159] map_region(PA:0x908ba000): [VA:0xffff00009018c000, VA:0xffff0000901b2000) -> [PA:0x9018c000, PA:0x901b2000) MappingFlags(READ | WRITE)
+[ 51.498734 0 page_table::bits64:159] map_region(PA:0x908ba000): [VA:0xffff000000000000, VA:0xffff000000001000) -> [PA:0x0, PA:0x1000) MappingFlags(READ | WRITE)
+[ 51.514271 0 page_table::bits64:159] map_region(PA:0x908ba000): [VA:0x901b2000, VA:0x908b2000) -> [PA:0x901b2000, PA:0x908b2000) MappingFlags(READ | WRITE | DEVICE)
+[ 51.530167 0 page_table::bits64:159] map_region(PA:0x908ba000): [VA:0xffff0000908b2000, VA:0xffff0000ff900000) -> [PA:0x908b2000, PA:0xff900000) MappingFlags(READ | WRITE)
+[ 51.546715 0 page_table::bits64:159] map_region(PA:0x908ba000): [VA:0xffff00002800c000, VA:0xffff00002800d000) -> [PA:0x2800c000, PA:0x2800d000) MappingFlags(READ | WRITE | DEVICE)
+[ 51.563920 0 page_table::bits64:159] map_region(PA:0x908ba000): [VA:0xffff00002800d000, VA:0xffff00002800e000) -> [PA:0x2800d000, PA:0x2800e000) MappingFlags(READ | WRITE | DEVICE)
+[ 51.581192 0 page_table::bits64:159] map_region(PA:0x908ba000): [VA:0xffff00002800e000, VA:0xffff00002800f000) -> [PA:0x2800e000, PA:0x2800f000) MappingFlags(READ | WRITE | DEVICE)
+[ 51.598465 0 page_table::bits64:159] map_region(PA:0x908ba000): [VA:0xffff00002800f000, VA:0xffff000028010000) -> [PA:0x2800f000, PA:0x28010000) MappingFlags(READ | WRITE | DEVICE)
+[ 51.615739 0 page_table::bits64:159] map_region(PA:0x908ba000): [VA:0xffff000030000000, VA:0xffff000038000000) -> [PA:0x30000000, PA:0x38000000) MappingFlags(READ | WRITE | DEVICE)
+[ 51.633015 0 page_table::bits64:159] map_region(PA:0x908ba000): [VA:0xffff000040000000, VA:0xffff000080000000) -> [PA:0x40000000, PA:0x80000000) MappingFlags(READ | WRITE | DEVICE)
+[ 51.650285 0 page_table::bits64:159] map_region(PA:0x908ba000): [VA:0xffff001000000000, VA:0xffff003000000000) -> [PA:0x1000000000, PA:0x3000000000) MappingFlags(READ | WRITE | DEVICE)
+[ 51.667910 0 axhal::arch::aarch64:67] set page table root: PA:0x90148000 => PA:0x908ba000
+[ 51.677280 0 axruntime:263] Initialize global no cache memory allocator...
+[ 51.685354 0 axalloc:300] initialize global allocator at: nocache-[0x901b2000,0x908b2000)
+[ 51.694729 0 axruntime:170] Initialize platform devices...
+[ 51.701410 0 axhal::platform::aarch64_common::gic:51] Initialize GICv2...
+[ 51.709397 0 axhal::platform::aarch64_common::gic:27] GICD set enable: 30 true
+[ 51.717815 0 axhal::platform::aarch64_common::gic:27] GICD set enable: 56 true
+[ 51.726235 0 axtask::api:66] Initialize scheduling...
+[ 51.732489 0 axtask::task:146] new task: Task(1, "idle")
+[ 51.738999 0 axtask::task:146] new task: Task(3, "gc")
+[ 51.745335 0 axalloc:126] expand heap memory: [0xffff0000908c4000, 0xffff000090904000)
+[ 51.754452 0 axalloc:126] expand heap memory: [0xffff000090904000, 0xffff000090984000)
+[ 51.763562 0 axtask::api:72]   use Round-robin scheduler.
+[ 51.770156 0 axruntime:196] Initialize interrupt handlers...
+[ 51.777013 0 axhal::platform::aarch64_common::gic:36] register handler irq 30
+[ 51.785346 0 axhal::platform::aarch64_common::gic:27] GICD set enable: 30 true
+[ 51.793766 0 axruntime:206] Primary CPU 512 init OK.
+[ 51.799933 0:2 driver_usb::host::data_structures::host_controllers::xhci:843] [XHCI] Max_slots: 16, max_ports: 2, max_irqs: 1, page size: 1
+[ 51.814571 0:2 driver_usb::host::data_structures::host_controllers::xhci:856] [XHCI] ring size 256
+[ 51.823801 0:2 driver_usb:84] initializing!
+[ 51.829180 0:2 driver_usb::host::data_structures::host_controllers::xhci:120] [XHCI] Reset begin
+[ 51.839162 0:2 driver_usb::host::data_structures::host_controllers::xhci:121] [XHCI] Stop
+[ 51.848537 0:2 driver_usb::host::data_structures::host_controllers::xhci:126] [XHCI] Until halt
+[ 51.858432 0:2 driver_usb::host::data_structures::host_controllers::xhci:128] [XHCI] Halted
+[ 51.867979 0:2 driver_usb::host::data_structures::host_controllers::xhci:133] [XHCI] Wait for ready...
+[ 51.878483 0:2 driver_usb::host::data_structures::host_controllers::xhci:135] [XHCI] Ready
+[ 51.887945 0:2 driver_usb::host::data_structures::host_controllers::xhci:143] [XHCI] Reset HC
+[ 51.897666 0:2 driver_usb::host::data_structures::host_controllers::xhci:159] [XHCI] XCHI reset ok
+[ 51.907821 0:2 driver_usb::host::data_structures::host_controllers::xhci:165] [XHCI] Setting enabled slots to 16.
+[ 51.919279 0:2 driver_usb::host::data_structures::host_controllers::xhci:174] [XHCI] Writing DCBAAP: 901B3000
+[ 51.930389 0:2 driver_usb::host::data_structures::host_controllers::xhci:187] [XHCI] Writing CRCR: 901D3880
+[ 51.941326 0:2 driver_usb::host::data_structures::host_controllers::xhci:220] [XHCI] Disable interrupts
+[ 51.951916 0:2 driver_usb::host::data_structures::host_controllers::xhci:229] [XHCI] Writing ERSTZ
+[ 51.962071 0:2 driver_usb::host::data_structures::host_controllers::xhci:233] [XHCI] Writing ERDP: 901D4900
+[ 51.973008 0:2 driver_usb::host::data_structures::host_controllers::xhci:240] [XHCI] Writing ERSTBA: 901D48C0
+[ 51.984119 0:2 driver_usb::host::data_structures::host_controllers::xhci:250] [XHCI] Enabling primary interrupter.
+[ 51.995663 0:2 driver_usb::host::data_structures::host_controllers::xhci:329] [XHCI] Scratch buf count: 0
+[ 52.006425 0:2 driver_usb::host::data_structures::host_controllers::xhci:333] buf count=0,is it a error?
+[ 52.017102 0:2 driver_usb::host::data_structures::host_controllers::xhci:202] [XHCI] Start run
+[ 52.026911 0:2 driver_usb::host::data_structures::host_controllers::xhci:209] [XHCI] Is running
+[ 52.036806 0:2 driver_usb::host::data_structures::host_controllers::xhci:355] [XHCI] Test command ring
+[ 52.047309 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 0 @0x901D3880
 0
 0
 0
 5c01
 ------------------------------------------------
-[ 45.015087 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:61] [CMD] >> Noop(Noop { cycle_bit: true }) @901D3880
-[ 45.028194 0:2 driver_usb::host::data_structures::host_controllers::xhci:390] Wait result
-[ 45.037570 0:2 driver_usb::host::data_structures::host_controllers::xhci:415] event: PortStatusChange(PortStatusChange { completion_code: Ok(Success), port_id: 1, cycle_bit: true })
-[ 45.054929 0:2 driver_usb::host::data_structures::host_controllers::xhci:401] [CMD] << Success @901D3880 got result, cycle true
-[ 45.067601 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 1 @0x901D3890
+[ 52.063714 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:61] [CMD] >> Noop(Noop { cycle_bit: true }) @901D3880
+[ 52.076821 0:2 driver_usb::host::data_structures::host_controllers::xhci:390] Wait result
+[ 52.086196 0:2 driver_usb::host::data_structures::host_controllers::xhci:415] event: PortStatusChange(PortStatusChange { completion_code: Ok(Success), port_id: 1, cycle_bit: true })
+[ 52.103555 0:2 driver_usb::host::data_structures::host_controllers::xhci:401] [CMD] << Success @901D3880 got result, cycle true
+[ 52.116228 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 1 @0x901D3890
 0
 0
 0
 5c01
 ------------------------------------------------
-[ 45.084006 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:61] [CMD] >> Noop(Noop { cycle_bit: true }) @901D3890
-[ 45.097113 0:2 driver_usb::host::data_structures::host_controllers::xhci:390] Wait result
-[ 45.106488 0:2 driver_usb::host::data_structures::host_controllers::xhci:401] [CMD] << Success @901D3890 got result, cycle true
-[ 45.119161 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 2 @0x901D38A0
+[ 52.132633 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:61] [CMD] >> Noop(Noop { cycle_bit: true }) @901D3890
+[ 52.145740 0:2 driver_usb::host::data_structures::host_controllers::xhci:390] Wait result
+[ 52.155114 0:2 driver_usb::host::data_structures::host_controllers::xhci:401] [CMD] << Success @901D3890 got result, cycle true
+[ 52.167787 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 2 @0x901D38A0
 0
 0
 0
 5c01
 ------------------------------------------------
-[ 45.135565 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:61] [CMD] >> Noop(Noop { cycle_bit: true }) @901D38A0
-[ 45.148673 0:2 driver_usb::host::data_structures::host_controllers::xhci:390] Wait result
-[ 45.158047 0:2 driver_usb::host::data_structures::host_controllers::xhci:401] [CMD] << Success @901D38A0 got result, cycle true
-[ 45.170720 0:2 driver_usb::host::data_structures::host_controllers::xhci:361] [XHCI] Command ring ok
-[ 45.181048 0:2 driver_usb::host::data_structures::host_controllers::xhci:302] [XHCI] Port 0 start reset
-[ 45.249481 0:2 driver_usb::host::data_structures::host_controllers::xhci:315] [XHCI] Port 0 reset ok
-[ 45.256938 0:2 driver_usb::host::data_structures::host_controllers::xhci:302] [XHCI] Port 1 start reset
-[ 45.267533 0:2 driver_usb::host::data_structures::host_controllers::xhci:315] [XHCI] Port 1 reset ok
-[ 45.277857 0:2 driver_usb::host:61] controller init complete
-[ 45.284715 0:2 driver_usb::usb:56] usb system driver modules load complete!
-[ 45.292873 0:2 driver_usb:87] usb system init complete
-[ 45.299212 0:2 driver_usb::host::data_structures::host_controllers::xhci:889] [XHCI] Port 0: Enabled: true, Connected: true, Speed 1, Power true
-[ 45.313360 0:2 driver_usb::host::data_structures::host_controllers::xhci:889] [XHCI] Port 1: Enabled: false, Connected: false, Speed 0, Power true
-[ 45.327680 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 3 @0x901D38B0
+[ 52.184192 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:61] [CMD] >> Noop(Noop { cycle_bit: true }) @901D38A0
+[ 52.197299 0:2 driver_usb::host::data_structures::host_controllers::xhci:390] Wait result
+[ 52.206674 0:2 driver_usb::host::data_structures::host_controllers::xhci:401] [CMD] << Success @901D38A0 got result, cycle true
+[ 52.219347 0:2 driver_usb::host::data_structures::host_controllers::xhci:361] [XHCI] Command ring ok
+[ 52.229675 0:2 driver_usb::host::data_structures::host_controllers::xhci:302] [XHCI] Port 0 start reset
+[ 52.298106 0:2 driver_usb::host::data_structures::host_controllers::xhci:315] [XHCI] Port 0 reset ok
+[ 52.305564 0:2 driver_usb::host::data_structures::host_controllers::xhci:302] [XHCI] Port 1 start reset
+[ 52.316159 0:2 driver_usb::host::data_structures::host_controllers::xhci:315] [XHCI] Port 1 reset ok
+[ 52.326483 0:2 driver_usb::host:61] controller init complete
+[ 52.333341 0:2 driver_usb::usb:56] usb system driver modules load complete!
+[ 52.341499 0:2 driver_usb:87] usb system init complete
+[ 52.347838 0:2 driver_usb::host::data_structures::host_controllers::xhci:893] [XHCI] Port 0: Enabled: true, Connected: true, Speed 2, Power true
+[ 52.361986 0:2 driver_usb::host::data_structures::host_controllers::xhci:893] [XHCI] Port 1: Enabled: false, Connected: false, Speed 0, Power true
+[ 52.376306 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 3 @0x901D38B0
 0
 0
 0
 2401
 ------------------------------------------------
-[ 45.344085 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:61] [CMD] >> EnableSlot(EnableSlot { slot_type: 0, cycle_bit: true }) @901D38B0
-[ 45.359450 0:2 driver_usb::host::data_structures::host_controllers::xhci:390] Wait result
-[ 45.368824 0:2 driver_usb::host::data_structures::host_controllers::xhci:415] event: PortStatusChange(PortStatusChange { completion_code: Ok(Success), port_id: 1, cycle_bit: true })
-[ 45.386184 0:2 driver_usb::host::data_structures::host_controllers::xhci:401] [CMD] << Success @901D38B0 got result, cycle true
-[ 45.398857 0:2 driver_usb::host::data_structures::host_controllers::xhci:1073] assigned slot id: 1
-[ 45.409165 0:2 driver_usb::host::data_structures::host_controllers::xhci:910] assign complete!
-[ 45.418823 0:2 driver_usb::host::data_structures::host_controllers::xhci:446] fetch transfer ring at slot1-dci1
-[ 45.430104 0:2 driver_usb::host::data_structures::host_controllers::xhci:446] fetch transfer ring at slot1-dci1
-[ 45.441391 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 4 @0x901D38C0
+[ 52.392711 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:61] [CMD] >> EnableSlot(EnableSlot { slot_type: 0, cycle_bit: true }) @901D38B0
+[ 52.408075 0:2 driver_usb::host::data_structures::host_controllers::xhci:390] Wait result
+[ 52.417449 0:2 driver_usb::host::data_structures::host_controllers::xhci:415] event: PortStatusChange(PortStatusChange { completion_code: Ok(Success), port_id: 1, cycle_bit: true })
+[ 52.434809 0:2 driver_usb::host::data_structures::host_controllers::xhci:401] [CMD] << Success @901D38B0 got result, cycle true
+[ 52.447483 0:2 driver_usb::host::data_structures::host_controllers::xhci:1077] assigned slot id: 1
+[ 52.457790 0:2 driver_usb::host::data_structures::host_controllers::xhci:914] assign complete!
+[ 52.467448 0:2 driver_usb::host::data_structures::host_controllers::xhci:446] fetch transfer ring at slot1-dci1
+[ 52.478730 0:2 driver_usb::host::data_structures::host_controllers::xhci:446] fetch transfer ring at slot1-dci1
+[ 52.490017 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 4 @0x901D38C0
 901b7000
 0
 0
 1002c01
 ------------------------------------------------
-[ 45.458661 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:61] [CMD] >> AddressDevice(AddressDevice { input_context_pointer: 2417717248, block_set_address_request: false, slot_id: 1, cycle_bit: true }) @901D38C0
-[ 45.480362 0:2 driver_usb::host::data_structures::host_controllers::xhci:390] Wait result
-[ 45.489736 0:2 driver_usb::host::data_structures::host_controllers::xhci:401] [CMD] << Success @901D38C0 got result, cycle true
-[ 45.502409 0:2 driver_usb::host::data_structures::host_controllers::xhci:1142] address slot [1] ok
-[ 45.512564 0:2 driver_usb::host::data_structures::host_controllers::xhci:423] slot 1 Addressed
-[ 45.522373 0:2 driver_usb::host::data_structures::host_controllers::xhci:428] device context state:Device {
-    slot: Slot {
-        route_string: 1,
-        speed: 1,
-        multi_tt: false,
-        hub: false,
-        context_entries: 1,
-        max_exit_latency: 0,
-        root_hub_port_number: 1,
-        number_of_ports: 0,
-        parent_hub_slot_id: 0,
-        parent_port_number: 0,
-        tt_think_time: 0,
-        interrupter_target: 0,
-        usb_device_address: 1,
-        slot_state: Addressed,
-    },
-    endpoints: [
-        Endpoint {
-            endpoint_state: Running,
-            mult: 0,
-            max_primary_streams: 0,
-            linear_stream_array: false,
-            interval: 0,
-            max_endpoint_service_time_interval_payload_high: 0,
-            error_count: 3,
-            endpoint_type: Control,
-            host_initiate_disable: false,
-            max_burst_size: 0,
-            max_packet_size: 64,
-            dequeue_cycle_state: true,
-            tr_dequeue_pointer: 2417842497,
-            average_trb_length: 0,
-            max_endpoint_service_time_interval_payload_low: 0,
-        },
-        Endpoint {
-            endpoint_state: Disabled,
-            mult: 0,
-            max_primary_streams: 0,
-            linear_stream_array: false,
-            interval: 0,
-            max_endpoint_service_time_interval_payload_high: 0,
-            error_count: 0,
-            endpoint_type: NotValid,
-            host_initiate_disable: false,
-            max_burst_size: 0,
-            max_packet_size: 0,
-            dequeue_cycle_state: false,
-            tr_dequeue_pointer: 0,
-            average_trb_length: 0,
-            max_endpoint_service_time_interval_payload_low: 0,
-        },
-        Endpoint {
-            endpoint_state: Disabled,
-            mult: 0,
-            max_primary_streams: 0,
-            linear_stream_array: false,
-            interval: 0,
-            max_endpoint_service_time_interval_payload_high: 0,
-            error_count: 0,
-            endpoint_type: NotValid,
-            host_initiate_disable: false,
-            max_burst_size: 0,
-            max_packet_size: 0,
-            dequeue_cycle_state: false,
-            tr_dequeue_pointer: 0,
-            average_trb_length: 0,
-            max_endpoint_service_time_interval_payload_low: 0,
-        },
-        Endpoint {
-            endpoint_state: Disabled,
-            mult: 0,
-            max_primary_streams: 0,
-            linear_stream_array: false,
-            interval: 0,
-            max_endpoint_service_time_interval_payload_high: 0,
-            error_count: 0,
-            endpoint_type: NotValid,
-            host_initiate_disable: false,
-            max_burst_size: 0,
-            max_packet_size: 0,
-            dequeue_cycle_state: false,
-            tr_dequeue_pointer: 0,
-            average_trb_length: 0,
-            max_endpoint_service_time_interval_payload_low: 0,
-        },
-        Endpoint {
-            endpoint_state: Disabled,
-            mult: 0,
-            max_primary_streams: 0,
-            linear_stream_array: false,
-            interval: 0,
-            max_endpoint_service_time_interval_payload_high: 0,
-            error_count: 0,
-            endpoint_type: NotValid,
-            host_initiate_disable: false,
-            max_burst_size: 0,
-            max_packet_size: 0,
-            dequeue_cycle_state: false,
-            tr_dequeue_pointer: 0,
-            average_trb_length: 0,
-            max_endpoint_service_time_interval_payload_low: 0,
-        },
-        Endpoint {
-            endpoint_state: Disabled,
-            mult: 0,
-            max_primary_streams: 0,
-            linear_stream_array: false,
-            interval: 0,
-            max_endpoint_service_time_interval_payload_high: 0,
-            error_count: 0,
-            endpoint_type: NotValid,
-            host_initiate_disable: false,
-            max_burst_size: 0,
-            max_packet_size: 0,
-            dequeue_cycle_state: false,
-            tr_dequeue_pointer: 0,
-            average_trb_length: 0,
-            max_endpoint_service_time_interval_payload_low: 0,
-        },
-        Endpoint {
-            endpoint_state: Disabled,
-            mult: 0,
-            max_primary_streams: 0,
-            linear_stream_array: false,
-            interval: 0,
-            max_endpoint_service_time_interval_payload_high: 0,
-            error_count: 0,
-            endpoint_type: NotValid,
-            host_initiate_disable: false,
-            max_burst_size: 0,
-            max_packet_size: 0,
-            dequeue_cycle_state: false,
-            tr_dequeue_pointer: 0,
-            average_trb_length: 0,
-            max_endpoint_service_time_interval_payload_low: 0,
-        },
-        Endpoint {
-            endpoint_state: Disabled,
-            mult: 0,
-            max_primary_streams: 0,
-            linear_stream_array: false,
-            interval: 0,
-            max_endpoint_service_time_interval_payload_high: 0,
-            error_count: 0,
-            endpoint_type: NotValid,
-            host_initiate_disable: false,
-            max_burst_size: 0,
-            max_packet_size: 0,
-            dequeue_cycle_state: false,
-            tr_dequeue_pointer: 0,
-            average_trb_length: 0,
-            max_endpoint_service_time_interval_payload_low: 0,
-        },
-        Endpoint {
-            endpoint_state: Disabled,
-            mult: 0,
-            max_primary_streams: 0,
-            linear_stream_array: false,
-            interval: 0,
-            max_endpoint_service_time_interval_payload_high: 0,
-            error_count: 0,
-            endpoint_type: NotValid,
-            host_initiate_disable: false,
-            max_burst_size: 0,
-            max_packet_size: 0,
-            dequeue_cycle_state: false,
-            tr_dequeue_pointer: 0,
-            average_trb_length: 0,
-            max_endpoint_service_time_interval_payload_low: 0,
-        },
-        Endpoint {
-            endpoint_state: Disabled,
-            mult: 0,
-            max_primary_streams: 0,
-            linear_stream_array: false,
-            interval: 0,
-            max_endpoint_service_time_interval_payload_high: 0,
-            error_count: 0,
-            endpoint_type: NotValid,
-            host_initiate_disable: false,
-            max_burst_size: 0,
-            max_packet_size: 0,
-            dequeue_cycle_state: false,
-            tr_dequeue_pointer: 0,
-            average_trb_length: 0,
-            max_endpoint_service_time_interval_payload_low: 0,
-        },
-        Endpoint {
-            endpoint_state: Disabled,
-            mult: 0,
-            max_primary_streams: 0,
-            linear_stream_array: false,
-            interval: 0,
-            max_endpoint_service_time_interval_payload_high: 0,
-            error_count: 0,
-            endpoint_type: NotValid,
-            host_initiate_disable: false,
-            max_burst_size: 0,
-            max_packet_size: 0,
-            dequeue_cycle_state: false,
-            tr_dequeue_pointer: 0,
-            average_trb_length: 0,
-            max_endpoint_service_time_interval_payload_low: 0,
-        },
-        Endpoint {
-            endpoint_state: Disabled,
-            mult: 0,
-            max_primary_streams: 0,
-            linear_stream_array: false,
-            interval: 0,
-            max_endpoint_service_time_interval_payload_high: 0,
-            error_count: 0,
-            endpoint_type: NotValid,
-            host_initiate_disable: false,
-            max_burst_size: 0,
-            max_packet_size: 0,
-            dequeue_cycle_state: false,
-            tr_dequeue_pointer: 0,
-            average_trb_length: 0,
-            max_endpoint_service_time_interval_payload_low: 0,
-        },
-        Endpoint {
-            endpoint_state: Disabled,
-            mult: 0,
-            max_primary_streams: 0,
-            linear_stream_array: false,
-            interval: 0,
-            max_endpoint_service_time_interval_payload_high: 0,
-            error_count: 0,
-            endpoint_type: NotValid,
-            host_initiate_disable: false,
-            max_burst_size: 0,
-            max_packet_size: 0,
-            dequeue_cycle_state: false,
-            tr_dequeue_pointer: 0,
-            average_trb_length: 0,
-            max_endpoint_service_time_interval_payload_low: 0,
-        },
-        Endpoint {
-            endpoint_state: Disabled,
-            mult: 0,
-            max_primary_streams: 0,
-            linear_stream_array: false,
-            interval: 0,
-            max_endpoint_service_time_interval_payload_high: 0,
-            error_count: 0,
-            endpoint_type: NotValid,
-            host_initiate_disable: false,
-            max_burst_size: 0,
-            max_packet_size: 0,
-            dequeue_cycle_state: false,
-            tr_dequeue_pointer: 0,
-            average_trb_length: 0,
-            max_endpoint_service_time_interval_payload_low: 0,
-        },
-        Endpoint {
-            endpoint_state: Disabled,
-            mult: 0,
-            max_primary_streams: 0,
-            linear_stream_array: false,
-            interval: 0,
-            max_endpoint_service_time_interval_payload_high: 0,
-            error_count: 0,
-            endpoint_type: NotValid,
-            host_initiate_disable: false,
-            max_burst_size: 0,
-            max_packet_size: 0,
-            dequeue_cycle_state: false,
-            tr_dequeue_pointer: 0,
-            average_trb_length: 0,
-            max_endpoint_service_time_interval_payload_low: 0,
-        },
-        Endpoint {
-            endpoint_state: Disabled,
-            mult: 0,
-            max_primary_streams: 0,
-            linear_stream_array: false,
-            interval: 0,
-            max_endpoint_service_time_interval_payload_high: 0,
-            error_count: 0,
-            endpoint_type: NotValid,
-            host_initiate_disable: false,
-            max_burst_size: 0,
-            max_packet_size: 0,
-            dequeue_cycle_state: false,
-            tr_dequeue_pointer: 0,
-            average_trb_length: 0,
-            max_endpoint_service_time_interval_payload_low: 0,
-        },
-        Endpoint {
-            endpoint_state: Disabled,
-            mult: 0,
-            max_primary_streams: 0,
-            linear_stream_array: false,
-            interval: 0,
-            max_endpoint_service_time_interval_payload_high: 0,
-            error_count: 0,
-            endpoint_type: NotValid,
-            host_initiate_disable: false,
-            max_burst_size: 0,
-            max_packet_size: 0,
-            dequeue_cycle_state: false,
-            tr_dequeue_pointer: 0,
-            average_trb_length: 0,
-            max_endpoint_service_time_interval_payload_low: 0,
-        },
-        Endpoint {
-            endpoint_state: Disabled,
-            mult: 0,
-            max_primary_streams: 0,
-            linear_stream_array: false,
-            interval: 0,
-            max_endpoint_service_time_interval_payload_high: 0,
-            error_count: 0,
-            endpoint_type: NotValid,
-            host_initiate_disable: false,
-            max_burst_size: 0,
-            max_packet_size: 0,
-            dequeue_cycle_state: false,
-            tr_dequeue_pointer: 0,
-            average_trb_length: 0,
-            max_endpoint_service_time_interval_payload_low: 0,
-        },
-        Endpoint {
-            endpoint_state: Disabled,
-            mult: 0,
-            max_primary_streams: 0,
-            linear_stream_array: false,
-            interval: 0,
-            max_endpoint_service_time_interval_payload_high: 0,
-            error_count: 0,
-            endpoint_type: NotValid,
-            host_initiate_disable: false,
-            max_burst_size: 0,
-            max_packet_size: 0,
-            dequeue_cycle_state: false,
-            tr_dequeue_pointer: 0,
-            average_trb_length: 0,
-            max_endpoint_service_time_interval_payload_low: 0,
-        },
-        Endpoint {
-            endpoint_state: Disabled,
-            mult: 0,
-            max_primary_streams: 0,
-            linear_stream_array: false,
-            interval: 0,
-            max_endpoint_service_time_interval_payload_high: 0,
-            error_count: 0,
-            endpoint_type: NotValid,
-            host_initiate_disable: false,
-            max_burst_size: 0,
-            max_packet_size: 0,
-            dequeue_cycle_state: false,
-            tr_dequeue_pointer: 0,
-            average_trb_length: 0,
-            max_endpoint_service_time_interval_payload_low: 0,
-        },
-        Endpoint {
-            endpoint_state: Disabled,
-            mult: 0,
-            max_primary_streams: 0,
-            linear_stream_array: false,
-            interval: 0,
-            max_endpoint_service_time_interval_payload_high: 0,
-            error_count: 0,
-            endpoint_type: NotValid,
-            host_initiate_disable: false,
-            max_burst_size: 0,
-            max_packet_size: 0,
-            dequeue_cycle_state: false,
-            tr_dequeue_pointer: 0,
-            average_trb_length: 0,
-            max_endpoint_service_time_interval_payload_low: 0,
-        },
-        Endpoint {
-            endpoint_state: Disabled,
-            mult: 0,
-            max_primary_streams: 0,
-            linear_stream_array: false,
-            interval: 0,
-            max_endpoint_service_time_interval_payload_high: 0,
-            error_count: 0,
-            endpoint_type: NotValid,
-            host_initiate_disable: false,
-            max_burst_size: 0,
-            max_packet_size: 0,
-            dequeue_cycle_state: false,
-            tr_dequeue_pointer: 0,
-            average_trb_length: 0,
-            max_endpoint_service_time_interval_payload_low: 0,
-        },
-        Endpoint {
-            endpoint_state: Disabled,
-            mult: 0,
-            max_primary_streams: 0,
-            linear_stream_array: false,
-            interval: 0,
-            max_endpoint_service_time_interval_payload_high: 0,
-            error_count: 0,
-            endpoint_type: NotValid,
-            host_initiate_disable: false,
-            max_burst_size: 0,
-            max_packet_size: 0,
-            dequeue_cycle_state: false,
-            tr_dequeue_pointer: 0,
-            average_trb_length: 0,
-            max_endpoint_service_time_interval_payload_low: 0,
-        },
-        Endpoint {
-            endpoint_state: Disabled,
-            mult: 0,
-            max_primary_streams: 0,
-            linear_stream_array: false,
-            interval: 0,
-            max_endpoint_service_time_interval_payload_high: 0,
-            error_count: 0,
-            endpoint_type: NotValid,
-            host_initiate_disable: false,
-            max_burst_size: 0,
-            max_packet_size: 0,
-            dequeue_cycle_state: false,
-            tr_dequeue_pointer: 0,
-            average_trb_length: 0,
-            max_endpoint_service_time_interval_payload_low: 0,
-        },
-        Endpoint {
-            endpoint_state: Disabled,
-            mult: 0,
-            max_primary_streams: 0,
-            linear_stream_array: false,
-            interval: 0,
-            max_endpoint_service_time_interval_payload_high: 0,
-            error_count: 0,
-            endpoint_type: NotValid,
-            host_initiate_disable: false,
-            max_burst_size: 0,
-            max_packet_size: 0,
-            dequeue_cycle_state: false,
-            tr_dequeue_pointer: 0,
-            average_trb_length: 0,
-            max_endpoint_service_time_interval_payload_low: 0,
-        },
-        Endpoint {
-            endpoint_state: Disabled,
-            mult: 0,
-            max_primary_streams: 0,
-            linear_stream_array: false,
-            interval: 0,
-            max_endpoint_service_time_interval_payload_high: 0,
-            error_count: 0,
-            endpoint_type: NotValid,
-            host_initiate_disable: false,
-            max_burst_size: 0,
-            max_packet_size: 0,
-            dequeue_cycle_state: false,
-            tr_dequeue_pointer: 0,
-            average_trb_length: 0,
-            max_endpoint_service_time_interval_payload_low: 0,
-        },
-        Endpoint {
-            endpoint_state: Disabled,
-            mult: 0,
-            max_primary_streams: 0,
-            linear_stream_array: false,
-            interval: 0,
-            max_endpoint_service_time_interval_payload_high: 0,
-            error_count: 0,
-            endpoint_type: NotValid,
-            host_initiate_disable: false,
-            max_burst_size: 0,
-            max_packet_size: 0,
-            dequeue_cycle_state: false,
-            tr_dequeue_pointer: 0,
-            average_trb_length: 0,
-            max_endpoint_service_time_interval_payload_low: 0,
-        },
-        Endpoint {
-            endpoint_state: Disabled,
-            mult: 0,
-            max_primary_streams: 0,
-            linear_stream_array: false,
-            interval: 0,
-            max_endpoint_service_time_interval_payload_high: 0,
-            error_count: 0,
-            endpoint_type: NotValid,
-            host_initiate_disable: false,
-            max_burst_size: 0,
-            max_packet_size: 0,
-            dequeue_cycle_state: false,
-            tr_dequeue_pointer: 0,
-            average_trb_length: 0,
-            max_endpoint_service_time_interval_payload_low: 0,
-        },
-        Endpoint {
-            endpoint_state: Disabled,
-            mult: 0,
-            max_primary_streams: 0,
-            linear_stream_array: false,
-            interval: 0,
-            max_endpoint_service_time_interval_payload_high: 0,
-            error_count: 0,
-            endpoint_type: NotValid,
-            host_initiate_disable: false,
-            max_burst_size: 0,
-            max_packet_size: 0,
-            dequeue_cycle_state: false,
-            tr_dequeue_pointer: 0,
-            average_trb_length: 0,
-            max_endpoint_service_time_interval_payload_low: 0,
-        },
-        Endpoint {
-            endpoint_state: Disabled,
-            mult: 0,
-            max_primary_streams: 0,
-            linear_stream_array: false,
-            interval: 0,
-            max_endpoint_service_time_interval_payload_high: 0,
-            error_count: 0,
-            endpoint_type: NotValid,
-            host_initiate_disable: false,
-            max_burst_size: 0,
-            max_packet_size: 0,
-            dequeue_cycle_state: false,
-            tr_dequeue_pointer: 0,
-            average_trb_length: 0,
-            max_endpoint_service_time_interval_payload_low: 0,
-        },
-        Endpoint {
-            endpoint_state: Disabled,
-            mult: 0,
-            max_primary_streams: 0,
-            linear_stream_array: false,
-            interval: 0,
-            max_endpoint_service_time_interval_payload_high: 0,
-            error_count: 0,
-            endpoint_type: NotValid,
-            host_initiate_disable: false,
-            max_burst_size: 0,
-            max_packet_size: 0,
-            dequeue_cycle_state: false,
-            tr_dequeue_pointer: 0,
-            average_trb_length: 0,
-            max_endpoint_service_time_interval_payload_low: 0,
-        },
-    ],
-}
-[ 47.225649 0:2 driver_usb::host::data_structures::host_controllers::xhci:1146] control_fetch_control_point_packet_size
-[ 47.237542 0:2 driver_usb::host::data_structures::host_controllers::xhci:965] SetupStage {
+[ 52.507287 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:61] [CMD] >> AddressDevice(AddressDevice { input_context_pointer: 2417717248, block_set_address_request: false, slot_id: 1, cycle_bit: true }) @901D38C0
+[ 52.528988 0:2 driver_usb::host::data_structures::host_controllers::xhci:390] Wait result
+[ 52.538362 0:2 driver_usb::host::data_structures::host_controllers::xhci:401] [CMD] << Success @901D38C0 got result, cycle true
+[ 52.551035 0:2 driver_usb::host::data_structures::host_controllers::xhci:1146] address slot [1] ok
+[ 52.561190 0:2 driver_usb::host::data_structures::host_controllers::xhci:1150] control_fetch_control_point_packet_size
+[ 52.573083 0:2 driver_usb::host::data_structures::host_controllers::xhci:969] SetupStage {
     interrupt_on_completion: false,
     request_type: 128,
     request: 6,
@@ -710,42 +162,42 @@ log_level = trace
     transfer_type: In,
     cycle_bit: false,
 }
-[ 47.265491 0:2 driver_usb::host::data_structures::host_controllers::xhci:446] fetch transfer ring at slot1-dci1
-[ 47.276774 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 0 @0x901D5940
+[ 52.601032 0:2 driver_usb::host::data_structures::host_controllers::xhci:446] fetch transfer ring at slot1-dci1
+[ 52.612315 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 0 @0x901D5940
 1000680
 80000
 8
 30841
 ------------------------------------------------
-[ 47.294134 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 1 @0x901D5950
+[ 52.629675 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 1 @0x901D5950
 901da140
 0
 8
 10c01
 ------------------------------------------------
-[ 47.311234 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 2 @0x901D5960
+[ 52.646775 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 2 @0x901D5960
 0
 0
 0
 1021
 ------------------------------------------------
-[ 47.327640 0:2 driver_usb::host::data_structures::host_controllers::xhci:994] [Transfer] >> setup@0x901D5940, data@0x901D5950, status@0x901D5960
-[ 47.341788 0:2 driver_usb::host::data_structures::host_controllers::xhci:461] Wait result @0x901D5960
-[ 47.352205 0:2 driver_usb::host::data_structures::host_controllers::xhci:470] [Transfer] << Success @0x901D5960 got result1, cycle true, len 0
-[ 47.366178 0:2 driver_usb::host::data_structures::host_controllers::xhci:483] code:Success,pointer:901d5960
-[ 47.377116 0:2 driver_usb::host::data_structures::host_controllers::xhci:1170] got [18, 1, 16, 1, 255, 0, 0, 8]
-[ 47.388400 0:2 driver_usb::host::data_structures::host_controllers::xhci:916] packet_size0: 8
-[ 47.398121 0:2 driver_usb::host::data_structures::host_controllers::xhci:1184] CMD: evaluating context for set endpoint0 packet size 8
-[ 47.411401 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 5 @0x901D38D0
+[ 52.663180 0:2 driver_usb::host::data_structures::host_controllers::xhci:998] [Transfer] >> setup@0x901D5940, data@0x901D5950, status@0x901D5960
+[ 52.677329 0:2 driver_usb::host::data_structures::host_controllers::xhci:461] Wait result @0x901D5960
+[ 52.687746 0:2 driver_usb::host::data_structures::host_controllers::xhci:470] [Transfer] << Success @0x901D5960 got result1, cycle true, len 0
+[ 52.701719 0:2 driver_usb::host::data_structures::host_controllers::xhci:483] code:Success,pointer:901d5960
+[ 52.712657 0:2 driver_usb::host::data_structures::host_controllers::xhci:1174] got [18, 1, 16, 1, 0, 0, 0, 8]
+[ 52.723767 0:2 driver_usb::host::data_structures::host_controllers::xhci:920] packet_size0: 8
+[ 52.733488 0:2 driver_usb::host::data_structures::host_controllers::xhci:1188] CMD: evaluating context for set endpoint0 packet size 8
+[ 52.746768 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 5 @0x901D38D0
 901b7000
 0
 0
 1003401
 ------------------------------------------------
-[ 47.428674 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:61] [CMD] >> EvaluateContext(EvaluateContext { input_context_pointer: 2417717248, slot_id: 1, cycle_bit: true }) @901D38D0
-[ 47.447771 0:2 driver_usb::host::data_structures::host_controllers::xhci:390] Wait result
-[ 47.457145 0:2 driver_usb::host::data_structures::host_controllers::xhci:401] [CMD] << Success @901D38D0 got result, cycle true
-[ 47.470096 0:2 driver_usb::host::data_structures::host_controllers::xhci:965] SetupStage {
+[ 52.764041 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:61] [CMD] >> EvaluateContext(EvaluateContext { input_context_pointer: 2417717248, slot_id: 1, cycle_bit: true }) @901D38D0
+[ 52.783138 0:2 driver_usb::host::data_structures::host_controllers::xhci:390] Wait result
+[ 52.792512 0:2 driver_usb::host::data_structures::host_controllers::xhci:401] [CMD] << Success @901D38D0 got result, cycle true
+[ 52.805462 0:2 driver_usb::host::data_structures::host_controllers::xhci:969] SetupStage {
     interrupt_on_completion: false,
     request_type: 128,
     request: 6,
@@ -756,51 +208,51 @@ log_level = trace
     transfer_type: In,
     cycle_bit: false,
 }
-[ 47.498027 0:2 driver_usb::host::data_structures::host_controllers::xhci:446] fetch transfer ring at slot1-dci1
-[ 47.509311 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 3 @0x901D5970
+[ 52.833395 0:2 driver_usb::host::data_structures::host_controllers::xhci:446] fetch transfer ring at slot1-dci1
+[ 52.844678 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 3 @0x901D5970
 1000680
 10000000
 8
 30841
 ------------------------------------------------
-[ 47.526932 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 4 @0x901D5980
+[ 52.862299 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 4 @0x901D5980
 901db000
 0
 1000
 10c01
 ------------------------------------------------
-[ 47.544292 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 5 @0x901D5990
+[ 52.879659 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 5 @0x901D5990
 0
 0
 0
 1021
 ------------------------------------------------
-[ 47.560697 0:2 driver_usb::host::data_structures::host_controllers::xhci:994] [Transfer] >> setup@0x901D5970, data@0x901D5980, status@0x901D5990
-[ 47.574846 0:2 driver_usb::host::data_structures::host_controllers::xhci:461] Wait result @0x901D5990
-[ 47.585262 0:2 driver_usb::host::data_structures::host_controllers::xhci:470] [Transfer] << Success @0x901D5990 got result1, cycle true, len 0
-[ 47.599236 0:2 driver_usb::host::data_structures::host_controllers::xhci:483] code:Success,pointer:901d5990
-[ 47.610174 0:2 driver_usb::usb::descriptors::parser:219] parse single device desc!
-[ 47.618941 0:2 driver_usb::usb::descriptors::parser:402] peeked type:Some(Device)
-[ 47.627620 0:2 driver_usb::usb::descriptors::parser:368] parse any desc at current0! type:Some(Device)
-[ 47.638124 0:2 driver_usb::usb::descriptors::parser:374] from slice!
-[ 47.645676 0:2 driver_usb::usb::descriptors::parser:222] dev:Device {
+[ 52.896064 0:2 driver_usb::host::data_structures::host_controllers::xhci:998] [Transfer] >> setup@0x901D5970, data@0x901D5980, status@0x901D5990
+[ 52.910213 0:2 driver_usb::host::data_structures::host_controllers::xhci:461] Wait result @0x901D5990
+[ 52.920630 0:2 driver_usb::host::data_structures::host_controllers::xhci:470] [Transfer] << Success @0x901D5990 got result1, cycle true, len 0
+[ 52.934603 0:2 driver_usb::host::data_structures::host_controllers::xhci:483] code:Success,pointer:901d5990
+[ 52.945541 0:2 driver_usb::usb::descriptors::parser:219] parse single device desc!
+[ 52.954308 0:2 driver_usb::usb::descriptors::parser:402] peeked type:Some(Device)
+[ 52.962987 0:2 driver_usb::usb::descriptors::parser:368] parse any desc at current0! type:Some(Device)
+[ 52.973491 0:2 driver_usb::usb::descriptors::parser:374] from slice!
+[ 52.981044 0:2 driver_usb::usb::descriptors::parser:222] dev:Device {
     len: 18,
     descriptor_type: 1,
     cd_usb: 272,
-    class: 255,
+    class: 0,
     subclass: 0,
     protocol: 0,
     max_packet_size0: 8,
-    vendor: 6790,
-    product_id: 29987,
-    device: 612,
-    manufacture: 0,
+    vendor: 12538,
+    product_id: 770,
+    device: 256,
+    manufacture: 1,
     product: 2,
     serial_number: 0,
     num_configurations: 1,
 }
-[ 47.678398 0:2 driver_usb::usb::descriptors::parser:159] state change:NotReady
-[ 47.687091 0:2 driver_usb::host::data_structures::host_controllers::xhci:965] SetupStage {
+[ 53.013505 0:2 driver_usb::usb::descriptors::parser:159] state change:NotReady
+[ 53.022200 0:2 driver_usb::host::data_structures::host_controllers::xhci:969] SetupStage {
     interrupt_on_completion: false,
     request_type: 128,
     request: 6,
@@ -811,84 +263,79 @@ log_level = trace
     transfer_type: In,
     cycle_bit: false,
 }
-[ 47.715027 0:2 driver_usb::host::data_structures::host_controllers::xhci:446] fetch transfer ring at slot1-dci1
-[ 47.726311 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 6 @0x901D59A0
+[ 53.050134 0:2 driver_usb::host::data_structures::host_controllers::xhci:446] fetch transfer ring at slot1-dci1
+[ 53.061418 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 6 @0x901D59A0
 2000680
 10000000
 8
 30841
 ------------------------------------------------
-[ 47.743932 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 7 @0x901D59B0
+[ 53.079039 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 7 @0x901D59B0
 901dd000
 0
 1000
 10c01
 ------------------------------------------------
-[ 47.761292 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 8 @0x901D59C0
+[ 53.096399 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 8 @0x901D59C0
 0
 0
 0
 1021
 ------------------------------------------------
-[ 47.777697 0:2 driver_usb::host::data_structures::host_controllers::xhci:994] [Transfer] >> setup@0x901D59A0, data@0x901D59B0, status@0x901D59C0
-[ 47.791846 0:2 driver_usb::host::data_structures::host_controllers::xhci:461] Wait result @0x901D59C0
-[ 47.802262 0:2 driver_usb::host::data_structures::host_controllers::xhci:470] [Transfer] << Success @0x901D59C0 got result1, cycle true, len 0
-[ 47.816236 0:2 driver_usb::host::data_structures::host_controllers::xhci:483] code:Success,pointer:901d59c0
-[ 47.827174 0:2 driver_usb::usb::descriptors::parser:188] state change:Config(0)
-[ 47.835679 0:2 driver_usb::usb::descriptors::parser:241] parse config desc!
-[ 47.843841 0:2 driver_usb::usb::descriptors::parser:256] max num of interface num:1
-[ 47.852692 0:2 driver_usb::usb::descriptors::parser:277] parse function desc!
-[ 47.861025 0:2 driver_usb::usb::descriptors::parser:409] peeked std type:Some(Interface)
-[ 47.870312 0:2 driver_usb::usb::descriptors::parser:282] parse single interface desc! current state:Config(0)
-[ 47.881423 0:2 driver_usb::usb::descriptors::parser:290] loop! state:Config(0)
-[ 47.889843 0:2 driver_usb::usb::descriptors::parser:430] peek at 9,value:9
-[ 47.897915 0:2 driver_usb::usb::descriptors::parser:409] peeked std type:Some(Interface)
-[ 47.907203 0:2 driver_usb::usb::descriptors::parser:440] len9,from9,to17
-[ 47.915102 0:2 driver_usb::usb::descriptors::parser:443] got:Interface { len: 9, descriptor_type: 4, interface_number: 0, alternate_setting: 0, num_endpoints: 3, interface_class: 255, interface_subclass: 1, interface_protocol: 2, interface: 0 }
-[ 47.937930 0:2 driver_usb::usb::descriptors::parser:297] state change:Inetrface(0, 0)
-[ 47.946957 0:2 driver_usb::usb::descriptors::parser:290] loop! state:Inetrface(0, 0)
-[ 47.955897 0:2 driver_usb::usb::descriptors::parser:300] state interface!
-[ 47.963883 0:2 driver_usb::usb::descriptors::parser:430] peek at 9,value:9
-[ 47.971956 0:2 driver_usb::usb::descriptors::parser:409] peeked std type:Some(Interface)
-[ 47.981243 0:2 driver_usb::usb::descriptors::parser:440] len9,from9,to17
-[ 47.989143 0:2 driver_usb::usb::descriptors::parser:443] got:Interface { len: 9, descriptor_type: 4, interface_number: 0, alternate_setting: 0, num_endpoints: 3, interface_class: 255, interface_subclass: 1, interface_protocol: 2, interface: 0 }
-[ 48.011970 0:2 driver_usb::usb::descriptors::parser:305] equal!
-[ 48.019088 0:2 driver_usb::usb::descriptors::parser:306] current:0
-[ 48.026466 0:2 driver_usb::usb::descriptors::parser:454] parse interfaces,metadata:Unknown(Unknown)
-[ 48.036708 0:2 driver_usb::usb::descriptors::parser:409] peeked std type:Some(Interface)
-[ 48.045996 0:2 driver_usb::usb::descriptors::parser:368] parse any desc at current9! type:Some(Interface)
-[ 48.056760 0:2 driver_usb::usb::descriptors::parser:374] from slice!
-[ 48.064311 0:2 driver_usb::usb::descriptors::parser:308] got interface Interface { len: 9, descriptor_type: 4, interface_number: 0, alternate_setting: 0, num_endpoints: 3, interface_class: 255, interface_subclass: 1, interface_protocol: 2, interface: 0 }
-[ 48.088007 0:2 driver_usb::usb::descriptors::parser:477] parse additional data for interface with metadata:Unknown(Unknown)
-[ 48.100333 0:2 driver_usb::usb::descriptors::parser:409] peeked std type:Some(Endpoint)
-[ 48.109533 0:2 driver_usb::usb::descriptors::parser:310] got additional data []
-[ 48.118040 0:2 driver_usb::usb::descriptors::parser:504] parse enedpoints, metadata:Unknown(Unknown)
-[ 48.128369 0:2 driver_usb::usb::descriptors::parser:409] peeked std type:Some(Endpoint)
-[ 48.137570 0:2 driver_usb::usb::descriptors::parser:409] peeked std type:Some(Endpoint)
-[ 48.146770 0:2 driver_usb::usb::descriptors::parser:368] parse any desc at current18! type:Some(Endpoint)
-[ 48.157535 0:2 driver_usb::usb::descriptors::parser:374] from slice!
-[ 48.165086 0:2 driver_usb::usb::descriptors::parser:511] parsed endpoint:Endpoint { len: 7, descriptor_type: 5, endpoint_address: 130, attributes: 2, max_packet_size: 32, interval: 0, ssc: Some(SuperSpeedCmp { kind: 0, max_burst: 0, attributes: 0, bytes_per_interval: 0 }) }
-[ 48.190518 0:2 driver_usb::usb::descriptors::parser:409] peeked std type:Some(Endpoint)
-[ 48.199718 0:2 driver_usb::usb::descriptors::parser:409] peeked std type:Some(Endpoint)
-[ 48.208919 0:2 driver_usb::usb::descriptors::parser:368] parse any desc at current25! type:Some(Endpoint)
-[ 48.219684 0:2 driver_usb::usb::descriptors::parser:374] from slice!
-[ 48.227234 0:2 driver_usb::usb::descriptors::parser:511] parsed endpoint:Endpoint { len: 7, descriptor_type: 5, endpoint_address: 2, attributes: 2, max_packet_size: 32, interval: 0, ssc: Some(SuperSpeedCmp { kind: 0, max_burst: 0, attributes: 0, bytes_per_interval: 0 }) }
-[ 48.252493 0:2 driver_usb::usb::descriptors::parser:409] peeked std type:Some(Endpoint)
-[ 48.261694 0:2 driver_usb::usb::descriptors::parser:409] peeked std type:Some(Endpoint)
-[ 48.270894 0:2 driver_usb::usb::descriptors::parser:368] parse any desc at current32! type:Some(Endpoint)
-[ 48.281659 0:2 driver_usb::usb::descriptors::parser:374] from slice!
-[ 48.289209 0:2 driver_usb::usb::descriptors::parser:511] parsed endpoint:Endpoint { len: 7, descriptor_type: 5, endpoint_address: 129, attributes: 3, max_packet_size: 8, interval: 1, ssc: Some(SuperSpeedCmp { kind: 0, max_burst: 0, attributes: 0, bytes_per_interval: 0 }) }
-[ 48.314555 0:2 driver_usb::usb::descriptors::parser:409] peeked std type:None
-[ 48.322888 0:2 driver_usb::usb::descriptors::parser:312] got endpoints [Standard(Endpoint { len: 7, descriptor_type: 5, endpoint_address: 130, attributes: 2, max_packet_size: 32, interval: 0, ssc: Some(SuperSpeedCmp { kind: 0, max_burst: 0, attributes: 0, bytes_per_interval: 0 }) }), Standard(Endpoint { len: 7, descriptor_type: 5, endpoint_address: 2, attributes: 2, max_packet_size: 32, interval: 0, ssc: Some(SuperSpeedCmp { kind: 0, max_burst: 0, attributes: 0, bytes_per_interval: 0 }) }), Standard(Endpoint { len: 7, descriptor_type: 5, endpoint_address: 129, attributes: 3, max_packet_size: 8, interval: 1, ssc: Some(SuperSpeedCmp { kind: 0, max_burst: 0, attributes: 0, bytes_per_interval: 0 }) })]
-[ 48.385905 0:2 driver_usb::usb::descriptors::parser:290] loop! state:Inetrface(0, 0)
-[ 48.394845 0:2 driver_usb::usb::descriptors::parser:300] state interface!
-[ 48.402830 0:2 driver_usb::usb::descriptors::parser:430] peek at 39,value:0
-[ 48.410990 0:2 driver_usb::usb::descriptors::parser:409] peeked std type:None
-[ 48.419323 0:2 driver_usb::usb::descriptors::parser:277] parse function desc!
-[ 48.427655 0:2 driver_usb::usb::descriptors::parser:409] peeked std type:None
-[ 48.435989 0:2 driver_usb::usb::descriptors::parser:179] state change:Config(1)
-[ 48.444495 0:2 driver_usb::usb::descriptors::parser:169] state change:END
-[ 48.452483 0:2 driver_usb:215] parsed descriptor:Inited(
+[ 53.112804 0:2 driver_usb::host::data_structures::host_controllers::xhci:998] [Transfer] >> setup@0x901D59A0, data@0x901D59B0, status@0x901D59C0
+[ 53.126953 0:2 driver_usb::host::data_structures::host_controllers::xhci:461] Wait result @0x901D59C0
+[ 53.137369 0:2 driver_usb::host::data_structures::host_controllers::xhci:470] [Transfer] << Success @0x901D59C0 got result1, cycle true, len 0
+[ 53.151343 0:2 driver_usb::host::data_structures::host_controllers::xhci:483] code:Success,pointer:901d59c0
+[ 53.162280 0:2 driver_usb::usb::descriptors::parser:188] state change:Config(0)
+[ 53.170786 0:2 driver_usb::usb::descriptors::parser:241] parse config desc!
+[ 53.178947 0:2 driver_usb::usb::descriptors::parser:256] max num of interface num:1
+[ 53.187799 0:2 driver_usb::usb::descriptors::parser:277] parse function desc!
+[ 53.196132 0:2 driver_usb::usb::descriptors::parser:409] peeked std type:Some(Interface)
+[ 53.205419 0:2 driver_usb::usb::descriptors::parser:282] parse single interface desc! current state:Config(0)
+[ 53.216530 0:2 driver_usb::usb::descriptors::parser:290] loop! state:Config(0)
+[ 53.224950 0:2 driver_usb::usb::descriptors::parser:430] peek at 9,value:9
+[ 53.233022 0:2 driver_usb::usb::descriptors::parser:409] peeked std type:Some(Interface)
+[ 53.242309 0:2 driver_usb::usb::descriptors::parser:440] len9,from9,to17
+[ 53.250209 0:2 driver_usb::usb::descriptors::parser:443] got:Interface { len: 9, descriptor_type: 4, interface_number: 0, alternate_setting: 0, num_endpoints: 1, interface_class: 3, interface_subclass: 1, interface_protocol: 2, interface: 0 }
+[ 53.272863 0:2 driver_usb::usb::descriptors::parser:297] state change:Inetrface(0, 0)
+[ 53.281890 0:2 driver_usb::usb::descriptors::parser:290] loop! state:Inetrface(0, 0)
+[ 53.290831 0:2 driver_usb::usb::descriptors::parser:300] state interface!
+[ 53.298816 0:2 driver_usb::usb::descriptors::parser:430] peek at 9,value:9
+[ 53.306889 0:2 driver_usb::usb::descriptors::parser:409] peeked std type:Some(Interface)
+[ 53.316176 0:2 driver_usb::usb::descriptors::parser:440] len9,from9,to17
+[ 53.324076 0:2 driver_usb::usb::descriptors::parser:443] got:Interface { len: 9, descriptor_type: 4, interface_number: 0, alternate_setting: 0, num_endpoints: 1, interface_class: 3, interface_subclass: 1, interface_protocol: 2, interface: 0 }
+[ 53.346730 0:2 driver_usb::usb::descriptors::parser:305] equal!
+[ 53.353847 0:2 driver_usb::usb::descriptors::parser:306] current:0
+[ 53.361225 0:2 driver_usb::usb::descriptors::parser:454] parse interfaces,metadata:Unknown(ReferInterface)
+[ 53.372075 0:2 driver_usb::usb::descriptors::parser:409] peeked std type:Some(Interface)
+[ 53.381363 0:2 driver_usb::usb::descriptors::parser:368] parse any desc at current9! type:Some(Interface)
+[ 53.392128 0:2 driver_usb::usb::descriptors::parser:374] from slice!
+[ 53.399678 0:2 driver_usb::usb::descriptors::parser:308] got interface Interface { len: 9, descriptor_type: 4, interface_number: 0, alternate_setting: 0, num_endpoints: 1, interface_class: 3, interface_subclass: 1, interface_protocol: 2, interface: 0 }
+[ 53.423200 0:2 driver_usb::usb::descriptors::parser:477] parse additional data for interface with metadata:HID
+[ 53.434398 0:2 driver_usb::usb::descriptors::parser:409] peeked std type:None
+[ 53.442731 0:2 driver_usb::usb::descriptors::parser:490] parse misc desc!
+[ 53.450716 0:2 driver_usb::usb::descriptors::parser:409] peeked std type:None
+[ 53.459049 0:2 driver_usb::usb::descriptors::parser:368] parse any desc at current18! type:None
+[ 53.468946 0:2 driver_usb::usb::descriptors::parser:374] from slice!
+[ 53.476497 0:2 driver_usb::usb::descriptors::parser:409] peeked std type:Some(Endpoint)
+[ 53.485697 0:2 driver_usb::usb::descriptors::parser:310] got additional data [Hid(Hid { len: 9, descriptor_type: 33, hid_bcd: 273, country_code: 0, num_descriptions: 1, report_descriptor_type: 34, report_descriptor_len: 64 })]
+[ 53.506963 0:2 driver_usb::usb::descriptors::parser:504] parse enedpoints, metadata:HID
+[ 53.516163 0:2 driver_usb::usb::descriptors::parser:409] peeked std type:Some(Endpoint)
+[ 53.525364 0:2 driver_usb::usb::descriptors::parser:409] peeked std type:Some(Endpoint)
+[ 53.534565 0:2 driver_usb::usb::descriptors::parser:368] parse any desc at current27! type:Some(Endpoint)
+[ 53.545329 0:2 driver_usb::usb::descriptors::parser:374] from slice!
+[ 53.552880 0:2 driver_usb::usb::descriptors::parser:511] parsed endpoint:Endpoint { len: 7, descriptor_type: 5, endpoint_address: 129, attributes: 3, max_packet_size: 5, interval: 10, ssc: Some(SuperSpeedCmp { kind: 0, max_burst: 0, attributes: 0, bytes_per_interval: 0 }) }
+[ 53.578313 0:2 driver_usb::usb::descriptors::parser:409] peeked std type:None
+[ 53.586645 0:2 driver_usb::usb::descriptors::parser:312] got endpoints [Standard(Endpoint { len: 7, descriptor_type: 5, endpoint_address: 129, attributes: 3, max_packet_size: 5, interval: 10, ssc: Some(SuperSpeedCmp { kind: 0, max_burst: 0, attributes: 0, bytes_per_interval: 0 }) })]
+[ 53.612946 0:2 driver_usb::usb::descriptors::parser:290] loop! state:Inetrface(0, 0)
+[ 53.621886 0:2 driver_usb::usb::descriptors::parser:300] state interface!
+[ 53.629871 0:2 driver_usb::usb::descriptors::parser:430] peek at 34,value:0
+[ 53.638031 0:2 driver_usb::usb::descriptors::parser:409] peeked std type:None
+[ 53.646364 0:2 driver_usb::usb::descriptors::parser:277] parse function desc!
+[ 53.654696 0:2 driver_usb::usb::descriptors::parser:409] peeked std type:None
+[ 53.663030 0:2 driver_usb::usb::descriptors::parser:179] state change:Config(1)
+[ 53.671535 0:2 driver_usb::usb::descriptors::parser:169] state change:END
+[ 53.679525 0:2 driver_usb:215] parsed descriptor:Inited(
     TopologicalUSBDescriptorRoot {
         device: [
             TopologicalUSBDescriptorDevice {
@@ -896,14 +343,14 @@ log_level = trace
                     len: 18,
                     descriptor_type: 1,
                     cd_usb: 272,
-                    class: 255,
+                    class: 0,
                     subclass: 0,
                     protocol: 0,
                     max_packet_size0: 8,
-                    vendor: 6790,
-                    product_id: 29987,
-                    device: 612,
-                    manufacture: 0,
+                    vendor: 12538,
+                    product_id: 770,
+                    device: 256,
+                    manufacture: 1,
                     product: 2,
                     serial_number: 0,
                     num_configurations: 1,
@@ -913,12 +360,12 @@ log_level = trace
                         data: Configuration {
                             length: 9,
                             ty: 2,
-                            total_length: 39,
+                            total_length: 34,
                             num_interfaces: 1,
                             config_val: 1,
                             config_string: 0,
-                            attributes: 128,
-                            max_power: 49,
+                            attributes: 160,
+                            max_power: 50,
                         },
                         child: [
                             Interface(
@@ -929,58 +376,34 @@ log_level = trace
                                             descriptor_type: 4,
                                             interface_number: 0,
                                             alternate_setting: 0,
-                                            num_endpoints: 3,
-                                            interface_class: 255,
+                                            num_endpoints: 1,
+                                            interface_class: 3,
                                             interface_subclass: 1,
                                             interface_protocol: 2,
                                             interface: 0,
                                         },
-                                        [],
                                         [
-                                            Standard(
-                                                Endpoint {
-                                                    len: 7,
-                                                    descriptor_type: 5,
-                                                    endpoint_address: 130,
-                                                    attributes: 2,
-                                                    max_packet_size: 32,
-                                                    interval: 0,
-                                                    ssc: Some(
-                                                        SuperSpeedCmp {
-                                                            kind: 0,
-                                                            max_burst: 0,
-                                                            attributes: 0,
-                                                            bytes_per_interval: 0,
-                                                        },
-                                                    ),
+                                            Hid(
+                                                Hid {
+                                                    len: 9,
+                                                    descriptor_type: 33,
+                                                    hid_bcd: 273,
+                                                    country_code: 0,
+                                                    num_descriptions: 1,
+                                                    report_descriptor_type: 34,
+                                                    report_descriptor_len: 64,
                                                 },
                                             ),
-                                            Standard(
-                                                Endpoint {
-                                                    len: 7,
-                                                    descriptor_type: 5,
-                                                    endpoint_address: 2,
-                                                    attributes: 2,
-                                                    max_packet_size: 32,
-                                                    interval: 0,
-                                                    ssc: Some(
-                                                        SuperSpeedCmp {
-                                                            kind: 0,
-                                                            max_burst: 0,
-                                                            attributes: 0,
-                                                            bytes_per_interval: 0,
-                                                        },
-                                                    ),
-                                                },
-                                            ),
+                                        ],
+                                        [
                                             Standard(
                                                 Endpoint {
                                                     len: 7,
                                                     descriptor_type: 5,
                                                     endpoint_address: 129,
                                                     attributes: 3,
-                                                    max_packet_size: 8,
-                                                    interval: 1,
+                                                    max_packet_size: 5,
+                                                    interval: 10,
                                                     ssc: Some(
                                                         SuperSpeedCmp {
                                                             kind: 0,
@@ -1001,34 +424,28 @@ log_level = trace
             },
         ],
         others: [],
-        metadata: Unknown(
-            Unknown,
-        ),
+        metadata: HID,
     },
 )
-[ 48.979966 0:2 driver_usb::host::data_structures::host_controllers::xhci:446] fetch transfer ring at slot1-dci5
-[ 48.991248 0:2 driver_usb::host::data_structures::host_controllers::xhci:732] init ep 5 BulkIn
-[ 49.001057 0:2 driver_usb::host::data_structures::host_controllers::xhci:446] fetch transfer ring at slot1-dci4
-[ 49.012340 0:2 driver_usb::host::data_structures::host_controllers::xhci:732] init ep 4 BulkOut
-[ 49.022236 0:2 driver_usb::host::data_structures::host_controllers::xhci:446] fetch transfer ring at slot1-dci3
-[ 49.033519 0:2 driver_usb::host::data_structures::host_controllers::xhci:732] init ep 3 InterruptIn
-[ 49.043763 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 6 @0x901D38E0
+[ 54.062224 0:2 driver_usb::host::data_structures::host_controllers::xhci:446] fetch transfer ring at slot1-dci3
+[ 54.073506 0:2 driver_usb::host::data_structures::host_controllers::xhci:735] init ep 3 InterruptIn
+[ 54.083750 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 6 @0x901D38E0
 901b7000
 0
 0
 1003001
 ------------------------------------------------
-[ 49.061035 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:61] [CMD] >> ConfigureEndpoint(ConfigureEndpoint { input_context_pointer: 2417717248, deconfigure: false, slot_id: 1, cycle_bit: true }) @901D38E0
-[ 49.082215 0:2 driver_usb::host::data_structures::host_controllers::xhci:390] Wait result
-[ 49.091589 0:2 driver_usb::host::data_structures::host_controllers::xhci:401] [CMD] << Success @901D38E0 got result, cycle true
-[ 49.104262 0:2 driver_usb::host::data_structures::host_controllers::xhci:423] slot 1 Configured
-[ 49.114156 0:2 driver_usb::host::data_structures::host_controllers::xhci:428] device context state:Device {
+[ 54.101022 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:61] [CMD] >> ConfigureEndpoint(ConfigureEndpoint { input_context_pointer: 2417717248, deconfigure: false, slot_id: 1, cycle_bit: true }) @901D38E0
+[ 54.122201 0:2 driver_usb::host::data_structures::host_controllers::xhci:390] Wait result
+[ 54.131576 0:2 driver_usb::host::data_structures::host_controllers::xhci:401] [CMD] << Success @901D38E0 got result, cycle true
+[ 54.144250 0:2 driver_usb::host::data_structures::host_controllers::xhci:423] slot 1 Configured
+[ 54.154143 0:2 driver_usb::host::data_structures::host_controllers::xhci:428] device context state:Device {
     slot: Slot {
         route_string: 1,
-        speed: 1,
+        speed: 2,
         multi_tt: false,
         hub: false,
-        context_entries: 5,
+        context_entries: 3,
         max_exit_latency: 0,
         root_hub_port_number: 1,
         number_of_ports: 0,
@@ -1085,43 +502,43 @@ log_level = trace
             endpoint_type: InterruptIn,
             host_initiate_disable: false,
             max_burst_size: 0,
-            max_packet_size: 8,
+            max_packet_size: 5,
             dequeue_cycle_state: false,
             tr_dequeue_pointer: 2417843648,
             average_trb_length: 0,
             max_endpoint_service_time_interval_payload_low: 4,
         },
         Endpoint {
-            endpoint_state: Running,
+            endpoint_state: Disabled,
             mult: 0,
             max_primary_streams: 0,
             linear_stream_array: false,
-            interval: 3,
+            interval: 0,
             max_endpoint_service_time_interval_payload_high: 0,
-            error_count: 3,
-            endpoint_type: BulkOut,
+            error_count: 0,
+            endpoint_type: NotValid,
             host_initiate_disable: false,
             max_burst_size: 0,
-            max_packet_size: 32,
-            dequeue_cycle_state: true,
-            tr_dequeue_pointer: 2417844225,
+            max_packet_size: 0,
+            dequeue_cycle_state: false,
+            tr_dequeue_pointer: 0,
             average_trb_length: 0,
             max_endpoint_service_time_interval_payload_low: 0,
         },
         Endpoint {
-            endpoint_state: Running,
+            endpoint_state: Disabled,
             mult: 0,
             max_primary_streams: 0,
             linear_stream_array: false,
-            interval: 3,
+            interval: 0,
             max_endpoint_service_time_interval_payload_high: 0,
-            error_count: 3,
-            endpoint_type: BulkIn,
+            error_count: 0,
+            endpoint_type: NotValid,
             host_initiate_disable: false,
             max_burst_size: 0,
-            max_packet_size: 32,
-            dequeue_cycle_state: true,
-            tr_dequeue_pointer: 2417844801,
+            max_packet_size: 0,
+            dequeue_cycle_state: false,
+            tr_dequeue_pointer: 0,
             average_trb_length: 0,
             max_endpoint_service_time_interval_payload_low: 0,
         },
@@ -1569,7 +986,409 @@ log_level = trace
         },
     ],
 }
-[ 50.819518 0:2 driver_usb:240] pushed new device! 1
-[ 50.825592 0:2 driver_usb:101] device probe complete
-[ 50.831759 0:2 driver_usb::usb:74] current driver managed device num: 0
-[ 50.839567 0:2 driver_usb::host:139] tock! check deadlock!
+[ 55.858375 0:2 driver_usb:240] pushed new device! 1
+[ 55.864452 0:2 driver_usb:101] device probe complete
+[ 55.870619 0:2 driver_usb::usb::universal_drivers::hid_drivers::hid_mouse:164] hid mouse preparing for drive!
+[ 55.881724 0:2 driver_usb::usb::universal_drivers::hid_drivers::hid_mouse:168] set interface for 1,0
+[ 55.892060 0:2 driver_usb::usb:74] current driver managed device num: 1
+[ 55.899865 0:2 driver_usb::host:139] tock! check deadlock!
+[ 55.906549 0:2 driver_usb::host:105] request transfer!
+[ 55.912885 0:2 driver_usb::host::data_structures::host_controllers::xhci:969] SetupStage {
+    interrupt_on_completion: false,
+    request_type: 0,
+    request: 9,
+    value: 1,
+    index: 0,
+    length: 0,
+    interrupt_on_completion: false,
+    transfer_type: No,
+    cycle_bit: false,
+}
+[ 55.940488 0:2 driver_usb::host::data_structures::host_controllers::xhci:446] fetch transfer ring at slot1-dci1
+[ 55.951771 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 9 @0x901D59D0
+10900
+0
+8
+841
+------------------------------------------------
+[ 55.968437 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 10 @0x901D59E0
+0
+0
+0
+1021
+------------------------------------------------
+[ 55.984929 0:2 driver_usb::host::data_structures::host_controllers::xhci:992] [Transfer] >> setup@0x901D59D0, status@0x901D59E0
+[ 55.997602 0:2 driver_usb::host::data_structures::host_controllers::xhci:461] Wait result @0x901D59E0
+[ 56.008019 0:2 driver_usb::host::data_structures::host_controllers::xhci:470] [Transfer] << Success @0x901D59E0 got result1, cycle true, len 0
+[ 56.021992 0:2 driver_usb::host::data_structures::host_controllers::xhci:483] code:Success,pointer:901d59e0
+[ 56.032930 0:2 driver_usb::host:145] tock! check deadlock! 2
+[ 56.039787 0:2 driver_usb::usb::universal_drivers::hid_drivers::hid_mouse:150] completed!
+[ 56.049161 0:2 driver_usb::host:105] request transfer!
+[ 56.055497 0:2 driver_usb::host::data_structures::host_controllers::xhci:969] SetupStage {
+    interrupt_on_completion: false,
+    request_type: 1,
+    request: 11,
+    value: 0,
+    index: 0,
+    length: 0,
+    interrupt_on_completion: false,
+    transfer_type: No,
+    cycle_bit: false,
+}
+[ 56.083187 0:2 driver_usb::host::data_structures::host_controllers::xhci:446] fetch transfer ring at slot1-dci1
+[ 56.094471 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 11 @0x901D59F0
+b01
+0
+8
+841
+------------------------------------------------
+[ 56.111049 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 12 @0x901D5A00
+0
+0
+0
+1021
+------------------------------------------------
+[ 56.127541 0:2 driver_usb::host::data_structures::host_controllers::xhci:992] [Transfer] >> setup@0x901D59F0, status@0x901D5A00
+[ 56.140214 0:2 driver_usb::host::data_structures::host_controllers::xhci:461] Wait result @0x901D5A00
+[ 56.150632 0:2 driver_usb::host::data_structures::host_controllers::xhci:470] [Transfer] << Success @0x901D5A00 got result1, cycle true, len 0
+[ 56.164605 0:2 driver_usb::host::data_structures::host_controllers::xhci:483] code:Success,pointer:901d5a00
+[ 56.175542 0:2 driver_usb::host:145] tock! check deadlock! 2
+[ 56.182399 0:2 driver_usb::usb::universal_drivers::hid_drivers::hid_mouse:150] completed!
+[ 56.191773 0:2 driver_usb::host:105] request transfer!
+[ 56.198110 0:2 driver_usb::host::data_structures::host_controllers::xhci:969] SetupStage {
+    interrupt_on_completion: false,
+    request_type: 33,
+    request: 11,
+    value: 0,
+    index: 1,
+    length: 0,
+    interrupt_on_completion: false,
+    transfer_type: No,
+    cycle_bit: false,
+}
+[ 56.225886 0:2 driver_usb::host::data_structures::host_controllers::xhci:446] fetch transfer ring at slot1-dci1
+[ 56.237170 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 13 @0x901D5A10
+b21
+1
+8
+841
+------------------------------------------------
+[ 56.253749 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 14 @0x901D5A20
+0
+0
+0
+1021
+------------------------------------------------
+[ 56.270241 0:2 driver_usb::host::data_structures::host_controllers::xhci:992] [Transfer] >> setup@0x901D5A10, status@0x901D5A20
+[ 56.282914 0:2 driver_usb::host::data_structures::host_controllers::xhci:461] Wait result @0x901D5A20
+[ 56.293330 0:2 driver_usb::host::data_structures::host_controllers::xhci:470] [Transfer] << Success @0x901D5A20 got result1, cycle true, len 0
+[ 56.307304 0:2 driver_usb::host::data_structures::host_controllers::xhci:483] code:Success,pointer:901d5a20
+[ 56.318241 0:2 driver_usb::host:145] tock! check deadlock! 2
+[ 56.325098 0:2 driver_usb::usb::universal_drivers::hid_drivers::hid_mouse:150] completed!
+[ 56.334472 0:2 driver_usb::host:105] request transfer!
+[ 56.340809 0:2 driver_usb::host::data_structures::host_controllers::xhci:969] SetupStage {
+    interrupt_on_completion: false,
+    request_type: 129,
+    request: 6,
+    value: 8704,
+    index: 0,
+    length: 1,
+    interrupt_on_completion: false,
+    transfer_type: In,
+    cycle_bit: false,
+}
+[ 56.368845 0:2 driver_usb::host::data_structures::host_controllers::xhci:446] fetch transfer ring at slot1-dci1
+[ 56.380129 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 15 @0x901D5A30
+22000681
+10000
+8
+30841
+------------------------------------------------
+[ 56.397663 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 16 @0x901D5A40
+901db000
+0
+1
+10c01
+------------------------------------------------
+[ 56.414849 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 17 @0x901D5A50
+0
+0
+0
+1021
+------------------------------------------------
+[ 56.431341 0:2 driver_usb::host::data_structures::host_controllers::xhci:998] [Transfer] >> setup@0x901D5A30, data@0x901D5A40, status@0x901D5A50
+[ 56.445490 0:2 driver_usb::host::data_structures::host_controllers::xhci:461] Wait result @0x901D5A50
+[ 56.455907 0:2 driver_usb::host::data_structures::host_controllers::xhci:470] [Transfer] << Success @0x901D5A50 got result1, cycle true, len 0
+[ 56.469880 0:2 driver_usb::host::data_structures::host_controllers::xhci:483] code:Success,pointer:901d5a50
+[ 56.480817 0:2 driver_usb::host:145] tock! check deadlock! 2
+[ 56.487674 0:2 driver_usb::usb::universal_drivers::hid_drivers::hid_mouse:150] completed!
+[ 56.497049 0:2 driver_usb::host::data_structures::host_controllers::xhci:446] fetch transfer ring at slot1-dci3
+[ 56.508334 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 0 @0x901D5DC0
+0
+0
+0
+401
+------------------------------------------------
+[ 56.524651 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 1 @0x901D5DD0
+0
+0
+0
+401
+------------------------------------------------
+[ 56.540970 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 2 @0x901D5DE0
+0
+0
+0
+401
+------------------------------------------------
+[ 56.557288 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 3 @0x901D5DF0
+0
+0
+0
+401
+------------------------------------------------
+[ 56.573607 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 4 @0x901D5E00
+0
+0
+0
+401
+------------------------------------------------
+[ 56.589925 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 5 @0x901D5E10
+0
+0
+0
+401
+------------------------------------------------
+[ 56.606243 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 6 @0x901D5E20
+0
+0
+0
+401
+------------------------------------------------
+[ 56.622562 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 7 @0x901D5E30
+0
+0
+0
+401
+------------------------------------------------
+[ 56.638880 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 8 @0x901D5E40
+0
+0
+0
+401
+------------------------------------------------
+[ 56.655198 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 9 @0x901D5E50
+0
+0
+0
+401
+------------------------------------------------
+[ 56.671517 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 10 @0x901D5E60
+0
+0
+0
+401
+------------------------------------------------
+[ 56.687922 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 11 @0x901D5E70
+0
+0
+0
+401
+------------------------------------------------
+[ 56.704327 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 12 @0x901D5E80
+0
+0
+0
+401
+------------------------------------------------
+[ 56.720732 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 13 @0x901D5E90
+0
+0
+0
+401
+------------------------------------------------
+[ 56.737138 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 14 @0x901D5EA0
+0
+0
+0
+401
+------------------------------------------------
+[ 56.753543 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 15 @0x901D5EB0
+0
+0
+0
+401
+------------------------------------------------
+[ 56.769948 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 16 @0x901D5EC0
+0
+0
+0
+401
+------------------------------------------------
+[ 56.786353 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 17 @0x901D5ED0
+0
+0
+0
+401
+------------------------------------------------
+[ 56.802758 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 18 @0x901D5EE0
+0
+0
+0
+401
+------------------------------------------------
+[ 56.819164 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 19 @0x901D5EF0
+0
+0
+0
+401
+------------------------------------------------
+[ 56.835569 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 20 @0x901D5F00
+0
+0
+0
+401
+------------------------------------------------
+[ 56.851974 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 21 @0x901D5F10
+0
+0
+0
+401
+------------------------------------------------
+[ 56.868379 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 22 @0x901D5F20
+0
+0
+0
+401
+------------------------------------------------
+[ 56.884784 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 23 @0x901D5F30
+0
+0
+0
+401
+------------------------------------------------
+[ 56.901190 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 24 @0x901D5F40
+0
+0
+0
+401
+------------------------------------------------
+[ 56.917595 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 25 @0x901D5F50
+0
+0
+0
+401
+------------------------------------------------
+[ 56.934000 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 26 @0x901D5F60
+0
+0
+0
+401
+------------------------------------------------
+[ 56.950405 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 27 @0x901D5F70
+0
+0
+0
+401
+------------------------------------------------
+[ 56.966810 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 28 @0x901D5F80
+0
+0
+0
+401
+------------------------------------------------
+[ 56.983216 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 29 @0x901D5F90
+0
+0
+0
+401
+------------------------------------------------
+[ 56.999621 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 30 @0x901D5FA0
+0
+0
+0
+401
+------------------------------------------------
+[ 57.016026 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:103] flip and link!
+[ 57.026182 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:109] link!
+[ 57.035556 0:2 driver_usb::host:145] tock! check deadlock! 2
+[ 57.042413 0:2 driver_usb::usb::universal_drivers::hid_drivers::hid_mouse:150] completed!
+[ 57.051791 0:2 driver_usb::usb::universal_drivers::hid_drivers::hid_mouse:132] some!
+[ 57.060729 0:2 driver_usb:130] tick! 1
+[ 57.065676 0:2 driver_usb::host:139] tock! check deadlock!
+[ 57.072359 0:2 driver_usb::host::data_structures::host_controllers::xhci:446] fetch transfer ring at slot1-dci3
+[ 57.083643 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 0 @0x901D5DC0
+901dc000
+0
+8
+424
+------------------------------------------------
+[ 57.100570 0:2 driver_usb::host::data_structures::host_controllers::xhci:461] Wait result @0x901D5DC0
+[ 60.135928 0:2 driver_usb::host::data_structures::host_controllers::xhci:470] [Transfer] << ShortPacket @0x901D5DC0 got result13, cycle true, len 5
+[ 60.147465 0:2 driver_usb::host::data_structures::host_controllers::xhci:483] code:ShortPacket,pointer:901d5dc0
+[ 60.158749 0:2 driver_usb::host::data_structures::host_controllers::xhci:1226] ok! return a success ucb!
+[ 60.169426 0:2 driver_usb::host:145] tock! check deadlock! 2
+[ 60.176283 0:2 driver_usb::usb::universal_drivers::hid_drivers::hid_mouse:150] completed!
+[ 60.185659 0:2 driver_usb::usb::universal_drivers::hid_drivers::hid_mouse:155] current buffer:[1, 0, 0, 0, 0, 0, 0, 0]
+[ 60.197550 0:2 driver_usb::usb::universal_drivers::hid_drivers::hid_mouse:132] some!
+[ 60.206490 0:2 driver_usb:130] tick! 1
+[ 60.211437 0:2 driver_usb::host:139] tock! check deadlock!
+[ 60.218120 0:2 driver_usb::host::data_structures::host_controllers::xhci:446] fetch transfer ring at slot1-dci3
+[ 60.229404 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 1 @0x901D5DD0
+901dc000
+0
+8
+424
+------------------------------------------------
+[ 60.246331 0:2 driver_usb::host::data_structures::host_controllers::xhci:461] Wait result @0x901D5DD0
+[ 60.294928 0:2 driver_usb::host::data_structures::host_controllers::xhci:470] [Transfer] << ShortPacket @0x901D5DD0 got result13, cycle true, len 5
+[ 60.306465 0:2 driver_usb::host::data_structures::host_controllers::xhci:483] code:ShortPacket,pointer:901d5dd0
+[ 60.317749 0:2 driver_usb::host::data_structures::host_controllers::xhci:1226] ok! return a success ucb!
+[ 60.328426 0:2 driver_usb::host:145] tock! check deadlock! 2
+[ 60.335283 0:2 driver_usb::usb::universal_drivers::hid_drivers::hid_mouse:150] completed!
+[ 60.344659 0:2 driver_usb::usb::universal_drivers::hid_drivers::hid_mouse:155] current buffer:[0, 0, 0, 0, 0, 0, 0, 0]
+[ 60.356550 0:2 driver_usb::usb::universal_drivers::hid_drivers::hid_mouse:132] some!
+[ 60.365490 0:2 driver_usb:130] tick! 1
+[ 60.370437 0:2 driver_usb::host:139] tock! check deadlock!
+[ 60.377121 0:2 driver_usb::host::data_structures::host_controllers::xhci:446] fetch transfer ring at slot1-dci3
+[ 60.388405 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 2 @0x901D5DE0
+901dc000
+0
+8
+424
+------------------------------------------------
+[ 60.405331 0:2 driver_usb::host::data_structures::host_controllers::xhci:461] Wait result @0x901D5DE0
+[ 60.415748 0:2 driver_usb::host::data_structures::host_controllers::xhci:470] [Transfer] << ShortPacket @0x901D5DE0 got result13, cycle true, len 5
+[ 60.430155 0:2 driver_usb::host::data_structures::host_controllers::xhci:483] code:ShortPacket,pointer:901d5de0
+[ 60.441439 0:2 driver_usb::host::data_structures::host_controllers::xhci:1226] ok! return a success ucb!
+[ 60.452116 0:2 driver_usb::host:145] tock! check deadlock! 2
+[ 60.458973 0:2 driver_usb::usb::universal_drivers::hid_drivers::hid_mouse:150] completed!
+[ 60.468349 0:2 driver_usb::usb::universal_drivers::hid_drivers::hid_mouse:155] current buffer:[0, 0, 2, 0, 0, 0, 0, 0]
+[ 60.480240 0:2 driver_usb::usb::universal_drivers::hid_drivers::hid_mouse:132] some!
+[ 60.489180 0:2 driver_usb:130] tick! 1
+[ 60.494127 0:2 driver_usb::host:139] tock! check deadlock!
+[ 60.500811 0:2 driver_usb::host::data_structures::host_controllers::xhci:446] fetch transfer ring at slot1-dci3
+[ 60.512095 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 3 @0x901D5DF0
+901dc000
+0
+8
+424
+------------------------------------------------
+[ 60.529021 0:2 driver_usb::host::data_structures::host_controllers::xhci:461] Wait result @0x901D5DF0
+[ 60.595928 0:2 driver_usb::host::data_structures::host_controllers::xhci:470] [Transfer] << ShortPacket @0x901D5DF0 got result13, cycle true, len 5
+[ 60.607465 0:2 driver_usb::host::data_structures::host_controllers::xhci:483] code:ShortPacket,pointer:901d5df0
+[ 60.618749 0:2 driver_usb::host::data_structures::host_controllers::xhci:1226] ok! return a success ucb!
+[ 60.629426 0:2 driver_usb::host:145] tock! check deadlock! 2
+[ 60.636283 0:2 driver_usb::usb::universal_drivers::hid_drivers::hid_mouse:150] completed!
+[ 60.645658 0:2 driver_usb::usb::universal_drivers::hid_drivers::hid_mouse:155] current buffer:[0, 0, 1, 0, 0, 0, 0, 0]
+[ 60.657549 0:2 driver_usb::usb::universal_drivers::hid_drivers::hid_mouse:132] some!
+[ 60.666489 0:2 driver_usb:130] tick! 1
+[ 60.671437 0:2 driver_usb::host:139] tock! check deadlock!
+[ 60.678120 0:2 driver_usb::host::data_structures::host_controllers::xhci:446] fetch transfer ring at slot1-dci3
+[ 60.689404 0:2 driver_usb::host::data_structures::host_controllers::xhci::ring:78] enqueued 4 @0x901D5E00
+901dc000
+0
+8
+424
+------------------------------------------------
+[ 60.706331 0:2 driver_usb::host::data_structures::host_controllers::xhci:461] Wait result @0x901D5E00

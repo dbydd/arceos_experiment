@@ -567,6 +567,7 @@ where
                         }
                         TopologicalUSBDescriptorFunction::Interface(interface) => interface,
                     })
+                    .filter(|(i, _, _)| i.interface_number == 0)
                     .for_each(|(_, _, endpoints)| {
                         {
                             let input =
@@ -660,6 +661,8 @@ where
 
                     control_mut.set_interface_number(0); //
                     control_mut.set_alternate_setting(0); //always exist
+                    trace!("device context state:{:#?}", input);
+                    //TODO: 这玩意根本没修改
                     (input as *const Input<16>).addr() as u64
                 };
 
@@ -799,6 +802,7 @@ where
                 };
             }
         });
+
         //TODO: Improve
         Ok(UCB::new(CompleteCode::Event(
             TransferEventCompleteCode::Success,
@@ -910,7 +914,7 @@ where
                 debug!("assign complete!");
                 //↓
                 self.address_device(slot_id, port_id);
-                self.trace_dump_context(slot_id);
+                // self.trace_dump_context(slot_id);
                 //↓
                 let packet_size0 = self.control_fetch_control_point_packet_size(slot_id);
                 trace!("packet_size0: {}", packet_size0);
