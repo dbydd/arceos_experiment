@@ -158,6 +158,7 @@ where
                     .inspect(|a| {
                         trace!("current buffer:{:?}", a);
                     });
+
                 self.driver_state_machine = HidMouseStateMachine::Sending
             }
             other => panic!("received {:?}", other),
@@ -377,8 +378,8 @@ where
                                             Some(ep.clone())
                                         }else {None}).collect(),
                                         config.clone(),
-                                        independent_dev.interface_val,
-                                        independent_dev.current_alternative_interface_value,
+                                        interface.interface_number as _,
+                                        interface.alternate_setting as _,
                                         independent_dev.configuration_val,
                                     ));
                                 } else {
