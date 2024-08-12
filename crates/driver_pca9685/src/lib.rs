@@ -159,7 +159,7 @@ pub fn pca_init(d1: u16, d2: u16, d3: u16, d4: u16) {
         set_pwm_frequency(50);
         set_pwm(d1, d2, d3, d4);
         stop();
-        traffic_light_release();
+        // traffic_light_release();
     }
 }
 

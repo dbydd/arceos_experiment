@@ -1,3 +1,4 @@
+pub mod temp_mouse_report_parser;
 use const_enum::ConstEnum;
 use num_derive::{FromPrimitive, ToPrimitive};
 

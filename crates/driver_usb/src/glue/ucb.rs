@@ -34,5 +34,6 @@ pub enum CompleteCode {
 pub enum TransferEventCompleteCode {
     Success,
     Halt,
+    Babble,
     Unknown(u8),
 }

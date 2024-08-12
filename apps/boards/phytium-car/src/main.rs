@@ -66,7 +66,7 @@ impl EventHandler for MouseEventHandler {
             }
 
             if flag {
-                busy_wait(Duration::from_secs(5));
+                busy_wait(Duration::from_millis(500));
                 driver_pca9685::car_run_task(Quest::Stop);
             }
             return true;
@@ -78,10 +78,12 @@ impl EventHandler for MouseEventHandler {
 #[no_mangle]
 fn main() {
     driver_pca9685::pca_init(2500, 2500, 2500, 2500);
+    println!("i2c init completed");
 
     let handler: Arc<dyn EventHandler> = Arc::new(MouseEventHandler);
 
     ax_event_bus::register_handler(Events::MouseEvent, &handler);
+    println!("handler registered");
 
     let mut usbsystem = driver_usb::USBSystem::new({
         USBSystemConfig::new(0xffff_0000_31a0_8000, 48, 0, PlatformAbstraction)

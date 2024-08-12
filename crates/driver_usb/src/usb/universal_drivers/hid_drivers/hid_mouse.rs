@@ -10,7 +10,7 @@ use xhci::context::EndpointType;
 use xhci::ring::trb::transfer::Direction;
 
 use crate::abstractions::dma::DMA;
-use crate::glue::ucb::{TransferEventCompleteCode, UCB};
+use crate::glue::ucb::{CompleteCode, TransferEventCompleteCode, UCB};
 use crate::usb::descriptors::desc_hid::HIDDescriptorTypes;
 use crate::usb::descriptors::topological_desc::{
     TopologicalUSBDescriptorEndpoint, TopologicalUSBDescriptorFunction,
@@ -21,6 +21,7 @@ use crate::usb::trasnfer::control::{
     bRequest, bmRequestType, ControlTransfer, DataTransferType, Recipient,
 };
 use crate::usb::trasnfer::interrupt::InterruptTransfer;
+use crate::usb::universal_drivers::hid_drivers::temp_mouse_report_parser;
 use crate::usb::urb::{RequestedOperation, URB};
 use crate::USBSystemConfig;
 use crate::{
@@ -40,7 +41,7 @@ where
     O: PlatformAbstractions,
 {
     Binary(SpinNoIrq<DMA<u8, O::DMA>>),
-    Decoded()
+    Decoded(),
 }
 
 pub struct HidMouseDriver<O>
@@ -117,6 +118,7 @@ where
     O: PlatformAbstractions,
 {
     fn gather_urb(&mut self) -> Option<Vec<crate::usb::urb::URB<'a, O>>> {
+        // trace!("gather urb!");
         match self.driver_state_machine {
             HidMouseStateMachine::Waiting => None,
             HidMouseStateMachine::Sending => {
@@ -126,7 +128,7 @@ where
                     None => {
                         self.receiption_buffer = Some(SpinNoIrq::new(DMA::new_vec(
                             0u8,
-                            8,
+                            16,
                             O::PAGE_SIZE,
                             self.config.lock().os.dma_alloc(),
                         )))
@@ -134,7 +136,7 @@ where
                 }
 
                 if let Some(buffer) = &mut self.receiption_buffer {
-                    trace!("some!");
+                    // trace!("some!");
                     return Some(vec![URB::<O>::new(
                         self.device_slot_id,
                         RequestedOperation::Interrupt(InterruptTransfer {
@@ -151,15 +153,21 @@ where
 
     fn receive_complete_event(&mut self, ucb: UCB<O>) {
         match ucb.code {
-            crate::glue::ucb::CompleteCode::Event(TransferEventCompleteCode::Success) => {
+            CompleteCode::Event(TransferEventCompleteCode::Success) => {
                 trace!("completed!");
                 self.receiption_buffer
                     .as_ref()
                     .map(|a| a.lock().to_vec().clone())
                     .inspect(|a| {
                         trace!("current buffer:{:?}", a);
+                        if !a.iter().all(|v| *v == 0) {
+                            temp_mouse_report_parser::parse(a)
+                        }
                     });
 
+                self.driver_state_machine = HidMouseStateMachine::Sending
+            }
+            CompleteCode::Event(TransferEventCompleteCode::Babble) => {
                 self.driver_state_machine = HidMouseStateMachine::Sending
             }
             other => panic!("received {:?}", other),
@@ -193,8 +201,10 @@ where
                     Recipient::Interface,
                 ),
                 request: bRequest::SetInterfaceSpec,
-                index: self.interface_alternative_value as u16,
-                value: self.interface_value as u16,
+                // index: self.interface_alternative_value as u16,
+                // value: self.interface_value as u16,
+                index: 0 as u16,
+                value: 0 as u16,
                 data: None,
             }),
         ));
@@ -361,8 +371,8 @@ where
                             }
                             TopologicalUSBDescriptorFunction::Interface(interfaces) => {
                                 let (interface, additional, endpoints) = interfaces
-                                    .get(independent_dev.current_alternative_interface_value)
-                                    .expect("invalid anternative interface value");
+                                    .get(0)
+                                    .expect("wtf");
                                 if let (
                                     StandardUSBDeviceClassCode::HID,
                                     Some(USBHidDeviceSubClassCode::Mouse),

@@ -1,3 +1,4 @@
+#[derive(Debug)]
 pub struct MouseEvent {
     pub dx: isize,
     pub dy: isize,
