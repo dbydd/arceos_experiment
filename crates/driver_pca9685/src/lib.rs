@@ -241,18 +241,33 @@ unsafe fn status_control(m1: i16, m2: i16, m3: i16, m4: i16) {
             write_byte_data(PCA9685_ADDRESS, LED0_ON_L + 4 * 1 + 1, 0 >> 8);
             write_byte_data(PCA9685_ADDRESS, LED0_ON_L + 4 * 1 + 2, 4095 & 0xFF);
             write_byte_data(PCA9685_ADDRESS, LED0_ON_L + 4 * 1 + 3, 4095 >> 8);
+
+            write_byte_data(PCA9685_ADDRESS, LED0_ON_L + 4 * 2, 0 & 0xFF);
+            write_byte_data(PCA9685_ADDRESS, LED0_ON_L + 4 * 2 + 1, 0 >> 8);
+            write_byte_data(PCA9685_ADDRESS, LED0_ON_L + 4 * 2 + 2, 0 & 0xFF);
+            write_byte_data(PCA9685_ADDRESS, LED0_ON_L + 4 * 2 + 3, 0 >> 8);
         }
         0 => {
             write_byte_data(PCA9685_ADDRESS, LED0_ON_L + 4 * 1, 0 & 0xFF);
             write_byte_data(PCA9685_ADDRESS, LED0_ON_L + 4 * 1 + 1, 0 >> 8);
             write_byte_data(PCA9685_ADDRESS, LED0_ON_L + 4 * 1 + 2, 0 & 0xFF);
             write_byte_data(PCA9685_ADDRESS, LED0_ON_L + 4 * 1 + 3, 0 >> 8);
+
+            write_byte_data(PCA9685_ADDRESS, LED0_ON_L + 4 * 2, 0 & 0xFF);
+            write_byte_data(PCA9685_ADDRESS, LED0_ON_L + 4 * 2 + 1, 0 >> 8);
+            write_byte_data(PCA9685_ADDRESS, LED0_ON_L + 4 * 2 + 2, 0 & 0xFF);
+            write_byte_data(PCA9685_ADDRESS, LED0_ON_L + 4 * 2 + 3, 0 >> 8);
         }
         1 => {
             write_byte_data(PCA9685_ADDRESS, LED0_ON_L + 4 * 1, 0 & 0xFF);
             write_byte_data(PCA9685_ADDRESS, LED0_ON_L + 4 * 1 + 1, 0 >> 8);
             write_byte_data(PCA9685_ADDRESS, LED0_ON_L + 4 * 1 + 2, 0 & 0xFF);
             write_byte_data(PCA9685_ADDRESS, LED0_ON_L + 4 * 1 + 3, 0 >> 8);
+
+            write_byte_data(PCA9685_ADDRESS, LED0_ON_L + 4 * 2, 0 & 0xFF);
+            write_byte_data(PCA9685_ADDRESS, LED0_ON_L + 4 * 2 + 1, 0 >> 8);
+            write_byte_data(PCA9685_ADDRESS, LED0_ON_L + 4 * 2 + 2, 4095 & 0xFF);
+            write_byte_data(PCA9685_ADDRESS, LED0_ON_L + 4 * 2 + 3, 4095 >> 8);
         }
         _ => (),
     }
