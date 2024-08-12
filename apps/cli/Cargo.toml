@@ -19,6 +19,5 @@ default = []
 driver_pca9685 = { path = "../../crates/driver_pca9685" }
 driver_i2c = { path = "../../crates/driver_i2c" }
 axstd = { path = "../../ulib/axstd", optional = true }
-axfeat = {path = "../../api/axfeat", features = ["phytium-pi","usb-host","multitask","sched_rr"]}
 driver_usb ={ path = "../../crates/driver_usb"}
 xhci = "0.9"
