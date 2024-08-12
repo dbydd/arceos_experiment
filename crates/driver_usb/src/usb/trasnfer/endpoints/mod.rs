@@ -1,1 +1,1 @@
-use num_derive::{FromPrimitive, ToPrimitive};
+use const_enum::ConstEnum;

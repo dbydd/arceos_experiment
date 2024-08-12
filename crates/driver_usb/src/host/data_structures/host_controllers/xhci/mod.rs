@@ -28,7 +28,14 @@ use crate::{
     glue::ucb::{CompleteCode, TransferEventCompleteCode, UCB},
     host::data_structures::MightBeInited,
     usb::{
-        descriptors::{desc_configuration, DescriptorType, TopologicalUSBDescriptorConfiguration},
+        descriptors::{
+            desc_configuration,
+            topological_desc::{
+                TopologicalUSBDescriptorConfiguration, TopologicalUSBDescriptorEndpoint,
+                TopologicalUSBDescriptorFunction,
+            },
+            USBStandardDescriptorTypes,
+        },
         operation::{Configuration, ExtraStep},
         trasnfer::{
             self,
@@ -415,7 +422,12 @@ where
             if let EndpointState::Disabled = dev.endpoint(i).endpoint_state() {
                 continue;
             }
-            trace!("  ep dci {}: {:?}", i, dev.endpoint(i).endpoint_state());
+            trace!(
+                "  ep dci {}: {:?}-type is {:?}",
+                i,
+                dev.endpoint(i).endpoint_state(),
+                dev.endpoint(i).endpoint_type()
+            );
         }
     }
 
@@ -490,10 +502,147 @@ where
         configure: &TopologicalUSBDescriptorConfiguration,
     ) -> crate::err::Result<UCB<O>> {
         configure.child.iter().for_each(|func| match func {
-            crate::usb::descriptors::TopologicalUSBDescriptorFunction::InterfaceAssociation(_) => {
-                todo!()
+            TopologicalUSBDescriptorFunction::InterfaceAssociation(assoc) => {
+                // todo!("enumrate complex device!")
+
+                // let (interface0, attributes, endpoints) =
+                assoc
+                    .1
+                    .iter()
+                    .map(|f| match f {
+                        TopologicalUSBDescriptorFunction::InterfaceAssociation(_) => {
+                            panic!("anyone could help this guy????")
+                        }
+                        TopologicalUSBDescriptorFunction::Interface(interface) => interface,
+                    })
+                    .for_each(|interface| {
+                        interface
+                            .iter()
+                            .for_each(|(interface0, extras, endpoints)| {
+                                {
+                                    let input = self.dev_ctx.device_input_context_list
+                                        [device_slot_id]
+                                        .deref_mut();
+
+                                    let entries = endpoints
+                                        .iter()
+                                        .filter_map(|endpoint| {
+                                            if let TopologicalUSBDescriptorEndpoint::Standard(ep) =
+                                                endpoint
+                                            {
+                                                Some(ep)
+                                            } else {
+                                                None
+                                            }
+                                        })
+                                        .map(|endpoint| endpoint.doorbell_value_aka_dci())
+                                        .max()
+                                        .unwrap_or(1)
+                                        .max(input.device().slot().context_entries() as u32);
+
+                                    input
+                                        .device_mut()
+                                        .slot_mut()
+                                        .set_context_entries(entries as u8);
+                                }
+
+                                // trace!("endpoints:{:#?}", endpoints);
+
+                                for item in endpoints {
+                                    if let TopologicalUSBDescriptorEndpoint::Standard(ep) = item {
+                                        let dci = ep.doorbell_value_aka_dci() as usize;
+                                        let max_packet_size = ep.max_packet_size;
+                                        let ring_addr =
+                                            self.ep_ring_mut(device_slot_id, dci as _).register();
+
+                                        let input = self.dev_ctx.device_input_context_list
+                                            [device_slot_id]
+                                            .deref_mut();
+                                        let control_mut = input.control_mut();
+                                        debug!("init ep {} {:?}", dci, ep.endpoint_type());
+                                        control_mut.set_add_context_flag(dci);
+                                        let ep_mut = input.device_mut().endpoint_mut(dci);
+                                        ep_mut.set_interval(3);
+                                        ep_mut.set_endpoint_type(ep.endpoint_type());
+                                        ep_mut.set_tr_dequeue_pointer(ring_addr);
+                                        ep_mut.set_max_packet_size(max_packet_size);
+                                        ep_mut.set_error_count(3);
+                                        ep_mut.set_dequeue_cycle_state();
+                                        let endpoint_type = ep.endpoint_type();
+                                        match endpoint_type {
+                                            EndpointType::Control => {}
+                                            EndpointType::BulkOut | EndpointType::BulkIn => {
+                                                ep_mut.set_max_burst_size(0);
+                                                ep_mut.set_max_primary_streams(0);
+                                            }
+                                            EndpointType::IsochOut
+                                            | EndpointType::IsochIn
+                                            | EndpointType::InterruptOut
+                                            | EndpointType::InterruptIn => {
+                                                //init for isoch/interrupt
+                                                ep_mut.set_max_packet_size(max_packet_size & 0x7ff); //refer xhci page 162
+                                                ep_mut.set_max_burst_size(
+                                                    ((max_packet_size & 0x1800) >> 11)
+                                                        .try_into()
+                                                        .unwrap(),
+                                                );
+                                                ep_mut.set_mult(0); //always 0 for interrupt
+
+                                                if let EndpointType::IsochOut
+                                                | EndpointType::IsochIn = endpoint_type
+                                                {
+                                                    ep_mut.set_error_count(0);
+                                                }
+
+                                                ep_mut.set_tr_dequeue_pointer(ring_addr);
+                                                ep_mut
+                                                .set_max_endpoint_service_time_interval_payload_low(
+                                                    4,
+                                                );
+                                                //best guess?
+                                            }
+                                            EndpointType::NotValid => {
+                                                unreachable!("Not Valid Endpoint should not exist.")
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                    });
+
+                let input_addr = {
+                    let input = self.dev_ctx.device_input_context_list[device_slot_id].deref_mut();
+                    let control_mut = input.control_mut();
+                    control_mut.set_add_context_flag(0);
+                    control_mut.set_configuration_value(configure.data.config_val());
+
+                    control_mut.set_interface_number(0); //
+                    control_mut.set_alternate_setting(0); //always exist
+                    (input as *const Input<16>).addr() as u64
+                };
+
+                let command_completion = self
+                    .post_cmd(command::Allowed::ConfigureEndpoint(
+                        *command::ConfigureEndpoint::default()
+                            .set_slot_id(device_slot_id as _)
+                            .set_input_context_pointer(input_addr),
+                    ))
+                    .unwrap();
+
+                self.trace_dump_context(device_slot_id);
+                match command_completion.completion_code() {
+                    Ok(ok) => match ok {
+                        CompletionCode::Success => {
+                            UCB::<O>::new(CompleteCode::Event(TransferEventCompleteCode::Success))
+                        }
+                        other => panic!("err:{:?}", other),
+                    },
+                    Err(err) => {
+                        UCB::new(CompleteCode::Event(TransferEventCompleteCode::Unknown(err)))
+                    }
+                };
             }
-            crate::usb::descriptors::TopologicalUSBDescriptorFunction::Interface(interfaces) => {
+            TopologicalUSBDescriptorFunction::Interface(interfaces) => {
                 let (interface0, attributes, endpoints) = interfaces.first().unwrap();
                 let input_addr = {
                     {
@@ -510,6 +659,13 @@ where
 
                         let entries = endpoints
                             .iter()
+                            .filter_map(|endpoint| {
+                                if let TopologicalUSBDescriptorEndpoint::Standard(ep) = endpoint {
+                                    Some(ep)
+                                } else {
+                                    None
+                                }
+                            })
                             .map(|endpoint| endpoint.doorbell_value_aka_dci())
                             .max()
                             .unwrap_or(1);
@@ -522,53 +678,55 @@ where
 
                     // debug!("endpoints:{:#?}", interface.endpoints);
 
-                    for ep in endpoints {
-                        let dci = ep.doorbell_value_aka_dci() as usize;
-                        let max_packet_size = ep.max_packet_size;
-                        let ring_addr = self.ep_ring_mut(device_slot_id, dci as _).register();
+                    for item in endpoints {
+                        if let TopologicalUSBDescriptorEndpoint::Standard(ep) = item {
+                            let dci = ep.doorbell_value_aka_dci() as usize;
+                            let max_packet_size = ep.max_packet_size;
+                            let ring_addr = self.ep_ring_mut(device_slot_id, dci as _).register();
 
-                        let input =
-                            self.dev_ctx.device_input_context_list[device_slot_id].deref_mut();
-                        let control_mut = input.control_mut();
-                        debug!("init ep {} {:?}", dci, ep.endpoint_type());
-                        control_mut.set_add_context_flag(dci);
-                        let ep_mut = input.device_mut().endpoint_mut(dci);
-                        ep_mut.set_interval(3);
-                        ep_mut.set_endpoint_type(ep.endpoint_type());
-                        ep_mut.set_tr_dequeue_pointer(ring_addr);
-                        ep_mut.set_max_packet_size(max_packet_size);
-                        ep_mut.set_error_count(3);
-                        ep_mut.set_dequeue_cycle_state();
-                        let endpoint_type = ep.endpoint_type();
-                        match endpoint_type {
-                            EndpointType::Control => {}
-                            EndpointType::BulkOut | EndpointType::BulkIn => {
-                                ep_mut.set_max_burst_size(0);
-                                ep_mut.set_max_primary_streams(0);
-                            }
-                            EndpointType::IsochOut
-                            | EndpointType::IsochIn
-                            | EndpointType::InterruptOut
-                            | EndpointType::InterruptIn => {
-                                //init for isoch/interrupt
-                                ep_mut.set_max_packet_size(max_packet_size & 0x7ff); //refer xhci page 162
-                                ep_mut.set_max_burst_size(
-                                    ((max_packet_size & 0x1800) >> 11).try_into().unwrap(),
-                                );
-                                ep_mut.set_mult(0); //always 0 for interrupt
-
-                                if let EndpointType::IsochOut | EndpointType::IsochIn =
-                                    endpoint_type
-                                {
-                                    ep_mut.set_error_count(0);
+                            let input =
+                                self.dev_ctx.device_input_context_list[device_slot_id].deref_mut();
+                            let control_mut = input.control_mut();
+                            debug!("init ep {} {:?}", dci, ep.endpoint_type());
+                            control_mut.set_add_context_flag(dci);
+                            let ep_mut = input.device_mut().endpoint_mut(dci);
+                            ep_mut.set_interval(3);
+                            ep_mut.set_endpoint_type(ep.endpoint_type());
+                            ep_mut.set_tr_dequeue_pointer(ring_addr);
+                            ep_mut.set_max_packet_size(max_packet_size);
+                            ep_mut.set_error_count(3);
+                            ep_mut.set_dequeue_cycle_state();
+                            let endpoint_type = ep.endpoint_type();
+                            match endpoint_type {
+                                EndpointType::Control => {}
+                                EndpointType::BulkOut | EndpointType::BulkIn => {
+                                    ep_mut.set_max_burst_size(0);
+                                    ep_mut.set_max_primary_streams(0);
                                 }
+                                EndpointType::IsochOut
+                                | EndpointType::IsochIn
+                                | EndpointType::InterruptOut
+                                | EndpointType::InterruptIn => {
+                                    //init for isoch/interrupt
+                                    ep_mut.set_max_packet_size(max_packet_size & 0x7ff); //refer xhci page 162
+                                    ep_mut.set_max_burst_size(
+                                        ((max_packet_size & 0x1800) >> 11).try_into().unwrap(),
+                                    );
+                                    ep_mut.set_mult(0); //always 0 for interrupt
 
-                                ep_mut.set_tr_dequeue_pointer(ring_addr);
-                                ep_mut.set_max_endpoint_service_time_interval_payload_low(4);
-                                //best guess?
-                            }
-                            EndpointType::NotValid => {
-                                unreachable!("Not Valid Endpoint should not exist.")
+                                    if let EndpointType::IsochOut | EndpointType::IsochIn =
+                                        endpoint_type
+                                    {
+                                        ep_mut.set_error_count(0);
+                                    }
+
+                                    ep_mut.set_tr_dequeue_pointer(ring_addr);
+                                    ep_mut.set_max_endpoint_service_time_interval_payload_low(4);
+                                    //best guess?
+                                }
+                                EndpointType::NotValid => {
+                                    unreachable!("Not Valid Endpoint should not exist.")
+                                }
                             }
                         }
                     }
@@ -939,7 +1097,11 @@ where
                 ),
                 request: bRequest::GetDescriptor,
                 index: 0,
-                value: DescriptorType::Device.forLowBit(0).bits(),
+                value: crate::usb::descriptors::construct_control_transfer_type(
+                    USBStandardDescriptorTypes::Device as u8,
+                    0,
+                )
+                .bits(),
                 data: Some((buffer.addr() as usize, buffer.length_for_bytes())),
             },
         )

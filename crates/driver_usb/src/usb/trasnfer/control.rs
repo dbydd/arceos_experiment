@@ -1,5 +1,5 @@
 use alloc::vec::Vec;
-use num_derive::{FromPrimitive, ToPrimitive};
+use const_enum::ConstEnum;
 use xhci::ring::trb::transfer::Direction;
 
 use crate::abstractions::{dma::DMA, PlatformAbstractions};
@@ -75,7 +75,7 @@ impl From<bmRequestType> for u8 {
     }
 }
 
-#[derive(FromPrimitive, ToPrimitive, Copy, Clone, Debug)]
+#[derive(ConstEnum, Copy, Clone, Debug)]
 #[repr(u8)]
 pub enum DataTransferType {
     Standard = 0,
@@ -84,12 +84,11 @@ pub enum DataTransferType {
     Reserved = 3,
 }
 
-#[derive(FromPrimitive, ToPrimitive, Copy, Clone, Debug)]
+#[derive(ConstEnum, Copy, Clone, Debug)]
 #[repr(u8)]
 pub enum Recipient {
     Device = 0,
     Interface = 1,
     Endpoint = 2,
     Other = 3,
-    Reserved,
 }

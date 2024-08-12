@@ -1,4 +1,4 @@
-use super::descriptors::TopologicalUSBDescriptorConfiguration;
+use super::descriptors::topological_desc::TopologicalUSBDescriptorConfiguration;
 
 #[derive(Debug, Clone)]
 pub enum Configuration<'a> {

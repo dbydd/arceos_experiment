@@ -1,9 +1,11 @@
 use core::hash::Hash;
 
+use alloc::sync::Arc;
+
 use crate::{
     abstractions::PlatformAbstractions,
     host::data_structures::{host_controllers::ControllerArc, MightBeInited},
-    usb::descriptors::TopologicalUSBDescriptorRoot,
+    usb::descriptors::topological_desc::TopologicalUSBDescriptorRoot,
 };
 
 #[derive(Clone)]
@@ -15,7 +17,7 @@ where
     pub configuration_val: usize,
     pub interface_val: usize,
     pub current_alternative_interface_value: usize,
-    pub descriptors: MightBeInited<TopologicalUSBDescriptorRoot>,
+    pub descriptors: Arc<MightBeInited<TopologicalUSBDescriptorRoot>>,
     pub controller: ControllerArc<O>,
 }
 
@@ -26,7 +28,7 @@ where
     pub fn new(slotid: usize, controller: ControllerArc<O>) -> Self {
         Self {
             slotid: slotid,
-            descriptors: MightBeInited::default(),
+            descriptors: Arc::new(MightBeInited::default()),
             controller: controller,
             configuration_val: 1,
             interface_val: 0,

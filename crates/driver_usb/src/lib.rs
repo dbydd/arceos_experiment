@@ -9,8 +9,9 @@
 #![feature(let_chains)]
 #![feature(cfg_match)]
 #![feature(iter_collect_into)]
+#![feature(const_trait_impl)]
 
-use core::usize;
+use core::{mem::MaybeUninit, usize};
 
 use abstractions::{dma::DMA, PlatformAbstractions};
 use alloc::{
@@ -23,7 +24,10 @@ use host::{data_structures::MightBeInited, USBHostSystem};
 use log::{error, trace};
 use spinlock::SpinNoIrq;
 use usb::{
-    descriptors::{DescriptorType, TopologicalUSBDescriptorRoot},
+    descriptors::{
+        construct_control_transfer_type, parser::RawDescriptorParser,
+        topological_desc::TopologicalUSBDescriptorRoot, USBStandardDescriptorTypes,
+    },
     operation,
     trasnfer::control::{bRequest, bmRequestType, ControlTransfer, DataTransferType},
     urb::{RequestedOperation, URB},
@@ -89,7 +93,6 @@ where
         {
             self.driver_independent_devices.clear(); //need to have a merge algorithm for hot plug
             let mut after = Vec::new();
-
             self.host_driver_layer.probe(|device| after.push(device));
 
             for driver in after {
@@ -137,8 +140,8 @@ where
 
     pub fn new_device(&mut self, mut driver: DriverIndependentDeviceInstance<O>) {
         'label: {
-            if let MightBeInited::Uninit = driver.descriptors {
-                let buffer = DMA::new_vec(
+            if let MightBeInited::Uninit = *driver.descriptors {
+                let buffer_device = DMA::new_vec(
                     0u8,
                     O::PAGE_SIZE,
                     O::PAGE_SIZE,
@@ -155,53 +158,50 @@ where
                         ),
                         request: bRequest::GetDescriptor,
                         index: 0,
-                        value: DescriptorType::Device.forLowBit(0).bits(),
-                        data: Some(buffer.addr_len_tuple()),
+                        value: construct_control_transfer_type(
+                            USBStandardDescriptorTypes::Device as u8,
+                            0,
+                        )
+                        .bits(),
+                        data: Some(buffer_device.addr_len_tuple()),
                     },
                 ) {
                     Ok(_) => {
-                        let mut parse_root_descriptors =
-                            usb::descriptors::RawDescriptorParser::<O>::new(buffer)
-                                .parse_root_descriptors(true);
-                        {
-                            let first = parse_root_descriptors.device.first_mut().unwrap();
-                            for index in 0..first.data.num_configurations {
-                                let buffer = DMA::new_vec(
-                                    0u8,
-                                    O::PAGE_SIZE,
-                                    O::PAGE_SIZE,
-                                    self.config.lock().os.dma_alloc(),
-                                );
-                                (&driver.controller)
-                                    .lock()
-                                    .control_transfer(
-                                        driver.slotid,
-                                        ControlTransfer {
-                                            request_type: bmRequestType::new(
-                                                Direction::In,
-                                                DataTransferType::Standard,
-                                                usb::trasnfer::control::Recipient::Device,
-                                            ),
-                                            request: bRequest::GetDescriptor,
-                                            index: 0,
-                                            value: DescriptorType::Configuration
-                                                .forLowBit(index)
-                                                .bits(),
-                                            data: Some(buffer.addr_len_tuple()),
-                                        },
-                                    )
-                                    .inspect(|_| {
-                                        first.child.push(
-                                            usb::descriptors::RawDescriptorParser::<O>::new(buffer)
-                                                .parse_config_descriptor()
-                                                .unwrap(),
+                        let mut parser = RawDescriptorParser::<O>::new(buffer_device);
+                        parser.single_state_cycle();
+                        let num_of_configs = parser.num_of_configs();
+                        for index in 0..num_of_configs {
+                            let buffer = DMA::new_vec(
+                                0u8,
+                                O::PAGE_SIZE,
+                                O::PAGE_SIZE,
+                                self.config.lock().os.dma_alloc(),
+                            );
+                            (&driver.controller)
+                                .lock()
+                                .control_transfer(
+                                    driver.slotid,
+                                    ControlTransfer {
+                                        request_type: bmRequestType::new(
+                                            Direction::In,
+                                            DataTransferType::Standard,
+                                            usb::trasnfer::control::Recipient::Device,
+                                        ),
+                                        request: bRequest::GetDescriptor,
+                                        index: 0,
+                                        value: construct_control_transfer_type(
+                                            USBStandardDescriptorTypes::Configuration as u8,
+                                            index as _,
                                         )
-                                    });
-                            }
+                                        .bits(),
+                                        data: Some(buffer.addr_len_tuple()),
+                                    },
+                                )
+                                .inspect(|_| {
+                                    parser.append_config(buffer);
+                                });
                         }
-
-                        driver.descriptors = MightBeInited::Inited(parse_root_descriptors);
-                        //fetch driver descriptors
+                        driver.descriptors = Arc::new(MightBeInited::Inited(parser.summarize()));
                     }
                     Err(err) => {
                         error!("err! {:?}", err);
@@ -215,7 +215,8 @@ where
             if let MightBeInited::Inited(TopologicalUSBDescriptorRoot {
                 device: devices,
                 others,
-            }) = &driver.descriptors
+                metadata,
+            }) = &*driver.descriptors
             {
                 self.host_driver_layer
                     .urb_request(URB::new(

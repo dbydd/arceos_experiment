@@ -46,7 +46,11 @@ where
         {
             self.managed_modules.load_driver(Box::new(
                 universal_drivers::hid_drivers::hid_mouse::HidMouseDriverModule,
-            ))
+            ));
+
+            self.managed_modules.load_driver(Box::new(
+                universal_drivers::uvc_drivers::generic_uvc::GenericUVCDriverModule,
+            ));
         }
 
         trace!("usb system driver modules load complete!")
