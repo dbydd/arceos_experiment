@@ -45,8 +45,8 @@ use crate::driver_mio::mio_sinit::*;
 //     }
 
 //     if stat & (0x1 << 6) != 0 {
-//         debug!("last error: 0x{:x}", last_err);
-//         debug!("abort source: 0x{:x}", input_32(base_addr.try_into().unwrap(),0x80));
+//         trace!("last error: 0x{:x}", last_err);
+//         trace!("abort source: 0x{:x}", input_32(base_addr.try_into().unwrap(),0x80));
 //         instance_p.status = 0x3;
 //         output_32(base_addr.try_into().unwrap(),0x30,0); // Disable all interrupts
 //         input_32(base_addr.try_into().unwrap(),0x54); // Clear abort
@@ -122,8 +122,8 @@ use crate::driver_mio::mio_sinit::*;
 //     if stat & (0x1 << 6) != 0 {
 //         instance_p.status = 0x3;
 //         fi2c_slave_call_evt_handler(instance_p, 5, &mut val);
-//         debug!("last error: 0x{:x}", last_err);
-//         debug!("abort source: 0x{:x}", input_32(base_addr,0x80));
+//         trace!("last error: 0x{:x}", last_err);
+//         trace!("abort source: 0x{:x}", input_32(base_addr,0x80));
 //     }
 // }
 
@@ -151,7 +151,7 @@ pub fn FI2cStubHandler(instance_p: *mut core::ffi::c_void, _param: *mut core::ff
     // 使用宏或者日志框架输出信息
     let intr_stat = input_32(base_addr.try_into().unwrap(), 0x2C);
     // 假设你有一个宏定义 `fi2c_info` 用于输出日志
-    debug!("id: {:?}, intr cause: {:?}", instance.config.instance_id, intr_stat);
+    trace!("id: {:?}, intr cause: {:?}", instance.config.instance_id, intr_stat);
 }
 
 
@@ -172,7 +172,7 @@ pub fn FI2cMasterSetupIntr(instance_p: &mut FI2c, mask: u32) -> bool {
         if !instance_p.master_evt_handlers[evt as usize].is_some() {
             FI2cMasterRegisterIntrHandler(instance_p, evt, FI2cStubHandlerWrapper);
             // 你可以使用宏定义代替以下输出
-            debug!("evt :{:?} is default.", evt);
+            trace!("evt :{:?} is default.", evt);
         }
     }
 
@@ -184,7 +184,7 @@ pub fn FI2cMasterSetupIntr(instance_p: &mut FI2c, mask: u32) -> bool {
 // 函数定义
 pub fn FI2cSlaveRegisterIntrHandler(instance_p: &mut FI2c,evt: u32,handler: FI2cEvtHandler){
     if evt >= 6 as u32 {
-        debug!("Invalid event index");
+        trace!("Invalid event index");
     }
     instance_p.slave_evt_handlers[evt as usize] = Some(handler);
 }

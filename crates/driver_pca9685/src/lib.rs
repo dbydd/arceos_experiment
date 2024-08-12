@@ -6,7 +6,7 @@ use core::ptr;
 use core::slice;
 use core::time::Duration;
 use driver_i2c::driver_iic;
-use log::debug;
+use log::*;
 
 use driver_i2c::driver_iic::i2c::*;
 use driver_i2c::driver_iic::i2c_hw::*;
@@ -154,7 +154,7 @@ pub fn pca_init(d1: u16, d2: u16, d3: u16, d4: u16) {
         FIOPadCfgInitialize(&mut iopad_ctrl, &FIOPadLookupConfig(0).unwrap());
         ret = FI2cMioMasterInit(address, speed_rate);
         if ret != true {
-            debug!("FI2cMioMasterInit mio_id {:?} is error!", 1);
+            trace!("FI2cMioMasterInit mio_id {:?} is error!", 1);
         }
         set_pwm_frequency(50);
         set_pwm(d1, d2, d3, d4);
@@ -384,7 +384,7 @@ fn set_servo_angle(angle: u16) -> u16 {
     let duty_cycle = (pulse_width as f32 / 20000.0 * 4096 as f32) as u16;
 
     // 打印占空比
-    debug!("Duty cycle: {}", duty_cycle);
+    trace!("Duty cycle: {}", duty_cycle);
 
     duty_cycle
 }
@@ -441,7 +441,7 @@ unsafe fn FT_Turn(L: u16, R: u16) {
 pub fn test_pca() {
     unsafe {
         // pca_init(2500, 2500, 2500, 2500);
-        // debug!("start");
+        // trace!("start");
         // loop {
         //     Car_run_Task(1);
         //     busy_wait(Duration::from_millis(5000));

@@ -122,7 +122,7 @@ pub fn FI2cCfgInitialize(instance_p: &mut FI2c, input_config_p: &FI2cConfig) -> 
 
     // 如果设备已启动，禁止初始化并返回已启动状态，允许用户取消初始化设备并重新初始化，但防止用户无意中初始化
     if instance_p.is_ready == 0x11111111u32 {
-        debug!("Device is already initialized!!!");
+        trace!("Device is already initialized!!!");
         return false;
     }
 

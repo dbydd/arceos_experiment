@@ -20,7 +20,7 @@ use crate::driver_mio::mio_hw::*;
 use crate::driver_mio::mio_sinit::*;
 
 pub fn write_reg(addr: u32, value: u32) {
-    debug!("Writing value {:#X} to address {:#X}", value, addr);
+    trace!("Writing value {:#X} to address {:#X}", value, addr);
     unsafe {
         *(addr as *mut u32) = value;
     }
@@ -31,7 +31,7 @@ pub fn read_reg(addr: u32) -> u32 {
     unsafe {
         value = *(addr as *const u32);
     }
-    debug!("Read value {:#X} from address {:#X}", value, addr);
+    trace!("Read value {:#X} from address {:#X}", value, addr);
     value
 }
 
@@ -82,7 +82,7 @@ pub fn FIOPadCfgInitialize(instance_p: &mut FIOPadCtrl, input_config_p: &FIOPadC
     let mut ret: bool = true;
 
     if instance_p.is_ready == 0x11111111u32 {
-        debug!("Device is already initialized.");
+        trace!("Device is already initialized.");
     }
 
     // Set default values and configuration data

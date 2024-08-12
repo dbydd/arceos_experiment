@@ -5,7 +5,7 @@ use core::default;
 use core::ptr;
 use core::slice;
 use core::time::Duration;
-use log::debug;
+use log::*;
 
 use crate::driver_iic::i2c::*;
 use crate::driver_iic::i2c_hw::*;
@@ -147,7 +147,7 @@ pub fn FI2cSlaveAbort(instance_p: *mut core::ffi::c_void, para: *mut core::ffi::
 //     slave_mio_ctrl.config = FMioLookupConfig(1).unwrap();
 //     status = FMioFuncInit(&mut slave_mio_ctrl, 0b00);
 //     if status != true {
-//         debug!("MIO initialize error.");
+//         trace!("MIO initialize error.");
 //         return false;
 //     }
 
@@ -160,7 +160,7 @@ pub fn FI2cSlaveAbort(instance_p: *mut core::ffi::c_void, para: *mut core::ffi::
 //     // 查找默认配置
 //     let config_p = FI2cLookupConfig(0);
 //     if config_p.is_none() {
-//         debug!("Config of mio instance {} non found.", 1);
+//         trace!("Config of mio instance {} non found.", 1);
 //         return false;
 //     }
 //     let config_p = config_p.unwrap();
@@ -179,7 +179,7 @@ pub fn FI2cSlaveAbort(instance_p: *mut core::ffi::c_void, para: *mut core::ffi::
 //     let mut instance_p = &mut slave_p.device;
 //     status = FI2cCfgInitialize(instance_p, &input_cfg);
 //     if status != true {
-//         debug!("Init mio slave failed, ret: 0x{:x}", status);
+//         trace!("Init mio slave failed, ret: 0x{:x}", status);
 //         return status;
 //     }
 
@@ -217,7 +217,7 @@ pub unsafe  fn FI2cMioMasterInit(address: u32, speed_rate: u32) -> bool {
     master_mio_ctrl.config = FMioLookupConfig(1).unwrap();
     status = FMioFuncInit(&mut master_mio_ctrl, 0b00);
     if status != true {
-        debug!("MIO initialize error.");
+        trace!("MIO initialize error.");
         return false;
     }
     FIOPadSetFunc(&iopad_ctrl, 0x00D0u32, 5); /* scl */
@@ -229,7 +229,7 @@ pub unsafe  fn FI2cMioMasterInit(address: u32, speed_rate: u32) -> bool {
     // 查找默认配置
     config_p = FI2cLookupConfig(1).unwrap(); // 获取 MIO 配置的默认引用
     if !Some(config_p).is_some() {
-        debug!("Config of mio instance {} not found.", 1);
+        trace!("Config of mio instance {} not found.", 1);
         return false;
     }
 
@@ -251,11 +251,11 @@ pub unsafe  fn FI2cMioMasterInit(address: u32, speed_rate: u32) -> bool {
     master_i2c_instance.master_evt_handlers[2 as usize] = None;
 
     if status != true {
-        debug!("Init mio master failed, ret: {:?}", status);
+        trace!("Init mio master failed, ret: {:?}", status);
         return status;
     }
 
-    debug!(
+    trace!(
         "Set target slave_addr: 0x{:x} with mio-{}",
         input_cfg.slave_addr, 1
     );
@@ -267,18 +267,18 @@ pub unsafe fn FI2cMasterWrite(buf_p: &mut [u8], buf_len: u32, inchip_offset: u32
 
     if buf_len < 256 && inchip_offset < 256 {
         if (256 - inchip_offset) < buf_len {
-            debug!("Write to eeprom failed, out of eeprom size.");
+            trace!("Write to eeprom failed, out of eeprom size.");
             return false;
         }
     } else {
-        debug!("Write to eeprom failed, out of eeprom size.",);
+        trace!("Write to eeprom failed, out of eeprom size.",);
         return false;
     }
 
     status = FI2cMasterWritePoll(&mut master_i2c_instance, inchip_offset, 1, buf_p, buf_len);
-    debug!("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+    trace!("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
     if status != true {
-        debug!("Write to eeprom failed");
+        trace!("Write to eeprom failed");
     }
 
     status
@@ -303,33 +303,33 @@ pub fn FtDumpHexByte(ptr: *const u8, buflen: usize) {
     unsafe {
         let buf = unsafe { slice::from_raw_parts(ptr, buflen) };
         for i in (0..buflen).step_by(16) {
-            debug!("{:p}: ", ptr.add(i));
+            trace!("{:p}: ", ptr.add(i));
             for j in 0..16 {
                 if i + j < buflen {
-                    debug!("{:02X} ", buf[i + j]);
+                    trace!("{:02X} ", buf[i + j]);
                 } else {
-                    debug!("   ");
+                    trace!("   ");
                 }
             }
-            debug!(" ");
+            trace!(" ");
             for j in 0..16 {
                 if i + j < buflen {
                     let c = buf[i + j] as char;
                     if c.is_ascii_graphic() {
-                        debug!("{}", c);
+                        trace!("{}", c);
                     } else {
-                        debug!(".");
+                        trace!(".");
                     }
                 }
             }
-            debug!("");
+            trace!("");
         }
     }
 }
 
 pub unsafe fn FI2cSlaveDump() {
     let mut slave_p = slave;
-    debug!(
+    trace!(
         "buf size: {}, buf idx: {}",
         slave_p.buff.len(),
         slave_p.buff_idx

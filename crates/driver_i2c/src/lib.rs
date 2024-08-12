@@ -5,7 +5,7 @@ use core::default;
 use core::ptr;
 use core::slice;
 use core::time::Duration;
-use log::debug;
+use log::*;
 pub mod driver_iic;
 pub mod driver_mio;
 pub mod example;
@@ -76,7 +76,7 @@ pub unsafe fn OledDisplayOn() -> bool {
         for i in 0..128 {
             ret = FI2cMasterWrite(&mut [display_data[i]], 1, 0);
             if ret != true {
-                debug!("failed");
+                trace!("failed");
                 return ret;
             }
         }
@@ -92,7 +92,7 @@ pub fn run_iicoled() {
         FIOPadCfgInitialize(&mut iopad_ctrl, &FIOPadLookupConfig(0).unwrap());
         ret = FI2cMioMasterInit(address, speed_rate);
         if ret != true {
-            debug!("FI2cMioMasterInit mio_id {:?} is error!", 1);
+            trace!("FI2cMioMasterInit mio_id {:?} is error!", 1);
         }
         ret = OledInit();
         ret = OledDisplayOn();

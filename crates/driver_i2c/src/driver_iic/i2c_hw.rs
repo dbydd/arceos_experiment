@@ -93,7 +93,7 @@ pub fn FI2cSetEnable(addr:u32,enable:bool) -> bool{
         }
         timeout-=1;
     }
-    debug!("the enable is {:?}",enable);
+    trace!("the enable is {:?}",enable);
     return false;
 }
 
@@ -132,7 +132,7 @@ pub fn FI2cCalcTiming(
     min_t_high_cnt = DIV_ROUND_UP(bus_clk_hz / 1000 * info_p.min_scl_hightime_ns, 1000000) as i32;
 
     // 打印调试信息
-    debug!(
+    trace!(
         "i2c: mode {}, bus_clk {}, speed {}, period {} rise {} fall {} tlow {} thigh {} spk {}",
         speed_mode,
         bus_clk_hz,
@@ -152,7 +152,7 @@ pub fn FI2cCalcTiming(
     lcnt = min_t_low_cnt - rise_cnt + fall_cnt - 1;
 
     if hcnt < 0 || lcnt < 0 {
-        debug!("i2c: bad counts. hcnt = {} lcnt = {}", hcnt, lcnt);
+        trace!("i2c: bad counts. hcnt = {} lcnt = {}", hcnt, lcnt);
         return false;
     }
 
@@ -172,7 +172,7 @@ pub fn FI2cCalcTiming(
     speed_cfg_p.sda_hold = (bus_clk_hz / 1000 * 300 + 1000000 - 1) / 1000000; // 使用默认值，除非另有指定
 
     // 打印最终配置
-    debug!(
+    trace!(
         "i2c: hcnt = {} lcnt = {} sda hold = {}",
         speed_cfg_p.scl_hcnt,
         speed_cfg_p.scl_lcnt,
@@ -275,7 +275,7 @@ pub fn FI2cWaitStatus(addr: u32, stat_bit: u32) -> bool {
     }
 
     if timeout >= 50000 {
-        debug!("Timeout when wait status: {:?}", stat_bit);
+        trace!("Timeout when wait status: {:?}", stat_bit);
         return false;
     }
 
@@ -289,7 +289,7 @@ pub fn FI2cWaitBusBusy(addr: u32) -> bool {
     if (input_32(addr, 0x70) & (0x1 << 5)) != 0 && (true != FI2cWaitStatus(addr, (0x1 << 2))) != true
     {
         ret = false;
-        debug!("Timeout when wait i2c bus busy.");
+        trace!("Timeout when wait i2c bus busy.");
     }
 
     ret
@@ -347,7 +347,7 @@ pub fn FI2cFlushRxFifo(addr: u32) -> bool{
 
         if timeout >= 50000{
             ret = false;
-            debug!("Timeout when flush fifo.");
+            trace!("Timeout when flush fifo.");
             break;
         }
 
@@ -420,7 +420,7 @@ pub fn FI2cClearAbort(addr: u32) {
         }
 
         if timeout == 0 {
-            debug!("Timeout when clear abort.");
+            trace!("Timeout when clear abort.");
             return;
         }
 

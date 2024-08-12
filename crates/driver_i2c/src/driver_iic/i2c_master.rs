@@ -207,7 +207,7 @@ pub unsafe fn FI2cMasterWritePoll(
             //busy_wait(Duration::from_millis(1));
         }
         i = 0;
-        debug!("================================================================");
+        trace!("================================================================");
     }
     if ret == true {
         ret = FI2cMasterStopTrans(instance_p);

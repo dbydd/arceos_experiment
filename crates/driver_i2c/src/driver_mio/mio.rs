@@ -80,7 +80,7 @@ pub fn FMioFuncGetAddress(instance: &FMioCtrl, mio_type: u32) -> usize {
     assert!(instance.is_ready == 0x11111111u32);
 
     if FMioGetFunc(instance.config.mio_base_addr) != mio_type {
-        debug!("Mio instance_id: {}, mio_type error, initialize the type first.", instance.config.instance_id);
+        trace!("Mio instance_id: {}, mio_type error, initialize the type first.", instance.config.instance_id);
         return 0;
     }
 
@@ -92,7 +92,7 @@ pub fn FMioFuncGetIrqNum(instance: &FMioCtrl, mio_type: u32) -> u32 {
     assert!(instance.is_ready == 0x11111111u32);
 
     if FMioGetFunc(instance.config.mio_base_addr) != mio_type {
-        debug!("Mio instance_id: {}, mio_type error, initialize the type first.", instance.config.instance_id);
+        trace!("Mio instance_id: {}, mio_type error, initialize the type first.", instance.config.instance_id);
         return 0;
     }
 
@@ -113,7 +113,7 @@ pub fn FIOPadSetFunc(instance_p: &FIOPadCtrl, pin_reg_off: u32, func: u8) -> boo
     let test_val = input_32(base_addr.try_into().unwrap(), pin_reg_off.try_into().unwrap());
     
     if reg_val != test_val {
-        debug!(
+        trace!(
             "ERROR: FIOPad write failed, pin is {:x}, 0x{:x} != 0x{:x}",
             pin_reg_off,
             reg_val,
