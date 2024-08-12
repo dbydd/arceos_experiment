@@ -10,7 +10,7 @@ use alloc::{boxed::Box, vec::Vec};
 use alloc::{format, vec};
 use core::borrow::BorrowMut;
 use core::num;
-use log::debug;
+use log::{debug, trace};
 use spinlock::SpinNoIrq;
 use xhci::context::Input64Byte;
 pub use xhci::context::{Device, Device64Byte, DeviceHandler};
@@ -36,10 +36,14 @@ where
         let os = config.lock().os.clone();
         let a = os.dma_alloc();
 
+        trace!("new dcbaa");
         let mut dcbaa = DMA::new([0u64; 256], 4096, a.clone());
+        trace!("new dcbaa");
         let mut out_context_list = Vec::with_capacity(max_slots as _);
+        trace!("new dcbaa");
         let mut in_context_list = Vec::with_capacity(max_slots as _);
         for i in 0..max_slots as usize {
+            trace!("new in/out ctx");
             let out_context = DMA::new(Device::new_64byte(), 4096, a.clone()).fill_zero();
             dcbaa[i] = out_context.addr() as u64;
             out_context_list.push(out_context);
@@ -47,6 +51,7 @@ where
         }
         let mut transfer_rings = Vec::with_capacity(max_slots as _);
         for _ in 0..transfer_rings.capacity() {
+            trace!("new transfer ring");
             transfer_rings.push(Vec::new());
         }
 

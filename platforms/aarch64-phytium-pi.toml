@@ -76,4 +76,4 @@
   pci-ranges = [["0x58000000", "0x7fffffff"], ["0x6_0000_0000", "0x6_3fff_ffff"]]
 
   # Size of the nocache memory region
-  nocache-memory-size = "0x40_0000"
+  nocache-memory-size = "0x60_0000"

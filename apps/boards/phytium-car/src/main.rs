@@ -42,11 +42,11 @@ impl EventHandler for MouseEventHandler {
         if let EventData::MouseEvent(data) = event {
             let mut flag = false;
             match (&data.dx, &data.dy, &data.left) {
-                (x, y, _) if (-5..5).contains(x) && !(-5..5).contains(y) => {
+                (x, y, _) if y.abs() > x.abs() => {
                     car_run_task(if *y > 0 { Quest::Advance } else { Quest::Back });
                     flag = true;
                 }
-                (x, y, false) if !(-5..5).contains(x) && (-5..5).contains(y) => {
+                (x, y, false) if x.abs() >= y.abs() => {
                     car_run_task(if *x > 0 {
                         Quest::RotateRight
                     } else {
@@ -54,7 +54,7 @@ impl EventHandler for MouseEventHandler {
                     });
                     flag = true;
                 }
-                (x, y, true) if !(-5..5).contains(x) && (-5..5).contains(y) => {
+                (x, y, true) if x.abs() >= y.abs() => {
                     car_run_task(if *x > 0 {
                         Quest::AdvanceRight
                     } else {
@@ -66,7 +66,7 @@ impl EventHandler for MouseEventHandler {
             }
 
             if flag {
-                busy_wait(Duration::from_millis(500));
+                busy_wait(Duration::from_millis(200));
                 driver_pca9685::car_run_task(Quest::Stop);
             }
             return true;
@@ -77,6 +77,13 @@ impl EventHandler for MouseEventHandler {
 
 #[no_mangle]
 fn main() {
+    let mut usbsystem = driver_usb::USBSystem::new({
+        USBSystemConfig::new(0xffff_0000_31a0_8000, 48, 0, PlatformAbstraction)
+    })
+    .init()
+    .init_probe();
+    println!("usb initialized");
+
     driver_pca9685::pca_init(2500, 2500, 2500, 2500);
     println!("i2c init completed");
 
@@ -85,10 +92,5 @@ fn main() {
     ax_event_bus::register_handler(Events::MouseEvent, &handler);
     println!("handler registered");
 
-    let mut usbsystem = driver_usb::USBSystem::new({
-        USBSystemConfig::new(0xffff_0000_31a0_8000, 48, 0, PlatformAbstraction)
-    })
-    .init()
-    .init_probe()
-    .drive_all();
+    usbsystem.drive_all();
 }

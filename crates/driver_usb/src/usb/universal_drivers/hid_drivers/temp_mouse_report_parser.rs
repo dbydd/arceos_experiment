@@ -19,6 +19,6 @@ pub fn parse(buf: &Vec<u8>) {
         middle,
         wheel: wheel as _,
     };
-    debug!("decoded:{:#?}", mouse_event);
+    trace!("decoded:{:#?}", mouse_event);
     ax_event_bus::post_event(Events::MouseEvent, EventData::MouseEvent(mouse_event));
 }
