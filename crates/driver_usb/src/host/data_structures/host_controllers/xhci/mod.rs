@@ -806,12 +806,15 @@ where
                 max_slots, max_ports, max_irqs, page_size
             );
 
+            trace!("new dev ctx!");
             let dev_ctx = DeviceContextList::new(max_slots, config.clone());
 
             // Create the command ring with 4096 / 16 (TRB size) entries, so that it uses all of the
             // DMA allocation (which is at least a 4k page).
             let entries_per_page = O::PAGE_SIZE / mem::size_of::<ring::TrbData>();
+            trace!("new cmd ring");
             let cmd = Ring::new(config.lock().os.clone(), entries_per_page, true).unwrap();
+            trace!("new evt ring");
             let event = EventRing::new(config.lock().os.clone()).unwrap();
 
             debug!("{TAG} ring size {}", cmd.len());
