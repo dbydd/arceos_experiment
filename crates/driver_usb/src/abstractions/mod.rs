@@ -1,6 +1,9 @@
 pub mod dma;
+pub mod event;
 
 use core::{alloc::Allocator, fmt::Debug};
+
+use event::USBSystemEvent;
 
 // pub trait PlatformAbstractions: Clone + Send + Sync + Sized {
 //     type VirtAddr;
@@ -19,6 +22,7 @@ pub trait OSAbstractions: Clone + Send + Sync + Sized {
     type DMA: Allocator + Send + Sync + Clone;
     const PAGE_SIZE: usize;
     fn dma_alloc(&self) -> Self::DMA;
+    fn send_event(&self, event: USBSystemEvent);
     // fn interrupt_handler();//ADD Interrupt feature?
 }
 pub trait HALAbstractions: Clone + Send + Sync + Sized {

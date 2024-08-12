@@ -1,9 +1,10 @@
 use alloc::vec::Vec;
-use ax_event_bus::events::{mouse::MouseEvent, EventData, Events};
 use bit_field::BitField;
 use log::{debug, trace};
 
-pub fn parse(buf: &Vec<u8>) {
+use crate::abstractions::event::{MouseEvent, USBSystemEvent};
+
+pub fn parse(buf: &Vec<u8>) -> USBSystemEvent {
     let left = buf[1].get_bit(0);
     let right = buf[1].get_bit(1);
     let middle = buf[1].get_bit(2);
@@ -20,5 +21,5 @@ pub fn parse(buf: &Vec<u8>) {
         wheel: wheel as _,
     };
     trace!("decoded:{:#?}", mouse_event);
-    ax_event_bus::post_event(Events::MouseEvent, EventData::MouseEvent(mouse_event));
+    USBSystemEvent::MouseEvent(mouse_event)
 }

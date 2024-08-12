@@ -6,11 +6,13 @@
 use core::time::Duration;
 
 use alloc::sync::Arc;
+use ax_event_bus::events::mouse::MouseEvent;
 use ax_event_bus::events::{EventData, EventHandler, Events};
 use axalloc::GlobalNoCacheAllocator;
 use axhal::paging::PageSize;
 use axhal::{mem::VirtAddr, time::busy_wait};
 use driver_pca9685::{car_run_task, Quest};
+use driver_usb::abstractions::event::USBSystemEvent;
 use driver_usb::{USBSystem, USBSystemConfig};
 
 extern crate alloc;
@@ -28,6 +30,29 @@ impl driver_usb::abstractions::OSAbstractions for PlatformAbstraction {
 
     fn dma_alloc(&self) -> Self::DMA {
         axalloc::global_no_cache_allocator()
+    }
+
+    fn send_event(&self, event: USBSystemEvent) {
+        match event {
+            USBSystemEvent::MouseEvent(driver_usb::abstractions::event::MouseEvent {
+                dx,
+                dy,
+                left,
+                right,
+                middle,
+                wheel,
+            }) => ax_event_bus::post_event(
+                Events::MouseEvent,
+                EventData::MouseEvent(MouseEvent {
+                    dx,
+                    dy,
+                    left,
+                    right,
+                    middle,
+                    wheel,
+                }),
+            ),
+        };
     }
 }
 

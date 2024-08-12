@@ -1,3 +1,4 @@
+use core::borrow::BorrowMut;
 use core::mem::MaybeUninit;
 
 use alloc::sync::Arc;
@@ -161,7 +162,10 @@ where
                     .inspect(|a| {
                         trace!("current buffer:{:?}", a);
                         if !a.iter().all(|v| *v == 0) {
-                            temp_mouse_report_parser::parse(a)
+                            self.config
+                                .lock()
+                                .os
+                                .send_event(temp_mouse_report_parser::parse(a))
                         }
                     });
 

@@ -1,4 +1,3 @@
-use alloc::{sync::Arc, vec::Vec};
 use mouse::MouseEvent;
 
 pub mod mouse;

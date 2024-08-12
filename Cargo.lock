@@ -990,7 +990,6 @@ dependencies = [
 name = "driver_usb"
 version = "0.1.0"
 dependencies = [
- "ax_event_bus",
  "axalloc",
  "axconfig",
  "axhal",
