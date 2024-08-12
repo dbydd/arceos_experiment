@@ -77,7 +77,7 @@ members = [
     "apps/usb",
     "apps/boards/raspi4",   
     "apps/boards/raspi4-usb", 
-    "apps/usb-hid",
+    "apps/usb-hid", "crates/ax_event_bus", "apps/boards/phytium-car",
 ]
 
 

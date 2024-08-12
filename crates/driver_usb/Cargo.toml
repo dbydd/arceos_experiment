@@ -36,3 +36,4 @@ axhal = {path = "../../modules/axhal",features=["irq"]}
 axtask = {path = "../../modules/axtask",features = ["multitask","sched_rr"]}
 axconfig = {path = "../../modules/axconfig"}
 axalloc = {path="../../modules/axalloc"}
+ax_event_bus = {path = "../ax_event_bus"}

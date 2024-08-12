@@ -1,0 +1,12 @@
+[package]
+name = "ax_event_bus"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+
+log="0.4"
+memory_addr = {path= "../../crates/memory_addr"}
+axalloc = {path="../../modules/axalloc"}
+lazy_static = "1.5.0"
+spinlock = { path = "../../crates/spinlock" }

@@ -1,0 +1,13 @@
+[package]
+name = "phytium-car"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+driver_usb ={ path = "../../../crates/driver_usb"}
+ax_event_bus={path = "../../../crates/ax_event_bus"}
+axalloc = { path = "../../../modules/axalloc"}
+axstd = { path = "../../../ulib/axstd" }
+driver_pca9685 = { path = "../../../crates/driver_pca9685" }
+axhal = {path = "../../../modules/axhal",features=["irq"]}
+axfeat = {path = "../../../api/axfeat", features = ["multitask","sched_rr","paging"]}
