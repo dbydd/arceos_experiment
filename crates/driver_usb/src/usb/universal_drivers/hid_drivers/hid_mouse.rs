@@ -161,7 +161,7 @@ where
                     .map(|a| a.lock().to_vec().clone())
                     .inspect(|a| {
                         trace!("current buffer:{:?}", a);
-                        if !a.iter().all(|v| *v == 0) {
+                        if a.iter().any(|v| *v != 0) {
                             self.config
                                 .lock()
                                 .os
