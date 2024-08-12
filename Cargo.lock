@@ -79,6 +79,10 @@ name = "arceos-cli"
 version = "0.1.0"
 dependencies = [
  "axstd",
+ "driver_i2c",
+ "driver_pca9685",
+ "driver_usb",
+ "xhci",
 ]
 
 [[package]]
@@ -929,6 +933,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "driver_i2c"
+version = "0.1.0"
+dependencies = [
+ "axhal",
+ "lazy_static",
+ "log",
+]
+
+[[package]]
 name = "driver_net"
 version = "0.1.0"
 dependencies = [
@@ -938,6 +951,15 @@ dependencies = [
  "log",
  "spin",
  "tock-registers 0.8.1",
+]
+
+[[package]]
+name = "driver_pca9685"
+version = "0.1.0"
+dependencies = [
+ "axhal",
+ "driver_i2c",
+ "log",
 ]
 
 [[package]]

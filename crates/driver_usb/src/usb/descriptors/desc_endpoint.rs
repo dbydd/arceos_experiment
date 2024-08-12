@@ -1,6 +1,9 @@
 use bit_field::BitField;
 use num_traits::FromPrimitive;
+use xhci::context::EndpointHandler;
 use xhci::context::EndpointType;
+use xhci::context::EndpointState;
+
 
 use super::PortSpeed;
 
@@ -26,7 +29,7 @@ pub struct SuperSpeedCmp {
 }
 
 impl Endpoint {
-    pub(crate) fn endpoint_type(&self) -> EndpointType {
+    pub fn endpoint_type(&self) -> EndpointType {
         EndpointType::from_u8(if self.attributes == 0 {
             4
         } else {
@@ -39,6 +42,7 @@ impl Endpoint {
         })
         .expect("EndpointType must be convertible from `attributes` and `endpoint_address`.")
     }
+
 
     pub(crate) fn calc_actual_interval(&self, port_speed: PortSpeed) -> u8 {
         if let PortSpeed::FullSpeed | PortSpeed::LowSpeed = port_speed {

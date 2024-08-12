@@ -1,0 +1,11 @@
+[package]
+name = "driver_pca9685"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+log = "0.4"
+
+# arceos
+driver_i2c = { path = "../../crates/driver_i2c" }
+axhal = {path = "../../modules/axhal",features=["irq"]}

@@ -73,6 +73,7 @@ members = [
     "apps/task/priority",
     "apps/task/tls",
     "apps/cli",
+    "crates/driver_pca9685",
     "apps/usb",
     "apps/boards/raspi4",   
     "apps/boards/raspi4-usb", 
