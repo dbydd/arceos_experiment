@@ -793,9 +793,6 @@ where
             let ext_list =
                 RegistersExtList::new(mmio_base, regs.capability.hccparams1.read(), MemMapper);
 
-            // TODO: pcie 未配置，读不出来
-            // let version = self.core_mut().regs.capability.hciversion.read_volatile();
-            // info!("xhci version: {:x}", version.get());
             let hcsp1 = regs.capability.hcsparams1.read_volatile();
             let max_slots = hcsp1.number_of_device_slots();
             let max_ports = hcsp1.number_of_ports();
