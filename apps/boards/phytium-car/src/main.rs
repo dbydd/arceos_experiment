@@ -55,6 +55,7 @@ impl driver_usb::abstractions::OSAbstractions for PlatformAbstraction {
                     }),
                 );
             }
+            _ => {}
         };
     }
 }
