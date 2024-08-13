@@ -1,4 +1,4 @@
-# proj2210132-基于飞腾派的Arceos移植与外设驱动开发-设计文档
+# proj2210132-基于飞腾派的Arceos移植与外设驱动开发-设计文档&开发总结
 
 * 队名：旋转轮椅
 * 成员：姚宏伟，郭天宇，蒋秋吉
@@ -21,12 +21,30 @@ ArceOS是基于组件化设计的思路，用Rust语言的丰富语言特征，�
 
 ![arceos](./doc/figures/ArceOS.svg)
 
-本项目需要参赛队伍**将ArceOS移植到飞腾派开发板**，实现**UART串口通信**，并且实现**I2C驱动**与**USB驱动**。
+本项目需要参赛队伍**将ArceOS移植到飞腾派开发板**，实现**UART串口通信**，并且实现**I2C驱动**与**USB驱动**，并使用上述任务的成果驱动飞腾小车运行。
 
 * 完成ArceOS操作系统移植到飞腾派开发板。
 * 实现UART串口通信。
 * 实现I2C驱动，并驱动小车前进
-* 实现USB驱动，并接受外部输入
+* 实现USB主机端驱动，并接受外部输入以控制小车
+
+## 我们代码的主要位置：
+* crate: 
+  * [driver_usb](crates/driver_usb): 该crate包含了usb系统的代码
+  * [ax_event_bus](crates/ax_event_bus): 该crate包含了我们给arceos新增的事件系统
+  * [driver_i2c](crates/driver_i2c): 该crate包含了我们所编写的i2c驱动
+  * [driver_pca9685](crates/driver_pca9685): 该crate基于i2c编写了pca9685驱动板的驱动，用于控制小车
+  * [driver_pci](crates/driver_pci): 该crate包含了我们编写的pcie驱动-虽然我们写出来后才发现用不上，pcie在uboot中就已经配置完成了
+* modules:
+  * [axalloc](modules/axalloc): 编写了用于分配DMA区域的NocacheAllocator
+  * [axconfig](modules/axconfig): 编写了移植所需的平台定义文件额外配置项
+* apps:
+  * [boards/phytium_car](apps/boards/phytium-car): 包含了最终在飞腾小车上的demo
+  * [usb-hid](apps/usb-hid): 包含了对于usb-hid设备的demo
+* 其他文件：
+  * [平台定义文件](platforms/aarch64-phytium-pi.toml): 包含了对于飞腾派平台的硬件参数
+  * [串口烧录脚本](tools/phytium-pi/yet_another_uboot_transfer.py)：为方便开发调试而编写
+  * 一些对makefile的修改与新增
 
 ## 完成概况
 
@@ -38,16 +56,18 @@ ArceOS是基于组件化设计的思路，用Rust语言的丰富语言特征，�
 
 4. USB驱动：已完成，因协议较为复杂，分为以下几个部分说明
    
-   4.1.  XHCI主机驱动：完成
+   1.  XHCI主机驱动：完成
+       * 通用性usb主机端驱动框架重构：完成
+   2.  USB-HID：完成，已有鼠标测试用例
+   3. 简易的系统事件总线：完成
+5. 驱动小车：完成
    
-      4.1.1. 通用性usb主机端驱动框架重构：完成
-   
-   4.2.  USB-HID：完成，已有鼠标测试用例
+**[代码运行日志输出存放在这里](RunningRecord.md)**
 
-    4.3  简易的系统事件总线：完成
-* **[运行记录存放在这里](RunningRecord.md)**
-
-* 最终成果：
+* 运行视频：
+  * 通过百度网盘分享的文件：os大赛-演示视频.mp4
+链接：https://pan.baidu.com/s/1YJJXRRfNgbRHjzvM96bi-Q?pwd=3n0f 
+提取码：3n0f 
 
 ## 在一切开始前，前人所作的工作&开发进展情况说明
 
@@ -79,13 +99,13 @@ ArceOS是基于组件化设计的思路，用Rust语言的丰富语言特征，�
   1. 我们查阅飞腾官方的手册与其提供的sdk代码，并逐步的核对了内存空间的分布与程序的入口，最终完成了系统的移植。
   2. 移植工作包括但不止于：肉眼读汇编代码进行模拟，在无仿真器/gdb的情况下对代码插桩输出进行定位错误点。
   3. 以上任务都是在串口输出没有移植完毕的情况下同步进行的，我们同时移植好了串口驱动和操作系统，换句话来说，我们在没有完整的串口输出的情况下移植系统
-* 综上所述，我们在飞腾派+Arceos上的工作兼有工作量与创新点。同时，在经过进一步完善修整后Arceos会并入飞腾社区的官方支持列表，为开源社区建设贡献力量。
+* 综上所述，我们在飞腾派+Arceos上的工作兼有工作量与创新点。同时，在经过进一步完善修整后Arceos会并入飞腾社区的官方支持系统列表，为开源社区建设贡献力量。
 
 ### 在USB驱动上：
 
 * 为什么创新？
   1. 从来都没有过一个跨平台/跨操作系统的usb主机端库，而我们做出来了
-  2. rust生态的usb库都是基于c的libusb的封装，除了以上缺点外，也有内存不安全的因素，而我们用纯rust实现了usb库及其相关生态（同样的，也是此前从未有过的：USB设备描述符解析等）
+  2. rust生态的usb库都是基于c的libusb的封装，除了以上缺点外，也有内存不安全的因素，而我们用纯rust实现了usb库及其相关生态（同样的，也是此前从未有过的：USB设备描述符拓扑结构解析，可独立运行的驱动子系统等）
   3. 我们的USB系统设计与以往的设计是完全不同的，结构更清晰明了，而且能够支持多种工作模式。
   4. 这套系统同时还有极高的可扩展性和弹性-他还可以动态的加载USB子系统的设备驱动模块，同时为调试用的代码注入（钩子系统）也预留了很多可以注入/二次开发的位置
 * 工作量有多大？
@@ -134,7 +154,7 @@ ArceOS是基于组件化设计的思路，用Rust语言的丰富语言特征，�
 | 2024/5/17 |                                     | 编译出了官方sdk中的demo |
 | 2024/6/15 | 开启了设备的控制端点，能够进行控制传输，并编写了初赛所需要的文档    |                 |
 
-### 决赛
+### 决赛-一阶段
 
 #### 第二阶段-USB系统移植-跑通Hid设备驱动
 
@@ -154,6 +174,13 @@ ArceOS是基于组件化设计的思路，用Rust语言的丰富语言特征，�
 | 2024/7/23 | 已经到了不得不重构的时候了，开始重构整个usb框架                                                                                                                                                                                                                               |                |
 | 2024/7/29 | 完成了框架的重构，将原有的hid驱动搬到了新的框架下，原有代码位于[phytium_pi_dev]([Files · phytium_pi_dev · 旋转轮椅 / proj2210132-基于飞腾派的Arceos移植与外设驱动开发 · GitLab (eduxiji.net)](https://gitlab.eduxiji.net/T202412799992620/project2210132-232991/-/tree/phytium_pi_dev?ref_type=heads))分支 | 代码编写完成，开始debug |
 | 2024/7/31 | 完成了代码文档的编写                                                                                                                                                                                                                                              | 完成了i2c代码的编写    |
+
+### 决赛-线下答辩之前，一阶段之后
+|时间节点|里程碑|
+|-|-|
+|2024/8/5| 完善了USB驱动框架的细节，现在可以解析更复杂的设备了|
+|2024/8/10| i2c现在可以驱动小车移动了|
+|2024/8/12| 编写了Arceos与USB模块各自的事件系统，并成功的将所有的工作连接在了一起——使用usb设备控制小车移动|
 
 ## 我们工作的详细内容
 
@@ -2322,8 +2349,272 @@ where
 }
 ```
 
-### 简易的系统事件总线
-想必读者也已经注意到了，在我们的代码中，驱动成为了一个子系统，其与操作系统之间并没有太多直接的系统调用相关的关系，这带来了安全性/可移植性等诸多好处。但这也引申出了一个问题：驱动虽然能独立运行，但是要如何将需要让操作系统知道的消息告诉操作系统？
-于是，我们就在USB子系统中增加了事件系统的概念：
+## 事件系统
+想必读者也已经注意到了，在我们的代码中，驱动成为了一个子系统，USB设备本身作为一个状态机，其驱动其与操作系统之间并没有太多直接的系统调用相关的关系（当然，也有例外），这带来了安全性/可移植性等诸多好处。但这也引申出了一个问题：驱动虽然能独立运行，但是要如何将需要让操作系统知道的消息告诉操作系统？
+于是，我们就在USB子系统中增加了事件系统的概念:
 
+![USB EVENT SYSTREM](./doc/figures/usb_event_system.png)
 
+在这里，USB系统内部的所谓“事件总线”，事实上仅仅是一个发送事件的接口而已，其并没有设置缓冲区（缓冲区太多有时候反而会增加延迟，我们需要做出取舍），而仅仅是接受特定格式的事件结构体，并按照OS抽象层实现的逻辑来处理他们。
+
+接下来，同样的，让我们跟踪HID驱动所发出的事件：
+
+[*代码文件*](crates/driver_usb/src/usb/universal_drivers/hid_drivers/hid_mouse.rs)
+```rust
+    fn receive_complete_event(&mut self, ucb: UCB<O>) {
+        match ucb.code {
+            CompleteCode::Event(TransferEventCompleteCode::Success) => {
+                trace!("completed!");
+                self.receiption_buffer
+                    .as_ref()
+                    .map(|a| a.lock().to_vec().clone())
+                    .inspect(|a| {
+                        trace!("current buffer:{:?}", a);
+                        //注意这里产生了变化
+                        if a.iter().any(|v| *v != 0) {
+                            self.config
+                                .lock()
+                                .os
+                                .send_event(temp_mouse_report_parser::parse(a))
+                        }
+                    });
+
+                self.driver_state_machine = HidMouseStateMachine::Sending
+            }
+            CompleteCode::Event(TransferEventCompleteCode::Babble) => {
+                self.driver_state_machine = HidMouseStateMachine::Sending
+            }
+            other => panic!("received {:?}", other),
+        }
+    }
+```
+
+在这里，我们先将鼠标的报文解析成特定的格式，然后将其发送至事件总线上：
+
+[*代码文件*](crates/driver_usb/src/usb/universal_drivers/hid_drivers/temp_mouse_report_parser.rs)
+```rust
+use alloc::vec::Vec;
+use bit_field::BitField;
+use log::{debug, trace};
+
+use crate::abstractions::event::{MouseEvent, USBSystemEvent};
+
+pub fn parse(buf: &Vec<u8>) -> USBSystemEvent {
+    let left = buf[1].get_bit(0);
+    let right = buf[1].get_bit(1);
+    let middle = buf[1].get_bit(2);
+    let dx = i16::from_ne_bytes(unsafe { buf[3..=4].try_into().unwrap() });
+    let dy = i16::from_ne_bytes(unsafe { buf[5..=6].try_into().unwrap() });
+    let wheel = buf[7] as i8;
+
+    let mouse_event = MouseEvent {
+        dx: dx as _,
+        dy: dy as _,
+        left,
+        right,
+        middle,
+        wheel: wheel as _,
+    };
+    trace!("decoded:{:#?}", mouse_event);
+    USBSystemEvent::MouseEvent(mouse_event)
+}
+```
+
+于是一个事件就这么被发送到了系统抽象层所定义的接收方法中，接下来就是OS相关的工作了。
+
+对于Arceos，我们也使用了事件系统，其位于[*ax_event_bus*](crates/ax_event_bus)这个crate中:
+
+[*代码文件*](crates/ax_event_bus/src/lib.rs)
+```rust
+#![no_std]
+#![feature(allocator_api)]
+
+use alloc::{collections::btree_map::BTreeMap, sync::Arc, vec, vec::Vec};
+use events::{mouse::MouseEvent, EventData, EventHandler, Events};
+use lazy_static::lazy_static;
+use spinlock::SpinNoIrq;
+
+extern crate alloc;
+
+pub mod events;
+
+lazy_static! {
+    static ref EVENT_BUS: SpinNoIrq<EventBus> = SpinNoIrq::new(EventBus::new());
+}
+
+struct EventBus {
+    bus: BTreeMap<Events, Vec<Arc<dyn EventHandler>>>,
+}
+
+impl EventBus {
+    fn new() -> Self {
+        Self {
+            bus: BTreeMap::new(),
+        }
+    }
+}
+
+pub fn post_event(event: Events, mut data: EventData) -> bool {
+    EVENT_BUS
+        .lock()
+        .bus
+        .get(&event)
+        .map(|handlers| !handlers.iter().any(|handler| !handler.handle(&mut data)))
+        .unwrap_or(false)
+}
+
+pub fn register_handler(event: Events, handler: &Arc<dyn EventHandler>) {
+    EVENT_BUS
+        .lock()
+        .bus
+        .entry(event)
+        .and_modify(|v| v.push(handler.clone()))
+        .or_insert(vec![handler.clone()]);
+}
+```
+对于arceos的事件系统，主要关注这里即可，剩下的无非是一些结构体与事件的定义。这里暴露出了两个方法：
+* register_handler：用于注册事件处理器(event handler)
+  * [事件处理器与事件的定义如下，这里的MouseEvent并不是USB系统中的同名结构体](crates/ax_event_bus/src/events/mod.rs)
+    ```rust
+    //...
+    pub enum EventData {
+        MouseEvent(MouseEvent),
+    }
+
+    #[derive(PartialEq, Eq, PartialOrd, Ord)]
+    pub enum Events {
+        MouseEvent,
+    }
+
+    pub trait EventHandler: Send + Sync {
+        fn handle(&self, event: &mut EventData) -> bool;
+    }
+
+    ```
+* post_event:用于接受事件，并发布到对应的事件总线上-将会逐个调用注册的驱动处理程序，若某一个驱动处理程序返回false，则过程将提前结束
+
+接下来,让我们看看将这一切关联起来的部分:
+
+[*apps/boards/phytium-car/src/main.rs*](apps/boards/phytium-car/src/main.rs)
+```rust
+//...
+#[derive(Clone)]
+struct PlatformAbstraction;
+
+impl driver_usb::abstractions::OSAbstractions for PlatformAbstraction {
+    type VirtAddr = VirtAddr;
+    type DMA = GlobalNoCacheAllocator;
+
+    const PAGE_SIZE: usize = PageSize::Size4K as usize;
+
+    fn dma_alloc(&self) -> Self::DMA {
+        axalloc::global_no_cache_allocator()
+    }
+
+    fn send_event(&self, event: USBSystemEvent) {
+        match event {
+            USBSystemEvent::MouseEvent(driver_usb::abstractions::event::MouseEvent {
+                dx,
+                dy,
+                left,
+                right,
+                middle,
+                wheel,
+            }) => {
+                ax_event_bus::post_event(
+                    Events::MouseEvent,
+                    EventData::MouseEvent(MouseEvent {
+                        dx,
+                        dy,
+                        left,
+                        right,
+                        middle,
+                        wheel,
+                    }),
+                );
+            }
+        };
+    }
+}
+
+impl driver_usb::abstractions::HALAbstractions for PlatformAbstraction {
+    fn force_sync_cache() {}
+}
+
+struct MouseEventHandler;
+
+impl EventHandler for MouseEventHandler {
+    fn handle(&self, event: &mut ax_event_bus::events::EventData) -> bool {
+        if let EventData::MouseEvent(data) = event {
+            let mut flag = false;
+            println!("{:?}", data);
+            match (&data.dx, &data.dy, &data.left) {
+                (x, y, _) if (-10..=10).contains(x) && (-10..=10).contains(y) => {
+                    car_run_task(Quest::Stop)
+                }
+                (x, y, _) if y.abs() > x.abs() => {
+                    // car_run_task(if *y < 0 { Quest::Advance } else { Quest::Back });
+                    if *y < 0 {
+                        car_run_task(Quest::Advance)
+                    } else {
+                        car_run_task(Quest::Back)
+                    };
+                }
+                (x, y, false) if x.abs() > y.abs() => {
+                    // car_run_task(
+                    if *x > 0 {
+                        car_run_task(Quest::RotateLeft)
+                    } else {
+                        // Quest::RotateLeft
+                        car_run_task(Quest::RotateRight)
+                    }
+                    // );
+                }
+                (x, y, true) if x.abs() > 10 && y.abs() > 10 => {
+                    if *x > 0 {
+                        if *y > 0 {
+                            car_run_task(Quest::BackRight)
+                        } else {
+                            car_run_task(Quest::AdvanceRight)
+                        }
+                    } else {
+                        if *y > 0 {
+                            car_run_task(Quest::BackLeft)
+                        } else {
+                            car_run_task(Quest::AdvanceLeft)
+                        }
+                    }
+                }
+                _ => {}
+            }
+            return true;
+        }
+        false
+    }
+}
+
+#[no_mangle]
+fn main() {
+    let mut usbsystem = driver_usb::USBSystem::new({
+        USBSystemConfig::new(0xffff_0000_31a0_8000, 48, 0, PlatformAbstraction)
+    })
+    .init()
+    .init_probe();
+    println!("usb initialized");
+
+    driver_pca9685::pca_init(2500, 2500, 2500, 2500);
+    println!("i2c init completed");
+
+    let handler: Arc<dyn EventHandler> = Arc::new(MouseEventHandler);
+
+    ax_event_bus::register_handler(Events::MouseEvent, &handler);
+    println!("handler registered");
+
+    usbsystem.drive_all();
+}
+```
+
+* 在这里,我们定义了平台无关抽象层的实例,并为其实现了相应的trait(包括USB系统的事件到arceos事件的转换)
+* 同样的,我们还定义了一个驱动事件处理程序-该处理程序接受鼠标事件,并会控制小车行走.
+* 在main方法中,首先初始化了usb系统,而后初始化了小车电机驱动板的驱动,而后是将我们定义的event handler注册进了事件总线中
+* 最终,usb系统开始运行,整个系统就开始响应事件并工作了
