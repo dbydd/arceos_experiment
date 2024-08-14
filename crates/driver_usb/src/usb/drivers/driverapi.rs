@@ -17,7 +17,7 @@ where
 {
     fn should_active(
         &self,
-        independent_dev: &DriverIndependentDeviceInstance<O>,
+        independent_dev: &mut DriverIndependentDeviceInstance<O>,
         config: Arc<SpinNoIrq<USBSystemConfig<O>>>,
     ) -> Option<Vec<Arc<SpinNoIrq<dyn USBSystemDriverModuleInstance<'a, O>>>>>;
 

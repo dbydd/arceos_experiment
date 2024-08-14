@@ -2,7 +2,7 @@ use core::ffi::c_int;
 
 use crate::ctypes;
 
-/// `setjmp` implementation
+
 #[naked]
 #[no_mangle]
 pub unsafe extern "C" fn setjmp(_buf: *mut ctypes::__jmp_buf_tag) {
@@ -119,7 +119,7 @@ pub unsafe extern "C" fn setjmp(_buf: *mut ctypes::__jmp_buf_tag) {
     core::arch::asm!("ret", options(noreturn))
 }
 
-/// `longjmp` implementation
+
 #[naked]
 #[no_mangle]
 pub unsafe extern "C" fn longjmp(_buf: *mut ctypes::__jmp_buf_tag, _val: c_int) -> ! {
