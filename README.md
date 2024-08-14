@@ -593,7 +593,9 @@ impl Pl011Uart {
 
 ### USB驱动
 
-见下
+* [USB设备驱动编写教程](./doc/development_manual/how_to_write_a_usb_drvice_driver.md)
+
+正文见下
 
 # USB驱动代码导读
 

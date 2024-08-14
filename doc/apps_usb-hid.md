@@ -98,7 +98,7 @@
 
 7. type "go 0x90100000"
 
-8. then the application was started automaticlly, try to move your mouse,or click some button! and see signal comes out in terminal
+8. then the application will started automaticlly, try to move your mouse,or click some button! and see signal comes out in terminal
 
 ## usb system structure:
 
