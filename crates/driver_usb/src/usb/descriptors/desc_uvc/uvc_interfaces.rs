@@ -63,7 +63,7 @@ pub(crate) enum UVCVSInterfaceSubclass {
     FORMAT_VP8_SIMULCAST = 0x18,
 }
 
-#[derive(ConstEnum, Copy, Clone, Debug, PartialEq)]
+#[derive(ConstEnum, Clone, Debug, Copy, PartialEq)]
 #[allow(non_camel_case_types)]
 #[repr(u8)]
 pub(crate) enum UVCStandardVideoInterfaceProtocols {
@@ -90,23 +90,51 @@ pub enum UVCControlInterface {
 pub enum UVCStreamingInterface {
     InputHeader(UVCVSInterfaceInputHeader),
     OutputHeader,
-    StillImageFrame(UVCVSInterfaceStillImageFrame),
     FormatUncompressed(UVCVSInterfaceFormatUncompressed),
-    FrameUncompressed(UVCVSInterfaceFrameUncompressed),
     FormatMjpeg(UVCVSInterfaceFormatMJPEG),
-    FrameMjpeg(UVCVSInterfaceFrameMJPEG),
     FormatMpeg2ts,
     FormatDv,
-    COLORFORMAT(UVCVSInterfaceColorFormat),
     FormatFrameBased,
-    FrameFrameBased,
     FormatStreamBased,
     FormatH264,
-    FrameH264,
     FormatH264Simulcast,
     FormatVp8,
-    FrameVp8,
     FormatVp8Simulcast,
+    COLORFORMAT(UVCVSInterfaceColorFormat),
+
+    StillImageFrame(UVCVSInterfaceStillImageFrame),
+    FrameUncompressed(UVCVSInterfaceFrameUncompressed),
+    FrameMjpeg(UVCVSInterfaceFrameMJPEG),
+    FrameFrameBased,
+    FrameH264,
+    FrameVp8,
+}
+
+#[derive(Clone, Debug, Copy)]
+#[allow(non_camel_case_types)]
+pub enum UVCStreamingFormartInterface {
+    FormatUncompressed(UVCVSInterfaceFormatUncompressed),
+    FormatMjpeg(UVCVSInterfaceFormatMJPEG),
+    COLORFORMAT(UVCVSInterfaceColorFormat),
+    FormatMpeg2ts,
+    FormatDv,
+    FormatFrameBased,
+    FormatStreamBased,
+    FormatH264,
+    FormatH264Simulcast,
+    FormatVp8,
+    FormatVp8Simulcast,
+}
+
+#[derive(Clone, Debug)]
+#[allow(non_camel_case_types)]
+pub enum UVCStreamingFrameInterface {
+    StillImageFrame(UVCVSInterfaceStillImageFrame),
+    FrameUncompressed(UVCVSInterfaceFrameUncompressed),
+    FrameMjpeg(UVCVSInterfaceFrameMJPEG),
+    FrameFrameBased,
+    FrameH264,
+    FrameVp8,
 }
 
 #[derive(Clone, Debug)]
@@ -165,7 +193,7 @@ pub struct UVCControlInterfaceExtensionUnit {
     extension: u8,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Copy)]
 #[allow(non_camel_case_types)]
 pub struct UVCControlInterfaceProcessingUnit {
     length: u8,
@@ -180,7 +208,7 @@ pub struct UVCControlInterfaceProcessingUnit {
     video_standards: u8,
 }
 
-#[derive(ConstEnum, Copy, Clone, Debug, PartialEq)]
+#[derive(ConstEnum, Clone, Debug, Copy, PartialEq)]
 #[allow(non_camel_case_types)]
 #[repr(u16)]
 pub(crate) enum UVCCONTROLOutputTerminalType {
@@ -209,7 +237,7 @@ pub struct UVCVSInterfaceInputHeader {
     interface_nr: Vec<u8>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Copy)]
 #[allow(non_camel_case_types)]
 pub struct UVCVSInterfaceFormatMJPEG {
     length: u8,
@@ -256,7 +284,7 @@ pub struct UVCVSInterfaceStillImageFrame {
     compressions: Vec<u8>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Copy, Debug)]
 #[allow(non_camel_case_types)]
 pub struct UVCVSInterfaceFormatUncompressed {
     length: u8,
@@ -298,7 +326,7 @@ pub enum FrameInterval {
     Discrete(Vec<u32>),
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Copy)]
 #[allow(non_camel_case_types)]
 pub struct UVCVSInterfaceColorFormat {
     length: u8,
@@ -537,6 +565,79 @@ impl UVCStreamingInterface {
             }
 
             todo => todo!("impl:{:?}", todo),
+        }
+    }
+}
+
+impl UVCStreamingFormartInterface {
+    pub fn ismatch(&self, another: &UVCStreamingFrameInterface) -> bool {
+        match self {
+            UVCStreamingFormartInterface::FormatUncompressed(_)
+                if let UVCStreamingFrameInterface::FrameUncompressed(_) = another =>
+            {
+                true
+            }
+            UVCStreamingFormartInterface::FormatMjpeg(_)
+                if let UVCStreamingFrameInterface::FrameMjpeg(_) = another =>
+            {
+                true
+            }
+            UVCStreamingFormartInterface::FormatMpeg2ts => todo!(),
+            UVCStreamingFormartInterface::FormatDv => todo!(),
+            UVCStreamingFormartInterface::FormatFrameBased => todo!(),
+            UVCStreamingFormartInterface::FormatStreamBased => todo!(),
+            UVCStreamingFormartInterface::FormatH264 => todo!(),
+            UVCStreamingFormartInterface::FormatH264Simulcast => todo!(),
+            UVCStreamingFormartInterface::FormatVp8 => todo!(),
+            UVCStreamingFormartInterface::FormatVp8Simulcast => todo!(),
+            _ => false,
+        }
+    }
+
+    pub fn filter_out_self(input: &UVCStreamingInterface) -> Option<Self> {
+        match input {
+            UVCStreamingInterface::FormatUncompressed(any) => {
+                Some(Self::FormatUncompressed(any.clone()))
+            }
+            UVCStreamingInterface::FormatMjpeg(any) => Some(Self::FormatMjpeg(any.clone())),
+            UVCStreamingInterface::FormatMpeg2ts => todo!(),
+            UVCStreamingInterface::FormatDv => todo!(),
+            UVCStreamingInterface::FormatFrameBased => todo!(),
+            UVCStreamingInterface::FormatStreamBased => todo!(),
+            UVCStreamingInterface::FormatH264 => todo!(),
+            UVCStreamingInterface::FormatH264Simulcast => todo!(),
+            UVCStreamingInterface::FormatVp8 => todo!(),
+            UVCStreamingInterface::FormatVp8Simulcast => todo!(),
+            _ => None,
+        }
+    }
+
+    pub fn filter_out_color_formart(input: &UVCStreamingInterface) -> Option<Self> {
+        match input {
+            UVCStreamingInterface::COLORFORMAT(color) => Some(Self::COLORFORMAT(color.clone())),
+            _ => None,
+        }
+    }
+}
+
+impl UVCStreamingFrameInterface {
+    pub fn filter_out_self(input: &UVCStreamingInterface) -> Option<Self> {
+        match input {
+            UVCStreamingInterface::FrameUncompressed(any) => {
+                Some(Self::FrameUncompressed(any.clone()))
+            }
+            UVCStreamingInterface::FrameMjpeg(any) => Some(Self::FrameMjpeg(any.clone())),
+            UVCStreamingInterface::FrameFrameBased => todo!(),
+            UVCStreamingInterface::FrameH264 => todo!(),
+            UVCStreamingInterface::FrameVp8 => todo!(),
+            _ => None,
+        }
+    }
+
+    pub fn filter_out_still(input: &UVCStreamingInterface) -> Option<Self> {
+        match input {
+            UVCStreamingInterface::StillImageFrame(any) => Some(Self::StillImageFrame(any.clone())),
+            _ => None,
         }
     }
 }

@@ -12,10 +12,10 @@ use spinlock::SpinNoIrq;
 use crate::{
     abstractions::{dma::DMA, OSAbstractions, PlatformAbstractions},
     err::Result,
-    glue::ucb::UCB,
+    glue::{driver_independent_device_instance::DriverIndependentDeviceInstance, ucb::UCB},
     usb::{
-        operation::{Configuration, ExtraStep},
-        trasnfer::{control::ControlTransfer, interrupt::InterruptTransfer},
+        operation::{Configuration, Debugop, ExtraStep},
+        trasnfer::{control::ControlTransfer, interrupt::InterruptTransfer, isoch::IsochTransfer},
     },
     USBSystemConfig,
 };
@@ -42,10 +42,17 @@ where
         urb_req: InterruptTransfer,
     ) -> crate::err::Result<UCB<O>>;
 
+    fn isoch_transfer(
+        &mut self,
+        dev_slot_id: usize,
+        urb_req: IsochTransfer,
+    ) -> crate::err::Result<UCB<O>>;
+
     fn configure_device(
         &mut self,
         dev_slot_id: usize,
         urb_req: Configuration,
+        dev: Option<&mut DriverIndependentDeviceInstance<O>>,
     ) -> crate::err::Result<UCB<O>>;
 
     fn extra_step(&mut self, dev_slot_id: usize, urb_req: ExtraStep) -> crate::err::Result<UCB<O>>;
@@ -54,6 +61,8 @@ where
     fn address_device(&mut self, slot_id: usize, port_id: usize);
     fn control_fetch_control_point_packet_size(&mut self, slot_id: usize) -> u8;
     fn set_ep0_packet_size(&mut self, dev_slot_id: usize, max_packet_size: u16);
+
+    fn debug_op(&mut self, dev_slot_id: usize, debug_op: Debugop) -> crate::err::Result<UCB<O>>;
 }
 
 pub(crate) type ControllerArc<O> = Arc<SpinNoIrq<Box<dyn Controller<O>>>>;

@@ -102,7 +102,10 @@ impl Endpoint {
     }
 
     pub(crate) fn doorbell_value_aka_dci(&self) -> u32 {
-        2 * u32::from(self.endpoint_address.get_bits(0..=3))
-            + self.endpoint_address.get_bit(7) as u32
+        Self::calc_doorbell_value_aka_dci(self.endpoint_address)
+    }
+
+    pub(crate) fn calc_doorbell_value_aka_dci(addr: u8) -> u32 {
+        2 * u32::from(addr.get_bits(0..=3)) + addr.get_bit(7) as u32
     }
 }

@@ -83,10 +83,12 @@ impl<O: OSAbstractions> Ring<O> {
         addr
     }
 
-    pub fn enque_trbs(&mut self, trb: Vec<TrbData>) {
+    pub fn enque_trbs(&mut self, trb: Vec<TrbData>) -> usize {
+        let mut last = 0;
         for ele in trb {
-            self.enque_trb(ele);
+            last = self.enque_trb(ele);
         }
+        last
     }
 
     fn next_index(&mut self) -> usize {

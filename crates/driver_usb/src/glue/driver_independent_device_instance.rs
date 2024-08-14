@@ -1,6 +1,7 @@
 use core::hash::Hash;
 
 use alloc::sync::Arc;
+use spinlock::SpinNoIrq;
 
 use crate::{
     abstractions::PlatformAbstractions,

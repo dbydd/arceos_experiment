@@ -4,6 +4,8 @@ use super::descriptors::topological_desc::TopologicalUSBDescriptorConfiguration;
 pub enum Configuration<'a> {
     SetupDevice(&'a TopologicalUSBDescriptorConfiguration),
     SwitchInterface(InterfaceNumber, AltnativeNumber),
+    SwitchConfig(ConfigurationID, InterfaceNumber),
+    ResetEndpoint(EndpointIndex),
 }
 
 pub type ConfigurationID = usize;
@@ -15,3 +17,8 @@ pub enum ExtraStep {
     PrepareForTransfer(EndpointIndex),
 }
 pub type EndpointIndex = usize;
+
+#[derive(Debug, Clone)]
+pub enum Debugop {
+    DumpDevice,
+}

@@ -36,7 +36,7 @@ where
 
     pub fn create_for_device(
         &mut self,
-        device: &DriverIndependentDeviceInstance<O>,
+        device: &mut DriverIndependentDeviceInstance<O>,
         config: Arc<SpinNoIrq<USBSystemConfig<O>>>,
         preparing_list: &mut Vec<Vec<URB<'a, O>>>,
     ) -> Vec<Arc<SpinNoIrq<dyn USBSystemDriverModuleInstance<'a, O>>>> {

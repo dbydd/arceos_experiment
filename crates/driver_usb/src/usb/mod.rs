@@ -61,11 +61,11 @@ where
      */
     pub fn init_probe(
         &mut self,
-        devices: &Vec<DriverIndependentDeviceInstance<O>>,
+        devices: &mut Vec<DriverIndependentDeviceInstance<O>>,
         preparing_list: &mut Vec<Vec<URB<'a, O>>>,
     ) {
         devices
-            .iter()
+            .iter_mut()
             .flat_map(|device| {
                 self.managed_modules
                     .create_for_device(device, self.config.clone(), preparing_list)

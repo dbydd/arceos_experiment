@@ -1,5 +1,6 @@
 use alloc::vec::Vec;
 use const_enum::ConstEnum;
+use num_derive::ToPrimitive;
 use xhci::ring::trb::transfer::Direction;
 
 use crate::abstractions::{dma::DMA, PlatformAbstractions};
@@ -13,10 +14,23 @@ pub struct ControlTransfer {
     pub data: Option<(usize, usize)>,
 }
 
+#[derive(Debug, Clone)]
+#[allow(non_camel_case_types)]
+pub enum bRequest {
+    Generic(StandardbRequest),
+    DriverSpec(u8),
+}
+
+impl From<StandardbRequest> for bRequest {
+    fn from(value: StandardbRequest) -> Self {
+        Self::Generic(value)
+    }
+}
+
 #[allow(non_camel_case_types)]
 #[repr(u8)]
 #[derive(Debug, Clone)]
-pub enum bRequest {
+pub enum StandardbRequest {
     GetStatus = 0,
     ClearFeature = 1,
     SetFeature = 3,
@@ -26,7 +40,7 @@ pub enum bRequest {
     GetConfiguration = 8,
     SetConfiguration = 9,
     GetInterface = 10,
-    SetInterfaceSpec = 11,
+    SetInterface = 11,
     SynchFrame = 12,
     SetEncryption = 13,
     GetEncryption = 14,
@@ -43,7 +57,6 @@ pub enum bRequest {
     SetFwStatus = 27,
     SetSel = 48,
     SetIsochDelay = 49,
-    RESERVED,
 }
 
 #[allow(non_camel_case_types)]

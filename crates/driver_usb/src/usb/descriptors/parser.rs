@@ -87,6 +87,9 @@ impl ParserMetaData {
             (StandardUSBDeviceClassCode::ReferInterfaceDescriptor, _, _) => {
                 return Self::Unknown(ParserMetaDataUnknownSituation::ReferInterface)
             }
+            (StandardUSBDeviceClassCode::VendorSpecific, 0, 0) => {
+                return Self::Unknown(ParserMetaDataUnknownSituation::Unknown)
+            }
             _ => {}
         }
 
@@ -216,6 +219,7 @@ where
         trace!("parse single device desc!");
         if let USBDescriptor::Device(dev) = self.parse_any_descriptor()? {
             {
+                trace!("dev:{:#?}", dev);
                 match self.metadata {
                     ParserMetaData::NotDetermined => {
                         self.metadata =
@@ -367,6 +371,7 @@ where
             self.peek_std_desc_type()
         );
         let raw = self.cut_raw_descriptor()?;
+        trace!("from slice!");
         USBDescriptor::from_slice(&raw, self.metadata.clone())
     }
 
