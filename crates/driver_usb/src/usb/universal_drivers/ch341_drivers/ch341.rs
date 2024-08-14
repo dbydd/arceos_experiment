@@ -20,7 +20,7 @@ use crate::usb::descriptors::USBStandardDescriptorTypes;
 use crate::usb::operation::ExtraStep;
 use crate::usb::trasnfer::bulk::BulkTransfer;
 use crate::usb::trasnfer::control::{
-    bRequest, bmRequestType, ControlTransfer, DataTransferType, Recipient,
+    bRequest, bmRequestType, ControlTransfer, DataTransferType, Recipient, StandardbRequest,
 };
 use crate::usb::trasnfer::interrupt::InterruptTransfer;
 use crate::usb::universal_drivers;
@@ -58,15 +58,16 @@ where
                                 TopologicalUSBDescriptorFunction::Interface(interface_data) => {
                                     for (interface, usb_descriptors, endpoints) in interface_data {
                                         if interface.interface_class == 255 {
-                                            return Some(
-                                                (vec![CH341driver::new_and_init(
-                                                    independent_dev.slotid,
-                                                    {
-                                                        device1
+                                            return Some(vec![CH341driver::new_and_init(
+                                                independent_dev.slotid,
+                                                {
+                                                    device1
                                                         .child
                                                         .iter()
                                                         .find(|c| {
-                                                            c.data.config_val() == independent_dev.configuration_val as u8
+                                                            c.data.config_val()
+                                                                == independent_dev.configuration_val
+                                                                    as u8
                                                         })
                                                         .expect("configuration not found")
                                                         .child
@@ -75,41 +76,52 @@ where
                                                             TopologicalUSBDescriptorFunction::InterfaceAssociation(_) => {
                                                                 panic!("a super complex device, help meeeeeeeee!");
                                                             }
-                                                            TopologicalUSBDescriptorFunction::Interface(interface) => Some(
-                                                                interface
-                                                                    .iter()
-                                                                    .find(|(interface, alternatives, endpoints)| {
-                                                                        interface.interface_number
-                                                                            == independent_dev.interface_val as u8
-                                                                            && interface.alternate_setting
+                                                            TopologicalUSBDescriptorFunction::Interface(interface) => {
+                                                                Some(
+                                                                    interface
+                                                                        .iter()
+                                                                        .find(|(
+                                                                            interface,
+                                                                            _alternatives,
+                                                                            _endpoints,
+                                                                        )| {
+                                                                            interface.interface_number
                                                                                 == independent_dev
-                                                                                    .current_alternative_interface_value
+                                                                                    .interface_val
                                                                                     as u8
-                                                                    })
-                                                                    .expect("invalid interface value or alternative value")
-                                                                    .2
-                                                                    .clone(),
-                                                            ),
+                                                                                && interface.alternate_setting
+                                                                                    == independent_dev
+                                                                                        .current_alternative_interface_value
+                                                                                        as u8
+                                                                        })
+                                                                        .expect(
+                                                                            "invalid interface value or alternative value",
+                                                                        )
+                                                                        .2
+                                                                        .clone(),
+                                                                )
+                                                            }
                                                         })
                                                         .take(1)
                                                         .flat_map(|a| a)
                                                         .filter_map(|e| {
-                                                            if let TopologicalUSBDescriptorEndpoint::Standard(ep) = e {
+                                                            if let TopologicalUSBDescriptorEndpoint::Standard(
+                                                                ep,
+                                                            ) = e
+                                                            {
                                                                 Some(ep)
                                                             } else {
                                                                 None
                                                             }
                                                         })
                                                         .collect()
-                                                    },
-                                                    config.clone(),
-                                                    independent_dev.interface_val,
-                                                    independent_dev
-                                                        .current_alternative_interface_value,
-                                                    independent_dev.configuration_val,
-                                                )]),
-                                            );
-                                        };
+                                                },
+                                                config.clone(),
+                                                independent_dev.interface_val,
+                                                independent_dev.current_alternative_interface_value,
+                                                independent_dev.configuration_val,
+                                            )]);
+                                        }
                                     }
                                 }
                                 _ => (),
@@ -121,6 +133,7 @@ where
         }
         None
     }
+    
 
     fn preload_module(&self) {
         trace!("nothing");
@@ -155,7 +168,7 @@ impl<'a, O> CH341driver<O>
 where
     O: PlatformAbstractions + 'static,
 {
-    fn new_and_init(&self,
+    fn new_and_init(
         device_slot_id: usize,
         endpoints: Vec<Endpoint>,
         config: Arc<SpinNoIrq<USBSystemConfig<O>>>,
@@ -201,7 +214,7 @@ where
                     })
                     .collect()
             },
-            config,
+            config:config.clone(),
             interface_value,
             config_value,
             interface_alternative_value: alternative_val,
@@ -210,7 +223,7 @@ where
                 0u8,
                 8,
                 O::PAGE_SIZE,
-                self.config.lock().os.dma_alloc(),
+                config.lock().os.dma_alloc(),
             )),
             baud_rate: 0,
             mcr: 0,
@@ -311,7 +324,7 @@ where
                 let mut a: u16 = (factor & 0xff00) as u16 | divisor;
                 a |= 1 << 7;
                 let mut mcr = self.mcr;
-                let vec = Vec::new();
+                let mut vec = Vec::new();
                 vec.push(URB::<O>::new(
                     self.device_slot_id,
                     RequestedOperation::Control(ControlTransfer {
@@ -500,7 +513,7 @@ where
                         if let SendingWaitingWithCountStateMachine::Waiting(waiting_count) = &mut self.sending_waiting_with_count_state_machine{
                             let new_count = *waiting_count - 1;
                             self.sending_waiting_with_count_state_machine = SendingWaitingWithCountStateMachine::Waiting(new_count-1);
-                            if *waiting_count == 1{
+                            if new_count == 1{
                                 self.driver_state_machine = DeviceStateMachine::CH341State;
                             }
                         }
