@@ -14,7 +14,7 @@ lazy_static! {
     static ref EVENT_BUS: SpinNoIrq<EventBus> = SpinNoIrq::new(EventBus::new());
 }
 
-pub struct EventBus {
+struct EventBus {
     bus: BTreeMap<Events, Vec<Arc<dyn EventHandler>>>,
 }
 

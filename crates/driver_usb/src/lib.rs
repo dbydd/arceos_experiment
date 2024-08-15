@@ -91,7 +91,7 @@ where
     pub fn init_probe(mut self) -> Self {
         // async { //todo:async it!
         {
-            self.driver_independent_devices.clear(); //need to have a merge algorithm for hot plug
+            self.driver_independent_devices.clear();
             let mut after = Vec::new();
             self.host_driver_layer.probe(|device| after.push(device));
 
@@ -122,8 +122,6 @@ where
     }
 
     pub fn drive_all(mut self) -> Self {
-        //TODO: Drive All
-
         loop {
             let tick = self.usb_driver_layer.tick();
             if tick.len() != 0 {
@@ -131,7 +129,6 @@ where
                 self.host_driver_layer
                     .tock(tick, &mut self.driver_independent_devices);
             }
-            // trace!("tock!");
         }
         self
     }

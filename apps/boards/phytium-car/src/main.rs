@@ -3,6 +3,7 @@
 #![allow(warnings)]
 #![feature(allocator_api)]
 
+use core::ops::RangeBounds;
 use core::time::Duration;
 
 use alloc::sync::Arc;
@@ -41,17 +42,20 @@ impl driver_usb::abstractions::OSAbstractions for PlatformAbstraction {
                 right,
                 middle,
                 wheel,
-            }) => ax_event_bus::post_event(
-                Events::MouseEvent,
-                EventData::MouseEvent(MouseEvent {
-                    dx,
-                    dy,
-                    left,
-                    right,
-                    middle,
-                    wheel,
-                }),
-            ),
+            }) => {
+                ax_event_bus::post_event(
+                    Events::MouseEvent,
+                    EventData::MouseEvent(MouseEvent {
+                        dx,
+                        dy,
+                        left,
+                        right,
+                        middle,
+                        wheel,
+                    }),
+                );
+            }
+            _ => {}
         };
     }
 }
@@ -66,33 +70,45 @@ impl EventHandler for MouseEventHandler {
     fn handle(&self, event: &mut ax_event_bus::events::EventData) -> bool {
         if let EventData::MouseEvent(data) = event {
             let mut flag = false;
+            println!("{:?}", data);
             match (&data.dx, &data.dy, &data.left) {
+                (x, y, _) if (-10..=10).contains(x) && (-10..=10).contains(y) => {
+                    car_run_task(Quest::Stop)
+                }
                 (x, y, _) if y.abs() > x.abs() => {
-                    car_run_task(if *y > 0 { Quest::Advance } else { Quest::Back });
-                    flag = true;
-                }
-                (x, y, false) if x.abs() >= y.abs() => {
-                    car_run_task(if *x > 0 {
-                        Quest::RotateRight
+                    // car_run_task(if *y < 0 { Quest::Advance } else { Quest::Back });
+                    if *y < 0 {
+                        car_run_task(Quest::Advance)
                     } else {
-                        Quest::RotateLeft
-                    });
-                    flag = true;
+                        car_run_task(Quest::Back)
+                    };
                 }
-                (x, y, true) if x.abs() >= y.abs() => {
-                    car_run_task(if *x > 0 {
-                        Quest::AdvanceRight
+                (x, y, false) if x.abs() > y.abs() => {
+                    // car_run_task(
+                    if *x > 0 {
+                        car_run_task(Quest::RotateLeft)
                     } else {
-                        Quest::AdvanceLeft
-                    });
-                    flag = true;
+                        // Quest::RotateLeft
+                        car_run_task(Quest::RotateRight)
+                    }
+                    // );
                 }
-                _ => flag = false,
-            }
-
-            if flag {
-                busy_wait(Duration::from_millis(200));
-                driver_pca9685::car_run_task(Quest::Stop);
+                (x, y, true) if x.abs() > 10 && y.abs() > 10 => {
+                    if *x > 0 {
+                        if *y > 0 {
+                            car_run_task(Quest::BackRight)
+                        } else {
+                            car_run_task(Quest::AdvanceRight)
+                        }
+                    } else {
+                        if *y > 0 {
+                            car_run_task(Quest::BackLeft)
+                        } else {
+                            car_run_task(Quest::AdvanceLeft)
+                        }
+                    }
+                }
+                _ => {}
             }
             return true;
         }

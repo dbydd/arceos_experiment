@@ -23,7 +23,6 @@ pub trait OSAbstractions: Clone + Send + Sync + Sized {
     const PAGE_SIZE: usize;
     fn dma_alloc(&self) -> Self::DMA;
     fn send_event(&self, event: USBSystemEvent);
-    // fn interrupt_handler();//ADD Interrupt feature?
 }
 pub trait HALAbstractions: Clone + Send + Sync + Sized {
     fn force_sync_cache();

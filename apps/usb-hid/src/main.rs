@@ -21,6 +21,10 @@ impl driver_usb::abstractions::OSAbstractions for PlatformAbstraction {
     fn dma_alloc(&self) -> Self::DMA {
         axalloc::global_no_cache_allocator()
     }
+    
+    fn send_event(&self, event: driver_usb::abstractions::event::USBSystemEvent) {
+        //println!("event:{:#?}",event);
+    }
 }
 
 impl driver_usb::abstractions::HALAbstractions for PlatformAbstraction {

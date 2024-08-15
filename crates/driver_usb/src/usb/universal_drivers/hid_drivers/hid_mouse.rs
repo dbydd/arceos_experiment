@@ -157,6 +157,12 @@ where
                     .map(|a| a.lock().to_vec().clone())
                     .inspect(|a| {
                         trace!("current buffer:{:?}", a);
+                        if a.iter().any(|v| *v != 0) {
+                            self.config
+                                .lock()
+                                .os
+                                .send_event(temp_mouse_report_parser::parse(a))
+                        }
                     });
                 self.driver_state_machine = BasicSendReceiveStateMachine::Sending
             }
