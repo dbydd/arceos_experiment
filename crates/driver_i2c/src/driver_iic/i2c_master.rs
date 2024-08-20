@@ -7,7 +7,6 @@ use crate::driver_iic::i2c_hw::*;
 use crate::driver_iic::i2c_intr::*;
 use crate::driver_iic::io::*;
 
-
 fn FI2C_DATA_MASK() -> u32 {
     ((!0u32) - (1u32 << 0) + 1) & (!0u32 >> (32 - 1 - 7))
 }

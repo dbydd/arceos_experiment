@@ -1,6 +1,4 @@
-
 use crate::driver_iic::io::*;
-
 
 pub fn FMIO_FUNC_STATE_MASK() -> u32 {
     ((!0u32) - (1u32 << (0)) + 1) & (!0u32 >> (32 - 1 - (1)))

@@ -6,7 +6,6 @@ pub mod example;
 
 use crate::driver_iic::io::*;
 
-
 use crate::example::*;
 
 const OLED_INIT_CMDS: [u8; 24] = [

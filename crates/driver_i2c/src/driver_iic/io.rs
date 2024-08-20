@@ -1,7 +1,5 @@
 use log::*;
 
-
-
 pub fn write_reg(addr: u32, value: u32) {
     trace!("Writing value {:#X} to address {:#X}", value, addr);
     unsafe {

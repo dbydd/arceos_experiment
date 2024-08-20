@@ -2,9 +2,7 @@ use axhal::time::busy_wait;
 use core::time::Duration;
 use log::*;
 
-
 use crate::driver_iic::io::*;
-
 
 // 定义速度配置相关的结构体
 #[derive(Debug, Clone, Copy, Default)]
@@ -274,8 +272,7 @@ pub fn FI2cWaitStatus(addr: u32, stat_bit: u32) -> bool {
 pub fn FI2cWaitBusBusy(addr: u32) -> bool {
     let mut ret = true;
 
-    if (input_32(addr, 0x70) & (0x1 << 5)) != 0
-        && (true != FI2cWaitStatus(addr, 0x1 << 2)) != true
+    if (input_32(addr, 0x70) & (0x1 << 5)) != 0 && (true != FI2cWaitStatus(addr, 0x1 << 2)) != true
     {
         ret = false;
         trace!("Timeout when wait i2c bus busy.");

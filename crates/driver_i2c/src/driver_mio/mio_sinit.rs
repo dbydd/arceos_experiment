@@ -1,5 +1,3 @@
-
-
 use crate::driver_mio::mio::*;
 
 pub static FMIO_CONFIG_TBL: [FMioConfig; 3] = [
