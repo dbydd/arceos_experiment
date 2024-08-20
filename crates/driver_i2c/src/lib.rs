@@ -51,7 +51,7 @@ const OLED_INIT_CMDS: [u8; 24] = [
     0xAF, // Display ON
 ];
 
-pub unsafe fn OledInit() -> bool {
+pub unsafe fn oled_init() -> bool {
     let mut ret: bool;
     let mut i: u8;
     for i in 0..1000000 {
@@ -67,7 +67,7 @@ pub unsafe fn OledInit() -> bool {
     return true;
 }
 
-pub unsafe fn OledDisplayOn() -> bool {
+pub unsafe fn oled_display_on() -> bool {
     let mut ret: bool;
     let mut display_data = [0xFF; 128];
 
@@ -94,7 +94,7 @@ pub fn run_iicoled() {
         if ret != true {
             trace!("FI2cMioMasterInit mio_id {:?} is error!", 1);
         }
-        ret = OledInit();
-        ret = OledDisplayOn();
+        ret = oled_init();
+        ret = oled_display_on();
     }
 }
