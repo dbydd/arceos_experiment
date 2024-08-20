@@ -133,7 +133,6 @@ where
         }
         None
     }
-    
 
     fn preload_module(&self) {
         trace!("nothing");
@@ -154,7 +153,7 @@ where
     interface_alternative_value: usize,
     config_value: usize, // same
     driver_state_machine: DeviceStateMachine,
-    sending_waiting_with_count_state_machine:SendingWaitingWithCountStateMachine,
+    sending_waiting_with_count_state_machine: SendingWaitingWithCountStateMachine,
     receiption_buffer: SpinNoIrq<DMA<[u8], O::DMA>>,
     baud_rate: usize, /* set baud rate */
     mcr: u8,
@@ -214,7 +213,7 @@ where
                     })
                     .collect()
             },
-            config:config.clone(),
+            config: config.clone(),
             interface_value,
             config_value,
             interface_alternative_value: alternative_val,
@@ -242,7 +241,7 @@ where
 {
     fn prepare_for_drive(&mut self) -> Option<Vec<URB<'a, O>>> {
         let mut todo_list = Vec::new();
-
+        trace!("---------------------here start----------------------------");
         todo_list.push(URB::new(
             self.device_slot_id,
             RequestedOperation::Control(ControlTransfer {
@@ -284,6 +283,7 @@ where
                 ));
             });
 
+        trace!("------------------------------here end--------------------------------");
         Some(todo_list)
     }
 
@@ -302,30 +302,15 @@ where
                         request: bRequest::DriverSpec(0x5F),
                         index: 0 as u16,
                         value: 0 as u16,
-                        data: None,
+                        data: Some(self.receiption_buffer.lock().addr_len_tuple()),
                     }),
                 )]);
                 None
             }
             DeviceStateMachine::CH341Setup => {
                 trace!("CH341Setup!");
-                let mut rate: usize = 9600;
-                let mut lcr: u8 = 0x80 | 0x40 | 0x03;
-                let mut factor: u32 = (1532620800 / rate).try_into().unwrap();
-                let mut divisor: u16 = 3;
-                while (factor > 0xfff0) && (divisor > 0) {
-                    factor >>= 3;
-                    divisor -= 1;
-                }
-                if factor > 0xfff0 {
-                    trace!("factor wrror");
-                }
-                factor = 0x10000 - factor;
-                let mut a: u16 = (factor & 0xff00) as u16 | divisor;
-                a |= 1 << 7;
-                let mut mcr = self.mcr;
                 let mut vec = Vec::new();
-                vec.push(URB::<O>::new(
+                vec.push(URB::new(
                     self.device_slot_id,
                     RequestedOperation::Control(ControlTransfer {
                         request_type: bmRequestType::new(
@@ -348,7 +333,7 @@ where
                             Recipient::Device,
                         ),
                         request: bRequest::DriverSpec(0x9A),
-                        index: a as u16,
+                        index: 0xd982 as u16,
                         value: 0x1312 as u16,
                         data: None,
                     }),
@@ -362,74 +347,8 @@ where
                             Recipient::Device,
                         ),
                         request: bRequest::DriverSpec(0x9A),
-                        index: lcr as u16,
-                        value: 0x2518 as u16,
-                        data: None,
-                    }),
-                ));
-                vec.push(URB::new(
-                    self.device_slot_id,
-                    RequestedOperation::Control(ControlTransfer {
-                        request_type: bmRequestType::new(
-                            Direction::Out,
-                            DataTransferType::Vendor,
-                            Recipient::Device,
-                        ),
-                        request: bRequest::DriverSpec(0xA4),
-                        index: !mcr as u16,
-                        value: 0 as u16,
-                        data: None,
-                    }),
-                ));
-
-                let mut rate: usize = 9600;
-                let mut factor: u32 = (1532620800 / rate).try_into().unwrap();
-                let mut divisor: u16 = 3;
-                while (factor > 0xfff0) && (divisor > 0) {
-                    factor >>= 3;
-                    divisor -= 1;
-                }
-                if factor > 0xfff0 {
-                    trace!("factor wrror");
-                }
-                factor = 0x10000 - factor;
-                let mut a: u16 = (factor & 0xff00) as u16 | divisor;
-                a |= 1 << 7;
-
-                let mut lcr: u8 = 0x80 | 0x40;
-                let nDataBits: u8 = 8;
-                let nParity: u8 = 0;
-                let nStopBits: u8 = 1;
-
-                match nDataBits {
-                    5 => lcr |= 0x00,
-                    6 => lcr |= 0x01,
-                    7 => lcr |= 0x02,
-                    8 => lcr |= 0x03,
-                    _ => (),
-                }
-
-                match nParity {
-                    1 => lcr |= 0x08,
-                    2 => lcr |= 0x08 | 0x10,
-                    _ => (),
-                }
-
-                if nStopBits == 2 {
-                    lcr |= 0x04;
-                }
-
-                vec.push(URB::new(
-                    self.device_slot_id,
-                    RequestedOperation::Control(ControlTransfer {
-                        request_type: bmRequestType::new(
-                            Direction::Out,
-                            DataTransferType::Vendor,
-                            Recipient::Device,
-                        ),
-                        request: bRequest::DriverSpec(0x9A),
-                        index: a as u16,
-                        value: 0x1312 as u16,
+                        index: 0x0007 as u16,
+                        value: 0x0f2c as u16,
                         data: None,
                     }),
                 ));
@@ -442,30 +361,13 @@ where
                             Recipient::Device,
                         ),
                         request: bRequest::DriverSpec(0x9A),
-                        index: lcr as u16,
-                        value: 0x2518 as u16,
+                        index: 0x0000 as u16,
+                        value: 0x2727 as u16,
                         data: None,
                     }),
                 ));
-                self.baud_rate = rate;
-                self.lcr = lcr;
-                mcr |= (1 << 5) | (1 << 6);
-                vec.push(URB::new(
-                    self.device_slot_id,
-                    RequestedOperation::Control(ControlTransfer {
-                        request_type: bmRequestType::new(
-                            Direction::Out,
-                            DataTransferType::Vendor,
-                            Recipient::Device,
-                        ),
-                        request: bRequest::DriverSpec(0xA4),
-                        index: !mcr as u16,
-                        value: 0 as u16,
-                        data: None,
-                    }),
-                ));
-                self.mcr = mcr;
-                self.sending_waiting_with_count_state_machine = SendingWaitingWithCountStateMachine::Waiting(vec.len());
+                self.sending_waiting_with_count_state_machine =
+                    SendingWaitingWithCountStateMachine::Waiting(vec.len());
                 Some(vec)
             }
             DeviceStateMachine::CH341State => {
@@ -480,12 +382,22 @@ where
                         ),
                         request: bRequest::DriverSpec(0x95),
                         index: 0 as u16,
-                        value: 0x0706 as u16,
-                        data: None,
+                        value: 0x0708 as u16,
+                        data: Some(self.receiption_buffer.lock().addr_len_tuple()),
+                    }),
+                )]);
+            }
+            DeviceStateMachine::Opening => {
+                trace!("start transfer");
+                return Some(vec![URB::<O>::new(
+                    self.device_slot_id,
+                    RequestedOperation::Interrupt(InterruptTransfer {
+                        endpoint_id: self.interrupt_in_channels.last().unwrap().clone()
+                            as usize,
+                        buffer_addr_len: self.receiption_buffer.lock().addr_len_tuple(),
                     }),
                 )]);
             },
-            DeviceStateMachine::Opening => None,
         }
     }
 
@@ -497,43 +409,214 @@ where
                     let vec = self.receiption_buffer.lock().to_vec();
                     trace!("current buffer:{:?}", vec);
                     self.version = vec[0];
-                    // .inspect(|a| {
-                    //     trace!("-------------------------------------------------------------");
-                    //     trace!("current buffer:{:?}", a);
-                    //     self.verison = a;
-                    //     trace!("-------------------------------------------------------------");
-                    // });
                     self.driver_state_machine = DeviceStateMachine::CH341Setup;
                 }
                 other => panic!("received {:?}", other),
             },
-            DeviceStateMachine::CH341Setup => {
-                match ucb.code {
-                    crate::glue::ucb::CompleteCode::Event(TransferEventCompleteCode::Success) => {
-                        if let SendingWaitingWithCountStateMachine::Waiting(waiting_count) = &mut self.sending_waiting_with_count_state_machine{
-                            let new_count = *waiting_count - 1;
-                            self.sending_waiting_with_count_state_machine = SendingWaitingWithCountStateMachine::Waiting(new_count-1);
-                            if new_count == 1{
-                                self.driver_state_machine = DeviceStateMachine::CH341State;
-                            }
+            DeviceStateMachine::CH341Setup => match ucb.code {
+                crate::glue::ucb::CompleteCode::Event(TransferEventCompleteCode::Success) => {
+                    if let SendingWaitingWithCountStateMachine::Waiting(waiting_count) =
+                        &mut self.sending_waiting_with_count_state_machine
+                    {
+                        trace!("{:#?}", waiting_count);
+                        let new_count = *waiting_count - 1;
+                        self.sending_waiting_with_count_state_machine =
+                            SendingWaitingWithCountStateMachine::Waiting(new_count);
+                        if new_count <= 0 {
+                            self.driver_state_machine = DeviceStateMachine::CH341State;
                         }
-                    },
-                    other => panic!("received {:?}", other),
-                }
-            },
-            DeviceStateMachine::CH341State => {
-                match ucb.code {
-                    crate::glue::ucb::CompleteCode::Event(TransferEventCompleteCode::Success) => {
-                        trace!("completed!");
-                    let vec = self.receiption_buffer.lock().to_vec();
-                    trace!("current buffer:{:?}", vec);
-                    self.driver_state_machine = DeviceStateMachine::Opening;
                     }
-                    other => panic!("received {:?}", other),
                 }
+                other => panic!("received {:?}", other),
             },
-            DeviceStateMachine::Opening => todo!(),
-            
+            DeviceStateMachine::CH341State => match ucb.code {
+                crate::glue::ucb::CompleteCode::Event(TransferEventCompleteCode::Success) => {
+                    trace!("completed!");
+                    let vec = self.receiption_buffer.lock().to_vec();
+                    trace!("+++");
+                    trace!("+++");
+                    trace!("+++");
+                    trace!("current buffer:{:?}", vec);
+                    trace!("+++");
+                    trace!("+++");
+                    trace!("+++");
+                    self.driver_state_machine = DeviceStateMachine::Opening;
+                }
+                other => panic!("received {:?}", other),
+            },
+            DeviceStateMachine::Opening => match ucb.code{
+                crate::glue::ucb::CompleteCode::Event(TransferEventCompleteCode::Success) => {
+                    trace!("transfer completed!");
+                    let vec = self.receiption_buffer.lock().to_vec();
+                    trace!("+++");
+                    trace!("+++");
+                    trace!("+++");
+                    trace!("current buffer:{:?}", vec);
+                    trace!("+++");
+                    trace!("+++");
+                    trace!("+++");
+                }
+                other => panic!("wrror no success"),
+            },
         }
     }
 }
+
+// let mut lcr: u8 = 0x80 | 0x40 | 0x03;
+
+// let mut rate: usize = 9600;
+// let mut factor: u32 = (1532620800 / rate).try_into().unwrap();
+// let mut divisor: u16 = 3;
+// while (factor > 0xfff0) && (divisor > 0) {
+//     factor >>= 3;
+//     divisor -= 1;
+// }
+// if factor > 0xfff0 {
+//     trace!("factor wrror");
+// }
+// factor = 0x10000 - factor;
+// let mut a: u16 = (factor & 0xff00) as u16 | divisor;
+// a |= 1 << 7;
+
+// let mut mcr = self.mcr;
+
+// vec.push(URB::<O>::new(
+//     self.device_slot_id,
+//     RequestedOperation::Control(ControlTransfer {
+//         request_type: bmRequestType::new(
+//             Direction::Out,
+//             DataTransferType::Vendor,
+//             Recipient::Device,
+//         ),
+//         request: bRequest::DriverSpec(0xA1),
+//         index: 0 as u16,
+//         value: 0 as u16,
+//         data: None,
+//     }),
+// ));
+// vec.push(URB::new(
+//     self.device_slot_id,
+//     RequestedOperation::Control(ControlTransfer {
+//         request_type: bmRequestType::new(
+//             Direction::Out,
+//             DataTransferType::Vendor,
+//             Recipient::Device,
+//         ),
+//         request: bRequest::DriverSpec(0x9A),
+//         index: a as u16,
+//         value: 0x1312 as u16,
+//         data: None,
+//     }),
+// ));
+// vec.push(URB::new(
+//     self.device_slot_id,
+//     RequestedOperation::Control(ControlTransfer {
+//         request_type: bmRequestType::new(
+//             Direction::Out,
+//             DataTransferType::Vendor,
+//             Recipient::Device,
+//         ),
+//         request: bRequest::DriverSpec(0x9A),
+//         index: lcr as u16,
+//         value: 0x2518 as u16,
+//         data: None,
+//     }),
+// ));
+// vec.push(URB::new(
+//     self.device_slot_id,
+//     RequestedOperation::Control(ControlTransfer {
+//         request_type: bmRequestType::new(
+//             Direction::Out,
+//             DataTransferType::Vendor,
+//             Recipient::Device,
+//         ),
+//         request: bRequest::DriverSpec(0xA4),
+//         index: !mcr as u16,
+//         value: 0 as u16,
+//         data: None,
+//     }),
+// ));
+
+// let mut rate: usize = 9600;
+// let mut factor: u32 = (1532620800 / rate).try_into().unwrap();
+// let mut divisor: u16 = 3;
+// while (factor > 0xfff0) && (divisor > 0) {
+//     factor >>= 3;
+//     divisor -= 1;
+// }
+// if factor > 0xfff0 {
+//     trace!("factor wrror");
+// }
+// factor = 0x10000 - factor;
+// let mut a: u16 = (factor & 0xff00) as u16 | divisor;
+// a |= 1 << 7;
+
+// let mut lcr: u8 = 0x80 | 0x40;
+// let nDataBits: u8 = 8;
+// let nParity: u8 = 0;
+// let nStopBits: u8 = 1;
+
+// match nDataBits {
+//     5 => lcr |= 0x00,
+//     6 => lcr |= 0x01,
+//     7 => lcr |= 0x02,
+//     8 => lcr |= 0x03,
+//     _ => (),
+// }
+
+// match nParity {
+//     1 => lcr |= 0x08,
+//     2 => lcr |= 0x08 | 0x10,
+//     _ => (),
+// }
+
+// if nStopBits == 2 {
+//     lcr |= 0x04;
+// }
+
+// vec.push(URB::new(
+//     self.device_slot_id,
+//     RequestedOperation::Control(ControlTransfer {
+//         request_type: bmRequestType::new(
+//             Direction::Out,
+//             DataTransferType::Vendor,
+//             Recipient::Device,
+//         ),
+//         request: bRequest::DriverSpec(0x9A),
+//         index: a as u16,
+//         value: 0x1312 as u16,
+//         data: None,
+//     }),
+// ));
+// vec.push(URB::new(
+//     self.device_slot_id,
+//     RequestedOperation::Control(ControlTransfer {
+//         request_type: bmRequestType::new(
+//             Direction::Out,
+//             DataTransferType::Vendor,
+//             Recipient::Device,
+//         ),
+//         request: bRequest::DriverSpec(0x9A),
+//         index: lcr as u16,
+//         value: 0x2518 as u16,
+//         data: None,
+//     }),
+// ));
+// self.baud_rate = rate;
+// self.lcr = lcr;
+// mcr |= (1 << 5) | (1 << 6);
+// vec.push(URB::new(
+//     self.device_slot_id,
+//     RequestedOperation::Control(ControlTransfer {
+//         request_type: bmRequestType::new(
+//             Direction::Out,
+//             DataTransferType::Vendor,
+//             Recipient::Device,
+//         ),
+//         request: bRequest::DriverSpec(0xA4),
+//         index: !mcr as u16,
+//         value: 0 as u16,
+//         data: None,
+//     }),
+// ));
+// self.mcr = mcr;
