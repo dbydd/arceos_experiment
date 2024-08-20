@@ -105,7 +105,7 @@ where
                 trace!("request transfer!");
                 self.control_transfer(request.device_slot_id, control)
             }
-            usb::urb::RequestedOperation::Bulk => todo!(),
+            usb::urb::RequestedOperation::Bulk => todo!("bulk has completely same request block as interrupt, so use interrupt urb instead for now"),
             usb::urb::RequestedOperation::Interrupt(interrupt_transfer) => self
                 .controller
                 .lock()
