@@ -1,23 +1,6 @@
-#![no_std]
-#![no_main]
-use super::driver_mio::{mio, mio_g, mio_hw, mio_sinit};
-use super::{i2c, i2c_hw, i2c_intr, i2c_master, i2c_sinit, io};
-use core::ptr;
-use core::ptr::write_volatile;
-use __private_api::Value;
 use log::*;
 
-use crate::driver_iic::i2c::*;
-use crate::driver_iic::i2c_hw::*;
-use crate::driver_iic::i2c_intr::*;
-use crate::driver_iic::i2c_master::*;
-use crate::driver_iic::i2c_sinit::*;
 
-
-use crate::driver_mio::mio::*;
-use crate::driver_mio::mio_g::*;
-use crate::driver_mio::mio_hw::*;
-use crate::driver_mio::mio_sinit::*;
 
 pub fn write_reg(addr: u32, value: u32) {
     trace!("Writing value {:#X} to address {:#X}", value, addr);
@@ -27,7 +10,7 @@ pub fn write_reg(addr: u32, value: u32) {
 }
 
 pub fn read_reg(addr: u32) -> u32 {
-    let value:u32;
+    let value: u32;
     unsafe {
         value = *(addr as *const u32);
     }
@@ -58,14 +41,13 @@ pub struct FIOPadCtrl {
     pub is_ready: u32,        // 设备是否准备好
 }
 
-pub static mut iopad_ctrl:FIOPadCtrl = FIOPadCtrl{
-    config:FIOPadConfig{
-        instance_id: 0,    
-        base_address: 0, 
+pub static mut iopad_ctrl: FIOPadCtrl = FIOPadCtrl {
+    config: FIOPadConfig {
+        instance_id: 0,
+        base_address: 0,
     },
-    is_ready:0,
+    is_ready: 0,
 };
-
 
 static FIO_PAD_CONFIG_TBL: [FIOPadConfig; 1] = [FIOPadConfig {
     instance_id: 0,
@@ -73,13 +55,16 @@ static FIO_PAD_CONFIG_TBL: [FIOPadConfig; 1] = [FIOPadConfig {
 }];
 
 pub fn FIOPadCfgInitialize(instance_p: &mut FIOPadCtrl, input_config_p: &FIOPadConfig) -> bool {
-    assert!(Some(instance_p.clone()).is_some(), "instance_p should not be null");
+    assert!(
+        Some(instance_p.clone()).is_some(),
+        "instance_p should not be null"
+    );
     assert!(
         Some(input_config_p.clone()).is_some(),
         "input_config_p should not be null"
     );
 
-    let mut ret: bool = true;
+    let ret: bool = true;
 
     if instance_p.is_ready == 0x11111111u32 {
         trace!("Device is already initialized.");

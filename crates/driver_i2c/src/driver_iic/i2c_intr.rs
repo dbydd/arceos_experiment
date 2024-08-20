@@ -1,32 +1,11 @@
-#![no_std]
-#![no_main]
 use log::*;
-use axhal::time::busy_wait;
-use core::time::Duration;
-use super::{i2c,i2c_intr,i2c_master,i2c_sinit,io,i2c_hw};
-use super::driver_mio::{mio_g,mio_hw,mio_sinit,mio};
 
-use crate::driver_iic::i2c_hw::*;
 use crate::driver_iic::i2c::*;
-use crate::driver_iic::i2c_master::*;
-use crate::driver_iic::i2c_sinit::*;
+use crate::driver_iic::i2c_hw::*;
 use crate::driver_iic::io::*;
 
-use crate::driver_mio::mio::*;
-use crate::driver_mio::mio_g::*;
-use crate::driver_mio::mio_hw::*;
-use crate::driver_mio::mio_sinit::*;
 
 //暂时不用中断，先不翻译完，巨多（悲）
-
-
-
-
-
-
-
-
-
 
 // // I2C主机模式下的中断处理函数
 // pub fn FI2cMasterIntrHandler(vector: i32, param: *mut FI2c) {
@@ -127,10 +106,6 @@ use crate::driver_mio::mio_sinit::*;
 //     }
 // }
 
-
-
-
-
 pub fn FI2cMasterRegisterIntrHandler(instance_p: &mut FI2c, evt: u32, handler: FI2cEvtHandler) {
     assert!(evt < 3 as u32, "Invalid event index");
     instance_p.master_evt_handlers[evt as usize] = Some(handler);
@@ -140,10 +115,9 @@ pub fn FI2cStubHandlerWrapper(instance_p: *mut FI2c, param: *mut core::ffi::c_vo
     FI2cStubHandler(instance_p as *mut core::ffi::c_void, param);
 }
 
-
 pub fn FI2cStubHandler(instance_p: *mut core::ffi::c_void, _param: *mut core::ffi::c_void) {
     assert!(!instance_p.is_null(), "instance_p is null");
-    
+
     // 将 `instance_p` 转换为 `&mut FI2c`
     let instance = unsafe { &*(instance_p as *mut FI2c) };
     let base_addr = instance.config.base_addr;
@@ -151,19 +125,27 @@ pub fn FI2cStubHandler(instance_p: *mut core::ffi::c_void, _param: *mut core::ff
     // 使用宏或者日志框架输出信息
     let intr_stat = input_32(base_addr.try_into().unwrap(), 0x2C);
     // 假设你有一个宏定义 `fi2c_info` 用于输出日志
-    trace!("id: {:?}, intr cause: {:?}", instance.config.instance_id, intr_stat);
+    trace!(
+        "id: {:?}, intr cause: {:?}",
+        instance.config.instance_id,
+        intr_stat
+    );
 }
 
-
-
 pub fn FI2cMasterSetupIntr(instance_p: &mut FI2c, mask: u32) -> bool {
-    assert!(instance_p.is_ready == 0x11111111u32, "i2c driver is not ready.");
+    assert!(
+        instance_p.is_ready == 0x11111111u32,
+        "i2c driver is not ready."
+    );
 
     let config_p = &instance_p.config;
     let base_addr = config_p.base_addr;
     let mut evt: u32;
 
-    assert!(instance_p.config.work_mode == 0, "i2c work mode shall be master.");
+    assert!(
+        instance_p.config.work_mode == 0,
+        "i2c work mode shall be master."
+    );
 
     // 禁用所有 i2c 中断并清除中断
     FI2cClearAbort(base_addr.try_into().unwrap());
@@ -176,13 +158,13 @@ pub fn FI2cMasterSetupIntr(instance_p: &mut FI2c, mask: u32) -> bool {
         }
     }
 
-    output_32(base_addr.try_into().unwrap(),0x30, mask);
+    output_32(base_addr.try_into().unwrap(), 0x30, mask);
 
     true
 }
 
 // 函数定义
-pub fn FI2cSlaveRegisterIntrHandler(instance_p: &mut FI2c,evt: u32,handler: FI2cEvtHandler){
+pub fn FI2cSlaveRegisterIntrHandler(instance_p: &mut FI2c, evt: u32, handler: FI2cEvtHandler) {
     if evt >= 6 as u32 {
         trace!("Invalid event index");
     }

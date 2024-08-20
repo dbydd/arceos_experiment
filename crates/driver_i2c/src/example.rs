@@ -1,23 +1,12 @@
-#![no_std]
-#![no_main]
-use axhal::time::busy_wait;
-use core::default;
-use core::ptr;
 use core::slice;
-use core::time::Duration;
 use log::*;
 
 use crate::driver_iic::i2c::*;
-use crate::driver_iic::i2c_hw::*;
-use crate::driver_iic::i2c_intr::*;
 use crate::driver_iic::i2c_master::*;
 use crate::driver_iic::i2c_sinit::*;
 use crate::driver_iic::io::*;
-use crate::driver_iic::*;
 
 use crate::driver_mio::mio::*;
-use crate::driver_mio::mio_g::*;
-use crate::driver_mio::mio_hw::*;
 use crate::driver_mio::mio_sinit::*;
 
 // 定义FI2cSlaveData结构体
@@ -29,40 +18,39 @@ struct FI2cSlaveData {
     pub buff: [u8; 256],
 }
 
-pub static mut slave:FI2cSlaveData = FI2cSlaveData{
-    device:FI2c{
-        config:FI2cConfig {
-            instance_id: 0,                
-            base_addr: 0,      
-            irq_num: 0,                  
-            irq_priority: 0,               
-            ref_clk_hz: 0,         
-            work_mode: 0,                  
-            slave_addr: 0,                
-            use_7bit_addr: false,             
-            speed_rate: 0,           
+pub static mut slave: FI2cSlaveData = FI2cSlaveData {
+    device: FI2c {
+        config: FI2cConfig {
+            instance_id: 0,
+            base_addr: 0,
+            irq_num: 0,
+            irq_priority: 0,
+            ref_clk_hz: 0,
+            work_mode: 0,
+            slave_addr: 0,
+            use_7bit_addr: false,
+            speed_rate: 0,
         },
-        is_ready:0,
-        status:0,
-        txframe:FI2cFrameTX{
-            data_buff: core::ptr::null_mut(), 
-            tx_total_num: 0,                  
-            tx_cnt: 0,                        
-            flag: 0,                        
+        is_ready: 0,
+        status: 0,
+        txframe: FI2cFrameTX {
+            data_buff: core::ptr::null_mut(),
+            tx_total_num: 0,
+            tx_cnt: 0,
+            flag: 0,
         },
-        rxframe:FI2cFrameRX {
-            data_buff: core::ptr::null_mut(),  
-            rx_total_num: 0,                
-            rx_cnt: 0,                    
+        rxframe: FI2cFrameRX {
+            data_buff: core::ptr::null_mut(),
+            rx_total_num: 0,
+            rx_cnt: 0,
         },
-        master_evt_handlers:[None;3],
-        slave_evt_handlers:[None;6],
+        master_evt_handlers: [None; 3],
+        slave_evt_handlers: [None; 6],
     },
-    first_write:false,
-    buff_idx:0,
-    buff:[0;256],
+    first_write: false,
+    buff_idx: 0,
+    buff: [0; 256],
 };
-
 
 impl Default for FI2cSlaveData {
     fn default() -> Self {
@@ -208,7 +196,7 @@ pub fn FI2cSlaveAbort(instance_p: *mut core::ffi::c_void, para: *mut core::ffi::
 //     true
 // }
 
-pub unsafe  fn FI2cMioMasterInit(address: u32, speed_rate: u32) -> bool {
+pub unsafe fn FI2cMioMasterInit(address: u32, speed_rate: u32) -> bool {
     let mut input_cfg: FI2cConfig = FI2cConfig::default();
     let mut config_p: FI2cConfig = FI2cConfig::default();
     let mut status: bool = true;
@@ -227,7 +215,7 @@ pub unsafe  fn FI2cMioMasterInit(address: u32, speed_rate: u32) -> bool {
         core::ptr::write_bytes(&mut master_i2c_instance as *mut FI2c, 0, size_of::<FI2c>());
     }
     // 查找默认配置
-    config_p = FI2cLookupConfig(1).unwrap(); // 获取 MIO 配置的默认引用
+    config_p = fi2c_lookup_config(1).unwrap(); // 获取 MIO 配置的默认引用
     if !Some(config_p).is_some() {
         trace!("Config of mio instance {} not found.", 1);
         return false;
@@ -257,7 +245,8 @@ pub unsafe  fn FI2cMioMasterInit(address: u32, speed_rate: u32) -> bool {
 
     trace!(
         "Set target slave_addr: 0x{:x} with mio-{}",
-        input_cfg.slave_addr, 1
+        input_cfg.slave_addr,
+        1
     );
     status
 }
@@ -328,7 +317,7 @@ pub fn FtDumpHexByte(ptr: *const u8, buflen: usize) {
 }
 
 pub unsafe fn FI2cSlaveDump() {
-    let mut slave_p = slave;
+    let slave_p = slave;
     trace!(
         "buf size: {}, buf idx: {}",
         slave_p.buff.len(),

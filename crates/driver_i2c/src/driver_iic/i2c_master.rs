@@ -1,25 +1,15 @@
-#![no_std]
-#![no_main]
-use super::driver_mio::{mio, mio_g, mio_hw, mio_sinit};
-use super::{i2c, i2c_hw, i2c_intr, i2c_master, i2c_sinit, io};
 use axhal::time::busy_wait;
-use core::ptr;
 use core::time::Duration;
 use log::*;
 
 use crate::driver_iic::i2c::*;
 use crate::driver_iic::i2c_hw::*;
 use crate::driver_iic::i2c_intr::*;
-use crate::driver_iic::i2c_sinit::*;
 use crate::driver_iic::io::*;
 
-use crate::driver_mio::mio::*;
-use crate::driver_mio::mio_g::*;
-use crate::driver_mio::mio_hw::*;
-use crate::driver_mio::mio_sinit::*;
 
 fn FI2C_DATA_MASK() -> u32 {
-    (((!0u32) - (1u32 << 0) + 1) & (!0u32 >> (32 - 1 - 7)))
+    ((!0u32) - (1u32 << 0) + 1) & (!0u32 >> (32 - 1 - 7))
 }
 
 pub fn FI2cMasterStartTrans(
@@ -40,7 +30,7 @@ pub fn FI2cMasterStartTrans(
     ret = FI2cSetTar(base_addr.try_into().unwrap(), instance_p.config.slave_addr);
 
     while addr_len > 0 {
-        if FI2cWaitStatus(base_addr.try_into().unwrap(), (0x1 << 1)) != true {
+        if FI2cWaitStatus(base_addr.try_into().unwrap(), 0x1 << 1) != true {
             break;
         }
         if input_32(base_addr.try_into().unwrap(), 0x80) != 0 {
@@ -66,7 +56,7 @@ pub fn FI2cMasterStopTrans(instance_p: &mut FI2c) -> bool {
     let mut reg_val = 0;
     let mut timeout = 0;
 
-    while true {
+    loop {
         if input_32(base_addr.try_into().unwrap(), 0x34) & (0x1 << 9) != 0 {
             reg_val = input_32(base_addr.try_into().unwrap(), 0x60);
             break;
@@ -93,7 +83,7 @@ pub fn FI2cMasterReadPoll(
 ) -> bool {
     assert!(Some(instance_p.clone()).is_some());
     let mut ret = true;
-    let mut reg_val: u32 = 0;
+    let reg_val: u32 = 0;
     let base_addr: u32 = instance_p.config.base_addr as u32;
     let mut tx_len = buf_len;
     let mut rx_len = buf_len;
@@ -106,7 +96,7 @@ pub fn FI2cMasterReadPoll(
         return false;
     }
 
-    ret = FI2cMasterStartTrans(instance_p, mem_addr, mem_byte_len, (0x0 << 8));
+    ret = FI2cMasterStartTrans(instance_p, mem_addr, mem_byte_len, 0x0 << 8);
     if ret != true {
         return ret;
     }
@@ -123,7 +113,7 @@ pub fn FI2cMasterReadPoll(
             let reg_val = if tx_len == 1 {
                 (0x1 << 8) | (0x1 << 9)
             } else {
-                (0x1 << 8)
+                0x1 << 8
             };
             output_32(base_addr, 0x10, reg_val);
             tx_len -= 1;
@@ -135,7 +125,7 @@ pub fn FI2cMasterReadPoll(
         while rx_len > 0 && rx_tem > 0 {
             if input_32(base_addr, 0x70) & (0x1 << 3) != 0 {
                 buf_p[i] = (input_32(base_addr, 0x10) & FI2C_DATA_MASK()) as u8;
-                i+=1;
+                i += 1;
                 rx_len -= 1;
                 rx_tem -= 1;
                 trans_timeout = 0;
@@ -177,7 +167,7 @@ pub unsafe fn FI2cMasterWritePoll(
         return false;
     }
 
-    ret = FI2cMasterStartTrans(instance_p, mem_addr, mem_byte_len, (0x0 << 8));
+    ret = FI2cMasterStartTrans(instance_p, mem_addr, mem_byte_len, 0x0 << 8);
     if ret != true {
         return ret;
     }
@@ -250,13 +240,13 @@ pub fn FI2cMasterReadIntr(
     instance_p.txframe.tx_total_num = buf_len;
     instance_p.rxframe.rx_cnt = 0;
     output_32(instance_p.config.base_addr.try_into().unwrap(), 0x38, 0);
-    ret = FI2cMasterStartTrans(instance_p, mem_addr, mem_byte_len, (0x0 << 8));
+    ret = FI2cMasterStartTrans(instance_p, mem_addr, mem_byte_len, 0x0 << 8);
     instance_p.status = 0x2;
     if ret != true {
         return ret;
     }
     let mut mask = input_32(instance_p.config.base_addr.try_into().unwrap(), 0x30);
-    mask |= (((0x1 << 4) | (0x1 << 6)) | (0x1 << 2));
+    mask |= ((0x1 << 4) | (0x1 << 6)) | (0x1 << 2);
     FI2cMasterSetupIntr(instance_p, mask)
 }
 
@@ -292,12 +282,12 @@ pub fn FI2cMasterWriteIntr(
     instance_p.txframe.tx_total_num = buf_len;
     instance_p.txframe.tx_cnt = 0;
 
-    ret = FI2cMasterStartTrans(instance_p, mem_addr, mem_byte_len, (0x0 << 8));
+    ret = FI2cMasterStartTrans(instance_p, mem_addr, mem_byte_len, 0x0 << 8);
     if ret != true {
         return ret;
     }
     instance_p.status = 0x1;
     let mut mask = input_32(instance_p.config.base_addr.try_into().unwrap(), 0x30);
-    mask |= ((0x1 << 4) | (0x1 << 6));
+    mask |= (0x1 << 4) | (0x1 << 6);
     FI2cMasterSetupIntr(instance_p, mask)
 }

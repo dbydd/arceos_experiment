@@ -1,54 +1,39 @@
-#![no_std]
-#![no_main]
-use log::*;
-use axhal::time::busy_wait;
-use core::ptr;
 use core::mem::size_of;
-use core::time::Duration;
-use super::driver_iic::{i2c_hw,i2c,i2c_sinit,i2c_master,io,i2c_intr};
-use super::{mio_hw,mio_sinit,mio,mio_g};
+use log::*;
 
-use crate::driver_iic::i2c_hw::*;
-use crate::driver_iic::i2c::*;
-use crate::driver_iic::i2c_intr::*;
-use crate::driver_iic::i2c_master::*;
-use crate::driver_iic::i2c_sinit::*;
 use crate::driver_iic::io::*;
 
-
-use crate::driver_mio::mio_g::*;
 use crate::driver_mio::mio_hw::*;
-use crate::driver_mio::mio_sinit::*;
 
-fn FIOPAD_REG0_FUNC_SET(x:u8) -> u32{
-    (((x as u32) << 0) & (((!0u32) - (1u32 << (0)) + 1) & (!0u32 >> (32 - 1 - (2)))))
+fn FIOPAD_REG0_FUNC_SET(x: u8) -> u32 {
+    ((x as u32) << 0) & (((!0u32) - (1u32 << (0)) + 1) & (!0u32 >> (32 - 1 - (2))))
 }
 
 // 定义 FMioConfig 结构体
-#[derive(Debug, Clone, Copy,Default)]
+#[derive(Debug, Clone, Copy, Default)]
 pub struct FMioConfig {
-    pub instance_id: u32,        // mio id
-    pub func_base_addr: usize,   // I2C or UART function address
-    pub irq_num: u32,            // Device interrupt id
-    pub mio_base_addr: usize,    // MIO control address
+    pub instance_id: u32,      // mio id
+    pub func_base_addr: usize, // I2C or UART function address
+    pub irq_num: u32,          // Device interrupt id
+    pub mio_base_addr: usize,  // MIO control address
 }
 
 // 定义 FMioCtrl 结构体
 #[feature(const_trait_impl)]
-#[derive(Debug, Clone, Copy,Default)]
+#[derive(Debug, Clone, Copy, Default)]
 pub struct FMioCtrl {
-    pub config: FMioConfig,  // mio config
-    pub is_ready: u32,       // mio initialize the complete flag
+    pub config: FMioConfig, // mio config
+    pub is_ready: u32,      // mio initialize the complete flag
 }
 
-pub static mut master_mio_ctrl:FMioCtrl = FMioCtrl{
-    config:FMioConfig {
-        instance_id: 0,        
-        func_base_addr: 0,   
-        irq_num: 0,            
-        mio_base_addr: 0,    
+pub static mut master_mio_ctrl: FMioCtrl = FMioCtrl {
+    config: FMioConfig {
+        instance_id: 0,
+        func_base_addr: 0,
+        irq_num: 0,
+        mio_base_addr: 0,
     },
-    is_ready:0,
+    is_ready: 0,
 };
 
 /// 初始化 MIO 功能
@@ -80,7 +65,10 @@ pub fn FMioFuncGetAddress(instance: &FMioCtrl, mio_type: u32) -> usize {
     assert!(instance.is_ready == 0x11111111u32);
 
     if FMioGetFunc(instance.config.mio_base_addr) != mio_type {
-        trace!("Mio instance_id: {}, mio_type error, initialize the type first.", instance.config.instance_id);
+        trace!(
+            "Mio instance_id: {}, mio_type error, initialize the type first.",
+            instance.config.instance_id
+        );
         return 0;
     }
 
@@ -92,7 +80,10 @@ pub fn FMioFuncGetIrqNum(instance: &FMioCtrl, mio_type: u32) -> u32 {
     assert!(instance.is_ready == 0x11111111u32);
 
     if FMioGetFunc(instance.config.mio_base_addr) != mio_type {
-        trace!("Mio instance_id: {}, mio_type error, initialize the type first.", instance.config.instance_id);
+        trace!(
+            "Mio instance_id: {}, mio_type error, initialize the type first.",
+            instance.config.instance_id
+        );
         return 0;
     }
 
@@ -103,15 +94,25 @@ pub fn FIOPadSetFunc(instance_p: &FIOPadCtrl, pin_reg_off: u32, func: u8) -> boo
     assert!(instance_p.is_ready == 0x11111111u32);
 
     let base_addr = instance_p.config.base_address;
-    let mut reg_val:u32 = input_32(base_addr.try_into().unwrap(), pin_reg_off.try_into().unwrap());
-    
+    let mut reg_val: u32 = input_32(
+        base_addr.try_into().unwrap(),
+        pin_reg_off.try_into().unwrap(),
+    );
+
     reg_val &= !(((!0u32) - (1u32 << (0)) + 1) & (!0u32 >> (32 - 1 - (2))));
     reg_val |= FIOPAD_REG0_FUNC_SET(func);
-    
-    output_32(base_addr.try_into().unwrap(), pin_reg_off.try_into().unwrap(), reg_val);
-    
-    let test_val = input_32(base_addr.try_into().unwrap(), pin_reg_off.try_into().unwrap());
-    
+
+    output_32(
+        base_addr.try_into().unwrap(),
+        pin_reg_off.try_into().unwrap(),
+        reg_val,
+    );
+
+    let test_val = input_32(
+        base_addr.try_into().unwrap(),
+        pin_reg_off.try_into().unwrap(),
+    );
+
     if reg_val != test_val {
         trace!(
             "ERROR: FIOPad write failed, pin is {:x}, 0x{:x} != 0x{:x}",
@@ -120,7 +121,6 @@ pub fn FIOPadSetFunc(instance_p: &FIOPadCtrl, pin_reg_off: u32, func: u8) -> boo
             test_val
         );
     }
-    
+
     true
 }
-
