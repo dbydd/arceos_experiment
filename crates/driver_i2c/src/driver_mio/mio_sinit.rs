@@ -21,7 +21,7 @@ pub static FMIO_CONFIG_TBL: [FMioConfig; 3] = [
     },
 ];
 
-pub fn FMioLookupConfig(instance_id: u32) -> Option<FMioConfig> {
+pub fn fmio_lookup_config(instance_id: u32) -> Option<FMioConfig> {
     assert!(instance_id < 16);
 
     for config in FMIO_CONFIG_TBL.iter() {

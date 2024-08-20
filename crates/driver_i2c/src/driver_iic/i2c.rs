@@ -71,7 +71,7 @@ pub struct FI2c {
     pub slave_evt_handlers: [Option<FI2cEvtHandler>; 6],  // 从设备中断处理程序
 }
 
-pub static mut master_i2c_instance: FI2c = FI2c {
+pub static mut MASTER_I2C_INSTANCE: FI2c = FI2c {
     config: FI2cConfig {
         instance_id: 0,
         base_addr: 0,
@@ -100,7 +100,7 @@ pub static mut master_i2c_instance: FI2c = FI2c {
     slave_evt_handlers: [None; 6],
 };
 
-pub fn FI2cCfgInitialize(instance_p: &mut FI2c, input_config_p: &FI2cConfig) -> bool {
+pub fn fi2c_cfg_initialize(instance_p: &mut FI2c, input_config_p: &FI2cConfig) -> bool {
     assert!(Some(instance_p.clone()).is_some() && Some(input_config_p).is_some());
 
     let mut ret = true;
@@ -112,11 +112,58 @@ pub fn FI2cCfgInitialize(instance_p: &mut FI2c, input_config_p: &FI2cConfig) -> 
     }
 
     // 设置默认值和配置数据，包括将回调处理程序设置为存根，以防应用程序未分配自己的回调而导致系统崩溃
-    FI2cDeInitialize(instance_p);
+    fi2c_de_initialize(instance_p);
     instance_p.config = *input_config_p;
 
     // 重置设备
-    ret = FI2cReset(instance_p);
+    ret = {
+        let instance_p: &mut FI2c = instance_p;
+        assert!(Some(instance_p.clone()).is_some());
+        let mut ret = true;
+        let config_p = &instance_p.config;
+        let base_addr = config_p.base_addr;
+        let mut reg_val: u32 = 0;
+
+        ret = fi2c_set_enable(base_addr.try_into().unwrap(), false); // 禁用 i2c 控制器
+
+        if config_p.work_mode == 0 {
+            reg_val |= if config_p.use_7bit_addr {
+                0x0 << 4
+            } else {
+                0x1 << 4
+            };
+            reg_val |= 0x1 << 6;
+            reg_val |= 0x1 << 0;
+            reg_val |= 0x1 << 5;
+        } else {
+            reg_val |= if config_p.use_7bit_addr {
+                0x0 << 3
+            } else {
+                0x1 << 3
+            };
+            reg_val &= !(0x1 << 0);
+            reg_val |= 0x0 << 0;
+        }
+        reg_val |= 0x1 << 1;
+
+        output_32(base_addr.try_into().unwrap(), 0x00, reg_val);
+        output_32(base_addr.try_into().unwrap(), 0x38, 0);
+        output_32(base_addr.try_into().unwrap(), 0x3C, 0);
+        output_32(base_addr.try_into().unwrap(), 0x30, 0); // 禁用所有中断
+
+        ret = fi2c_set_speed(base_addr.try_into().unwrap(), config_p.speed_rate);
+
+        if ret == true {
+            ret = fi2c_set_enable(base_addr.try_into().unwrap(), true); // 启用 i2c 控制器
+        }
+
+        // 如果初始化成功且 i2c 处于从模式，则设置从地址
+        if ret == true && config_p.work_mode == 1 {
+            ret = fi2c_set_sar(base_addr.try_into().unwrap(), config_p.slave_addr);
+        }
+
+        ret
+    };
     if ret == true {
         instance_p.is_ready = 0x11111111u32;
     }
@@ -124,7 +171,7 @@ pub fn FI2cCfgInitialize(instance_p: &mut FI2c, input_config_p: &FI2cConfig) -> 
     ret
 }
 
-pub fn FI2cDeInitialize(instance_p: &mut FI2c) {
+pub fn fi2c_de_initialize(instance_p: &mut FI2c) {
     assert!(Some(instance_p.clone()).is_some());
     instance_p.is_ready = 0;
 
@@ -132,54 +179,6 @@ pub fn FI2cDeInitialize(instance_p: &mut FI2c) {
     unsafe {
         core::ptr::write_bytes(instance_p as *mut FI2c, 0, size_of::<FI2c>());
     }
-}
-
-pub fn FI2cReset(instance_p: &mut FI2c) -> bool {
-    assert!(Some(instance_p.clone()).is_some());
-    let mut ret = true;
-    let config_p = &instance_p.config;
-    let base_addr = config_p.base_addr;
-    let mut reg_val: u32 = 0;
-
-    ret = FI2cSetEnable(base_addr.try_into().unwrap(), false); // 禁用 i2c 控制器
-
-    if config_p.work_mode == 0 {
-        reg_val |= if config_p.use_7bit_addr {
-            0x0 << 4
-        } else {
-            0x1 << 4
-        };
-        reg_val |= 0x1 << 6;
-        reg_val |= 0x1 << 0;
-        reg_val |= 0x1 << 5;
-    } else {
-        reg_val |= if config_p.use_7bit_addr {
-            0x0 << 3
-        } else {
-            0x1 << 3
-        };
-        reg_val &= !(0x1 << 0);
-        reg_val |= 0x0 << 0;
-    }
-    reg_val |= 0x1 << 1;
-
-    output_32(base_addr.try_into().unwrap(), 0x00, reg_val);
-    output_32(base_addr.try_into().unwrap(), 0x38, 0);
-    output_32(base_addr.try_into().unwrap(), 0x3C, 0);
-    output_32(base_addr.try_into().unwrap(), 0x30, 0); // 禁用所有中断
-
-    ret = FI2cSetSpeed(base_addr.try_into().unwrap(), config_p.speed_rate);
-
-    if ret == true {
-        ret = FI2cSetEnable(base_addr.try_into().unwrap(), true); // 启用 i2c 控制器
-    }
-
-    // 如果初始化成功且 i2c 处于从模式，则设置从地址
-    if ret == true && config_p.work_mode == 1 {
-        ret = FI2cSetSar(base_addr.try_into().unwrap(), config_p.slave_addr);
-    }
-
-    ret
 }
 
 //we don't need this now

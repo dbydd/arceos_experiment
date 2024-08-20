@@ -1,5 +1,7 @@
 #![no_std]
 #![no_main]
+#![allow(dead_code)]
+#![allow(static_mut_refs)]
 use axhal::time::busy_wait;
 use core::time::Duration;
 use log::*;
@@ -103,19 +105,18 @@ unsafe fn rotate_left() {
     status_control(-1, 1, -1, 1);
 }
 
-
 unsafe fn write_byte_data(_address: u8, offset: u8, value: u16) {
     let high_byte = (value >> 8) as u8; // 高8位
     let low_byte = (value & 0xFF) as u8; // 低8位
-    FI2cMasterWrite(&mut [high_byte], 1, offset as u32);
-    FI2cMasterWrite(&mut [low_byte], 1, offset as u32);
+    fi2c_master_write(&mut [high_byte], 1, offset as u32);
+    fi2c_master_write(&mut [low_byte], 1, offset as u32);
 }
 
 unsafe fn read_byte_data(_address: u8, offset: u8) -> u16 {
     let high_byte: u8 = 0x00; // 高8位
     let low_byte: u8 = 0x00;
-    FI2cMasterRead(&mut [high_byte], 1, offset as u32);
-    FI2cMasterRead(&mut [low_byte], 1, offset as u32);
+    fi2c_master_read(&mut [high_byte], 1, offset as u32);
+    fi2c_master_read(&mut [low_byte], 1, offset as u32);
     ((high_byte as u16) << 8) | (low_byte as u16)
 }
 
@@ -123,8 +124,8 @@ pub fn pca_init(d1: u16, d2: u16, d3: u16, d4: u16) {
     unsafe {
         let address: u32 = PCA9685_ADDRESS as u32;
         let speed_rate: u32 = 100000; /*kb/s*/
-        FIOPadCfgInitialize(&mut iopad_ctrl, &FIOPadLookupConfig(0).unwrap());
-        if FI2cMioMasterInit(address, speed_rate) != true {
+        fiopad_cfg_initialize(&mut IOPAD_CTRL, &fiopad_lookup_config(0).unwrap());
+        if fi2c_mio_master_init(address, speed_rate) != true {
             trace!("FI2cMioMasterInit mio_id {:?} is error!", 1);
         }
         set_pwm_frequency(50);
@@ -146,7 +147,12 @@ unsafe fn set_pwm_frequency(freq: u16) {
     write_byte_data(PCA9685_ADDRESS, MODE1, 0x00); //
 }
 
-unsafe fn set_pwm(duty_channel1_pwm: u16, duty_channel2_pwm: u16, duty_channel3_pwm: u16, duty_channel4_pwm: u16) {
+unsafe fn set_pwm(
+    duty_channel1_pwm: u16,
+    duty_channel2_pwm: u16,
+    duty_channel3_pwm: u16,
+    duty_channel4_pwm: u16,
+) {
     let duty_channel1 = duty_channel1_pwm.max(0).min(4095); //限制off_time在0-4095之间
     let duty_channel2 = duty_channel2_pwm.max(0).min(4095);
     let duty_channel3 = duty_channel3_pwm.max(0).min(4095);
@@ -355,9 +361,4 @@ unsafe fn status_control(m1: i16, m2: i16, m3: i16, m4: i16) {
     }
 }
 
-
-
-
-pub fn test_pca() {
-    
-}
+pub fn test_pca() {}

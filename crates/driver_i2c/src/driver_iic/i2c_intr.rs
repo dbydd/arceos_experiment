@@ -105,16 +105,16 @@ use crate::driver_iic::io::*;
 //     }
 // }
 
-pub fn FI2cMasterRegisterIntrHandler(instance_p: &mut FI2c, evt: u32, handler: FI2cEvtHandler) {
+pub fn fi2c_master_register_intr_handler(instance_p: &mut FI2c, evt: u32, handler: FI2cEvtHandler) {
     assert!(evt < 3 as u32, "Invalid event index");
     instance_p.master_evt_handlers[evt as usize] = Some(handler);
 }
 
-pub fn FI2cStubHandlerWrapper(instance_p: *mut FI2c, param: *mut core::ffi::c_void) {
-    FI2cStubHandler(instance_p as *mut core::ffi::c_void, param);
+pub fn fi2c_stub_handler_wrapper(instance_p: *mut FI2c, param: *mut core::ffi::c_void) {
+    fi2c_stub_handler(instance_p as *mut core::ffi::c_void, param);
 }
 
-pub fn FI2cStubHandler(instance_p: *mut core::ffi::c_void, _param: *mut core::ffi::c_void) {
+pub fn fi2c_stub_handler(instance_p: *mut core::ffi::c_void, _param: *mut core::ffi::c_void) {
     assert!(!instance_p.is_null(), "instance_p is null");
 
     // 将 `instance_p` 转换为 `&mut FI2c`
@@ -131,7 +131,7 @@ pub fn FI2cStubHandler(instance_p: *mut core::ffi::c_void, _param: *mut core::ff
     );
 }
 
-pub fn FI2cMasterSetupIntr(instance_p: &mut FI2c, mask: u32) -> bool {
+pub fn fi2c_master_setup_intr(instance_p: &mut FI2c, mask: u32) -> bool {
     assert!(
         instance_p.is_ready == 0x11111111u32,
         "i2c driver is not ready."
@@ -147,11 +147,11 @@ pub fn FI2cMasterSetupIntr(instance_p: &mut FI2c, mask: u32) -> bool {
     );
 
     // 禁用所有 i2c 中断并清除中断
-    FI2cClearAbort(base_addr.try_into().unwrap());
+    fi2c_clear_abort(base_addr.try_into().unwrap());
 
     for evt in (0..3).into_iter() {
         if !instance_p.master_evt_handlers[evt as usize].is_some() {
-            FI2cMasterRegisterIntrHandler(instance_p, evt, FI2cStubHandlerWrapper);
+            fi2c_master_register_intr_handler(instance_p, evt, fi2c_stub_handler_wrapper);
             // 你可以使用宏定义代替以下输出
             trace!("evt :{:?} is default.", evt);
         }
@@ -163,7 +163,7 @@ pub fn FI2cMasterSetupIntr(instance_p: &mut FI2c, mask: u32) -> bool {
 }
 
 // 函数定义
-pub fn FI2cSlaveRegisterIntrHandler(instance_p: &mut FI2c, evt: u32, handler: FI2cEvtHandler) {
+pub fn fi2c_slave_register_intr_handler(instance_p: &mut FI2c, evt: u32, handler: FI2cEvtHandler) {
     if evt >= 6 as u32 {
         trace!("Invalid event index");
     }

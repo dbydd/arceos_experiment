@@ -1,4 +1,11 @@
 #![no_std]
+#![allow(dead_code)]
+#![allow(static_mut_refs)]
+#![allow(private_interfaces)]
+#![allow(unused_assignments)]
+#![allow(unused_unsafe)]
+#![allow(unused_attributes)]
+#![allow(unused_variables)]
 use log::*;
 pub mod driver_iic;
 pub mod driver_mio;
@@ -37,13 +44,12 @@ const OLED_INIT_CMDS: [u8; 24] = [
 
 pub unsafe fn oled_init() -> bool {
     let mut ret: bool;
-    let mut i: u8;
-    for i in 0..1000000 {
+    (0..1000000).for_each(|_i| {
         // 上电延时
-    }
+    });
     let cmd = OLED_INIT_CMDS.clone();
     for i in 0..24 {
-        ret = FI2cMasterWrite(&mut [cmd[i]], 1, 0);
+        ret = fi2c_master_write(&mut [cmd[i]], 1, 0);
         if ret != true {
             return ret;
         }
@@ -58,7 +64,7 @@ pub unsafe fn oled_display_on() -> bool {
     for _ in 0..8 {
         // SSD1306有8页
         for i in 0..128 {
-            ret = FI2cMasterWrite(&mut [display_data[i]], 1, 0);
+            ret = fi2c_master_write(&mut [display_data[i]], 1, 0);
             if ret != true {
                 trace!("failed");
                 return ret;
@@ -73,8 +79,8 @@ pub fn run_iicoled() {
         let mut ret: bool = true;
         let address: u32 = 0x3c;
         let speed_rate: u32 = 100000; /*kb/s*/
-        FIOPadCfgInitialize(&mut iopad_ctrl, &FIOPadLookupConfig(0).unwrap());
-        ret = FI2cMioMasterInit(address, speed_rate);
+        fiopad_cfg_initialize(&mut IOPAD_CTRL, &fiopad_lookup_config(0).unwrap());
+        ret = fi2c_mio_master_init(address, speed_rate);
         if ret != true {
             trace!("FI2cMioMasterInit mio_id {:?} is error!", 1);
         }

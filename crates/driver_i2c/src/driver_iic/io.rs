@@ -39,7 +39,7 @@ pub struct FIOPadCtrl {
     pub is_ready: u32,        // 设备是否准备好
 }
 
-pub static mut iopad_ctrl: FIOPadCtrl = FIOPadCtrl {
+pub static mut IOPAD_CTRL: FIOPadCtrl = FIOPadCtrl {
     config: FIOPadConfig {
         instance_id: 0,
         base_address: 0,
@@ -52,7 +52,7 @@ static FIO_PAD_CONFIG_TBL: [FIOPadConfig; 1] = [FIOPadConfig {
     base_address: 0x32B30000usize,
 }];
 
-pub fn FIOPadCfgInitialize(instance_p: &mut FIOPadCtrl, input_config_p: &FIOPadConfig) -> bool {
+pub fn fiopad_cfg_initialize(instance_p: &mut FIOPadCtrl, input_config_p: &FIOPadConfig) -> bool {
     assert!(
         Some(instance_p.clone()).is_some(),
         "instance_p should not be null"
@@ -69,7 +69,7 @@ pub fn FIOPadCfgInitialize(instance_p: &mut FIOPadCtrl, input_config_p: &FIOPadC
     }
 
     // Set default values and configuration data
-    FIOPadDeInitialize(instance_p);
+    fiopad_de_initialize(instance_p);
 
     instance_p.config = *input_config_p;
 
@@ -78,7 +78,7 @@ pub fn FIOPadCfgInitialize(instance_p: &mut FIOPadCtrl, input_config_p: &FIOPadC
     ret
 }
 
-pub fn FIOPadDeInitialize(instance_p: &mut FIOPadCtrl) -> bool {
+pub fn fiopad_de_initialize(instance_p: &mut FIOPadCtrl) -> bool {
     // 确保 `instance_p` 不为 null，类似于 C 中的 `FASSERT(instance_p)`
     if instance_p.is_ready == 0 {
         return true;
@@ -95,7 +95,7 @@ pub fn FIOPadDeInitialize(instance_p: &mut FIOPadCtrl) -> bool {
     true
 }
 
-pub fn FIOPadLookupConfig(instance_id: u32) -> Option<FIOPadConfig> {
+pub fn fiopad_lookup_config(instance_id: u32) -> Option<FIOPadConfig> {
     if instance_id as usize >= 1 {
         // 对应 C 代码中的 FASSERT 语句
         return None;

@@ -5,7 +5,7 @@ use crate::driver_iic::io::*;
 
 use crate::driver_mio::mio_hw::*;
 
-fn FIOPAD_REG0_FUNC_SET(x: u8) -> u32 {
+fn fiopad_reg0_func_set(x: u8) -> u32 {
     ((x as u32) << 0) & (((!0u32) - (1u32 << (0)) + 1) & (!0u32 >> (32 - 1 - (2))))
 }
 
@@ -26,7 +26,7 @@ pub struct FMioCtrl {
     pub is_ready: u32,      // mio initialize the complete flag
 }
 
-pub static mut master_mio_ctrl: FMioCtrl = FMioCtrl {
+pub static mut MASTER_MIO_CTRL: FMioCtrl = FMioCtrl {
     config: FMioConfig {
         instance_id: 0,
         func_base_addr: 0,
@@ -37,9 +37,9 @@ pub static mut master_mio_ctrl: FMioCtrl = FMioCtrl {
 };
 
 /// 初始化 MIO 功能
-pub fn FMioFuncInit(instance: &mut FMioCtrl, mio_type: u32) -> bool {
+pub fn fmio_func_init(instance: &mut FMioCtrl, mio_type: u32) -> bool {
     assert!(instance.is_ready != 0x11111111u32);
-    let ret = FMioSelectFunc(instance.config.mio_base_addr, mio_type);
+    let ret = fmio_select_func(instance.config.mio_base_addr, mio_type);
 
     if ret == true {
         instance.is_ready = 0x11111111u32;
@@ -49,8 +49,8 @@ pub fn FMioFuncInit(instance: &mut FMioCtrl, mio_type: u32) -> bool {
 }
 
 /// 去初始化 MIO 功能
-pub fn FMioFuncDeinit(instance: &mut FMioCtrl) -> bool {
-    let ret = FMioSelectFunc(instance.config.mio_base_addr, 0b00);
+pub fn fmio_func_deinit(instance: &mut FMioCtrl) -> bool {
+    let ret = fmio_select_func(instance.config.mio_base_addr, 0b00);
     instance.is_ready = 0;
     // 清零配置
     unsafe {
@@ -61,10 +61,10 @@ pub fn FMioFuncDeinit(instance: &mut FMioCtrl) -> bool {
 }
 
 /// 获取功能设置的基地址
-pub fn FMioFuncGetAddress(instance: &FMioCtrl, mio_type: u32) -> usize {
+pub fn fmio_func_get_address(instance: &FMioCtrl, mio_type: u32) -> usize {
     assert!(instance.is_ready == 0x11111111u32);
 
-    if FMioGetFunc(instance.config.mio_base_addr) != mio_type {
+    if fmio_get_func(instance.config.mio_base_addr) != mio_type {
         trace!(
             "Mio instance_id: {}, mio_type error, initialize the type first.",
             instance.config.instance_id
@@ -76,10 +76,10 @@ pub fn FMioFuncGetAddress(instance: &FMioCtrl, mio_type: u32) -> usize {
 }
 
 /// 获取 MIO 的中断号
-pub fn FMioFuncGetIrqNum(instance: &FMioCtrl, mio_type: u32) -> u32 {
+pub fn fmio_func_get_irq_num(instance: &FMioCtrl, mio_type: u32) -> u32 {
     assert!(instance.is_ready == 0x11111111u32);
 
-    if FMioGetFunc(instance.config.mio_base_addr) != mio_type {
+    if fmio_get_func(instance.config.mio_base_addr) != mio_type {
         trace!(
             "Mio instance_id: {}, mio_type error, initialize the type first.",
             instance.config.instance_id
@@ -90,7 +90,7 @@ pub fn FMioFuncGetIrqNum(instance: &FMioCtrl, mio_type: u32) -> u32 {
     instance.config.irq_num
 }
 
-pub fn FIOPadSetFunc(instance_p: &FIOPadCtrl, pin_reg_off: u32, func: u8) -> bool {
+pub fn fiopad_set_func(instance_p: &FIOPadCtrl, pin_reg_off: u32, func: u8) -> bool {
     assert!(instance_p.is_ready == 0x11111111u32);
 
     let base_addr = instance_p.config.base_address;
@@ -100,7 +100,7 @@ pub fn FIOPadSetFunc(instance_p: &FIOPadCtrl, pin_reg_off: u32, func: u8) -> boo
     );
 
     reg_val &= !(((!0u32) - (1u32 << (0)) + 1) & (!0u32 >> (32 - 1 - (2))));
-    reg_val |= FIOPAD_REG0_FUNC_SET(func);
+    reg_val |= fiopad_reg0_func_set(func);
 
     output_32(
         base_addr.try_into().unwrap(),

@@ -18,7 +18,7 @@ struct FI2cSlaveData {
     pub buff: [u8; 256],
 }
 
-pub static mut slave: FI2cSlaveData = FI2cSlaveData {
+pub static mut SLAVE: FI2cSlaveData = FI2cSlaveData {
     device: FI2c {
         config: FI2cConfig {
             instance_id: 0,
@@ -64,7 +64,7 @@ impl Default for FI2cSlaveData {
 }
 
 // 定义FI2cSlaveCb函数
-pub fn FI2cSlaveCb(instance_p: *mut core::ffi::c_void, para: *mut core::ffi::c_void, evt: u32) {
+pub fn fi2c_slave_cb(instance_p: *mut core::ffi::c_void, para: *mut core::ffi::c_void, evt: u32) {
     let mut slave_p = FI2cSlaveData::default();
     let val = para as *mut u8;
 
@@ -100,28 +100,28 @@ pub fn FI2cSlaveCb(instance_p: *mut core::ffi::c_void, para: *mut core::ffi::c_v
 }
 
 // 定义其他中断处理函数
-pub fn FI2cSlaveWriteReceived(instance_p: *mut core::ffi::c_void, para: *mut core::ffi::c_void) {
-    FI2cSlaveCb(instance_p, para, 3);
+pub fn fi2c_slave_write_received(instance_p: *mut core::ffi::c_void, para: *mut core::ffi::c_void) {
+    fi2c_slave_cb(instance_p, para, 3);
 }
 
-pub fn FI2cSlaveReadProcessed(instance_p: *mut core::ffi::c_void, para: *mut core::ffi::c_void) {
-    FI2cSlaveCb(instance_p, para, 2);
+pub fn fi2c_slave_read_processed(instance_p: *mut core::ffi::c_void, para: *mut core::ffi::c_void) {
+    fi2c_slave_cb(instance_p, para, 2);
 }
 
-pub fn FI2cSlaveReadRequest(instance_p: *mut core::ffi::c_void, para: *mut core::ffi::c_void) {
-    FI2cSlaveCb(instance_p, para, 0);
+pub fn fi2c_slave_read_request(instance_p: *mut core::ffi::c_void, para: *mut core::ffi::c_void) {
+    fi2c_slave_cb(instance_p, para, 0);
 }
 
-pub fn FI2cSlaveStop(instance_p: *mut core::ffi::c_void, para: *mut core::ffi::c_void) {
-    FI2cSlaveCb(instance_p, para, 4);
+pub fn fi2c_slave_stop(instance_p: *mut core::ffi::c_void, para: *mut core::ffi::c_void) {
+    fi2c_slave_cb(instance_p, para, 4);
 }
 
-pub fn FI2cSlaveWriteRequest(instance_p: *mut core::ffi::c_void, para: *mut core::ffi::c_void) {
-    FI2cSlaveCb(instance_p, para, 1);
+pub fn fi2c_slave_write_request(instance_p: *mut core::ffi::c_void, para: *mut core::ffi::c_void) {
+    fi2c_slave_cb(instance_p, para, 1);
 }
 
-pub fn FI2cSlaveAbort(instance_p: *mut core::ffi::c_void, para: *mut core::ffi::c_void) {
-    FI2cSlaveCb(instance_p, para, 5);
+pub fn fi2c_slave_abort(instance_p: *mut core::ffi::c_void, para: *mut core::ffi::c_void) {
+    fi2c_slave_cb(instance_p, para, 5);
 }
 
 // pub fn FI2cMioSlaveInit(address: u32, speed_rate: u32) -> bool {
@@ -196,23 +196,23 @@ pub fn FI2cSlaveAbort(instance_p: *mut core::ffi::c_void, para: *mut core::ffi::
 //     true
 // }
 
-pub unsafe fn FI2cMioMasterInit(address: u32, speed_rate: u32) -> bool {
+pub unsafe fn fi2c_mio_master_init(address: u32, speed_rate: u32) -> bool {
     let mut input_cfg: FI2cConfig = FI2cConfig::default();
     let mut config_p: FI2cConfig = FI2cConfig::default();
     let mut status: bool = true;
 
     // MIO 初始化
-    master_mio_ctrl.config = FMioLookupConfig(1).unwrap();
-    status = FMioFuncInit(&mut master_mio_ctrl, 0b00);
+    MASTER_MIO_CTRL.config = fmio_lookup_config(1).unwrap();
+    status = fmio_func_init(&mut MASTER_MIO_CTRL, 0b00);
     if status != true {
         trace!("MIO initialize error.");
         return false;
     }
-    FIOPadSetFunc(&iopad_ctrl, 0x00D0u32, 5); /* scl */
-    FIOPadSetFunc(&iopad_ctrl, 0x00D4u32, 5); /* sda */
+    fiopad_set_func(&IOPAD_CTRL, 0x00D0u32, 5); /* scl */
+    fiopad_set_func(&IOPAD_CTRL, 0x00D4u32, 5); /* sda */
 
     unsafe {
-        core::ptr::write_bytes(&mut master_i2c_instance as *mut FI2c, 0, size_of::<FI2c>());
+        core::ptr::write_bytes(&mut MASTER_I2C_INSTANCE as *mut FI2c, 0, size_of::<FI2c>());
     }
     // 查找默认配置
     config_p = fi2c_lookup_config(1).unwrap(); // 获取 MIO 配置的默认引用
@@ -224,19 +224,19 @@ pub unsafe fn FI2cMioMasterInit(address: u32, speed_rate: u32) -> bool {
     // 修改配置
     input_cfg = config_p.clone();
     input_cfg.instance_id = 1;
-    input_cfg.base_addr = FMioFuncGetAddress(&master_mio_ctrl, 0b00);
-    input_cfg.irq_num = FMioFuncGetIrqNum(&master_mio_ctrl, 0b00);
+    input_cfg.base_addr = fmio_func_get_address(&MASTER_MIO_CTRL, 0b00);
+    input_cfg.irq_num = fmio_func_get_irq_num(&MASTER_MIO_CTRL, 0b00);
     input_cfg.ref_clk_hz = 50000000;
     input_cfg.slave_addr = address;
     input_cfg.speed_rate = speed_rate;
 
     // 初始化
-    status = FI2cCfgInitialize(&mut master_i2c_instance, &input_cfg);
+    status = fi2c_cfg_initialize(&mut MASTER_I2C_INSTANCE, &input_cfg);
 
     // 处理 FI2C_MASTER_INTR_EVT 中断的回调函数
-    master_i2c_instance.master_evt_handlers[0 as usize] = None;
-    master_i2c_instance.master_evt_handlers[1 as usize] = None;
-    master_i2c_instance.master_evt_handlers[2 as usize] = None;
+    MASTER_I2C_INSTANCE.master_evt_handlers[0 as usize] = None;
+    MASTER_I2C_INSTANCE.master_evt_handlers[1 as usize] = None;
+    MASTER_I2C_INSTANCE.master_evt_handlers[2 as usize] = None;
 
     if status != true {
         trace!("Init mio master failed, ret: {:?}", status);
@@ -251,7 +251,7 @@ pub unsafe fn FI2cMioMasterInit(address: u32, speed_rate: u32) -> bool {
     status
 }
 
-pub unsafe fn FI2cMasterWrite(buf_p: &mut [u8], buf_len: u32, inchip_offset: u32) -> bool {
+pub unsafe fn fi2c_master_write(buf_p: &mut [u8], buf_len: u32, inchip_offset: u32) -> bool {
     let mut status: bool = true;
 
     if buf_len < 256 && inchip_offset < 256 {
@@ -264,7 +264,7 @@ pub unsafe fn FI2cMasterWrite(buf_p: &mut [u8], buf_len: u32, inchip_offset: u32
         return false;
     }
 
-    status = FI2cMasterWritePoll(&mut master_i2c_instance, inchip_offset, 1, buf_p, buf_len);
+    status = fi2c_master_write_poll(&mut MASTER_I2C_INSTANCE, inchip_offset, 1, buf_p, buf_len);
     trace!("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
     if status != true {
         trace!("Write to eeprom failed");
@@ -273,8 +273,8 @@ pub unsafe fn FI2cMasterWrite(buf_p: &mut [u8], buf_len: u32, inchip_offset: u32
     status
 }
 
-pub unsafe fn FI2cMasterRead(buf_p: &mut [u8], buf_len: u32, inchip_offset: u32) -> bool {
-    let mut instance_p: FI2c = master_i2c_instance;
+pub unsafe fn fi2c_master_read(buf_p: &mut [u8], buf_len: u32, inchip_offset: u32) -> bool {
+    let mut instance_p: FI2c = MASTER_I2C_INSTANCE;
     let mut status: bool = true;
 
     assert!(buf_len != 0);
@@ -283,14 +283,14 @@ pub unsafe fn FI2cMasterRead(buf_p: &mut [u8], buf_len: u32, inchip_offset: u32)
         buf_p[i] = 0;
     }
 
-    status = FI2cMasterReadPoll(&mut instance_p, inchip_offset, 1, buf_p, buf_len);
+    status = fi2c_master_read_poll(&mut instance_p, inchip_offset, 1, buf_p, buf_len);
 
     status
 }
 
-pub fn FtDumpHexByte(ptr: *const u8, buflen: usize) {
+pub fn ft_dump_hex_byte(ptr: *const u8, buflen: usize) {
     unsafe {
-        let buf = unsafe { slice::from_raw_parts(ptr, buflen) };
+        let buf = slice::from_raw_parts(ptr, buflen);
         for i in (0..buflen).step_by(16) {
             trace!("{:p}: ", ptr.add(i));
             for j in 0..16 {
@@ -316,12 +316,12 @@ pub fn FtDumpHexByte(ptr: *const u8, buflen: usize) {
     }
 }
 
-pub unsafe fn FI2cSlaveDump() {
-    let slave_p = slave;
+pub unsafe fn fi2c_slave_dump() {
+    let slave_p = SLAVE;
     trace!(
         "buf size: {}, buf idx: {}",
         slave_p.buff.len(),
         slave_p.buff_idx
     );
-    FtDumpHexByte(slave_p.buff.as_ptr(), 256);
+    ft_dump_hex_byte(slave_p.buff.as_ptr(), 256);
 }

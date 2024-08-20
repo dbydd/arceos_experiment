@@ -2,7 +2,7 @@
 #![feature(allocator_api)]
 
 use alloc::{collections::btree_map::BTreeMap, sync::Arc, vec, vec::Vec};
-use events::{mouse::MouseEvent, EventData, EventHandler, Events};
+use events::{EventData, EventHandler, Events};
 use lazy_static::lazy_static;
 use spinlock::SpinNoIrq;
 
