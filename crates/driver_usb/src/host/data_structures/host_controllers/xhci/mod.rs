@@ -34,6 +34,7 @@ use crate::{
     usb::{
         descriptors::{
             desc_configuration,
+            desc_endpoint::Endpoint,
             topological_desc::{
                 TopologicalUSBDescriptorConfiguration, TopologicalUSBDescriptorEndpoint,
                 TopologicalUSBDescriptorFunction,
@@ -515,27 +516,33 @@ where
         )
     }
 
-    fn reset_endpoint(&mut self, device_slot_id: usize, dci: usize) -> crate::err::Result<UCB<O>> {
-        let command_completion = self
-            .post_cmd(command::Allowed::ResetEndpoint(
-                *ResetEndpoint::new()
-                    .set_endpoint_id(dci as _)
-                    .set_slot_id(device_slot_id as _),
-            ))
-            .unwrap();
+    fn renable_endpoint(
+        &mut self,
+        device_slot_id: usize,
+        dci: usize,
+        desc: Endpoint,
+    ) -> crate::err::Result<UCB<O>> {
 
-        self.trace_dump_context(device_slot_id);
-        match command_completion.completion_code() {
-            Ok(ok) => match ok {
-                CompletionCode::Success => Ok(UCB::<O>::new(CompleteCode::Event(
-                    TransferEventCompleteCode::Success,
-                ))),
-                other => panic!("err:{:?}", other),
-            },
-            Err(err) => Ok(UCB::new(CompleteCode::Event(
-                TransferEventCompleteCode::Unknown(err),
-            ))),
-        }
+        // let command_completion = self
+        //     .post_cmd(command::Allowed::ResetEndpoint(
+        //         *ResetEndpoint::new()
+        //             .set_endpoint_id(dci as _)
+        //             .set_slot_id(device_slot_id as _),
+        //     ))
+        //     .unwrap();
+
+        // self.trace_dump_context(device_slot_id);
+        // match command_completion.completion_code() {
+        //     Ok(ok) => match ok {
+        //         CompletionCode::Success => Ok(UCB::<O>::new(CompleteCode::Event(
+        //             TransferEventCompleteCode::Success,
+        //         ))),
+        //         other => panic!("err:{:?}", other),
+        //     },
+        //     Err(err) => Ok(UCB::new(CompleteCode::Event(
+        //         TransferEventCompleteCode::Unknown(err),
+        //     ))),
+        // }
     }
 
     fn setup_device(
@@ -543,6 +550,8 @@ where
         device_slot_id: usize,
         configure: &TopologicalUSBDescriptorConfiguration,
     ) -> crate::err::Result<UCB<O>> {
+        let input = self.dev_ctx.device_input_context_list[device_slot_id].deref_mut();
+        input.control_mut().clear_add_context_flag(1);
         /**
         A device can support multiple configurations. Within each configuration can be multiple
         interfaces, each possibly having alternate settings. These interfaces can pertain to different
@@ -651,13 +660,14 @@ where
                                 }
                             }
                         }
+                        // }
                     });
 
                 let input_addr = {
                     let input = self.dev_ctx.device_input_context_list[device_slot_id].deref_mut();
                     let control_mut = input.control_mut();
                     control_mut.set_add_context_flag(0);
-                    control_mut.set_configuration_value(configure.data.config_val());
+                    control_mut.set_configuration_value(0);
 
                     control_mut.set_interface_number(0); //
                     control_mut.set_alternate_setting(0); //always exist
@@ -674,7 +684,7 @@ where
                     ))
                     .unwrap();
 
-                self.trace_dump_context(device_slot_id);
+                // self.trace_dump_context(device_slot_id);
                 match command_completion.completion_code() {
                     Ok(ok) => match ok {
                         CompletionCode::Success => {
@@ -1045,7 +1055,9 @@ where
                 switch_interface
             }
             Configuration::SwitchConfig(_, _) => todo!(),
-            Configuration::ResetEndpoint(ep) => self.reset_endpoint(dev_slot_id, ep),
+            Configuration::ReEnableEndpoint(ep, desc) => {
+                self.renable_endpoint(dev_slot_id, ep, desc)
+            }
         }
     }
 

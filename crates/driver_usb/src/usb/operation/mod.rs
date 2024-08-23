@@ -1,11 +1,13 @@
-use super::descriptors::topological_desc::TopologicalUSBDescriptorConfiguration;
+use super::descriptors::{
+    desc_endpoint::Endpoint, topological_desc::TopologicalUSBDescriptorConfiguration,
+};
 
 #[derive(Debug, Clone)]
 pub enum Configuration<'a> {
     SetupDevice(&'a TopologicalUSBDescriptorConfiguration),
     SwitchInterface(InterfaceNumber, AltnativeNumber),
     SwitchConfig(ConfigurationID, InterfaceNumber),
-    ResetEndpoint(EndpointIndex),
+    ReEnableEndpoint(EndpointIndex, Endpoint),
 }
 
 pub type ConfigurationID = usize;
