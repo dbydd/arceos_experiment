@@ -43,7 +43,7 @@ where
         let collect = self
             .drivers
             .iter()
-            .filter_map(|module| module.should_active(device, config.clone()))
+            .filter_map(|module: &Box<dyn USBSystemDriverModule<'a, O>>| module.should_active(device, config.clone()))
             .flat_map(|a| a)
             .inspect(|a| {
                 let sender = a.clone();
