@@ -338,6 +338,30 @@ where
                         data: None,
                     }),
                 ));
+                self.sending_waiting_with_count_state_machine =
+                    SendingWaitingWithCountStateMachine::Waiting(vec.len());
+                Some(vec)
+            }
+            DeviceStateMachine::first => {
+                trace!("FetchingVersion!");
+                return Some(vec![URB::<O>::new(
+                    self.device_slot_id,
+                    RequestedOperation::Control(ControlTransfer {
+                        request_type: bmRequestType::new(
+                            Direction::In,
+                            DataTransferType::Vendor,
+                            Recipient::Device,
+                        ),
+                        request: bRequest::DriverSpec(0x95),
+                        index: 0 as u16,
+                        value: 0x2c2c as u16,
+                        data: Some(self.receiption_buffer.lock().addr_len_tuple()),
+                    }),
+                )]);
+                None
+            }
+            DeviceStateMachine::second => {
+                let mut vec = Vec::new();
                 vec.push(URB::new(
                     self.device_slot_id,
                     RequestedOperation::Control(ControlTransfer {
@@ -352,6 +376,48 @@ where
                         data: None,
                     }),
                 ));
+                self.sending_waiting_with_count_state_machine =
+                    SendingWaitingWithCountStateMachine::Waiting(vec.len());
+                Some(vec)
+            }
+            DeviceStateMachine::third => {
+                trace!("FetchingVersion!");
+                return Some(vec![URB::<O>::new(
+                    self.device_slot_id,
+                    RequestedOperation::Control(ControlTransfer {
+                        request_type: bmRequestType::new(
+                            Direction::In,
+                            DataTransferType::Vendor,
+                            Recipient::Device,
+                        ),
+                        request: bRequest::DriverSpec(0x95),
+                        index: 0 as u16,
+                        value: 0x2518 as u16,
+                        data: Some(self.receiption_buffer.lock().addr_len_tuple()),
+                    }),
+                )]);
+                None
+            }
+            DeviceStateMachine::fourth => {
+                trace!("FetchingVersion!");
+                return Some(vec![URB::<O>::new(
+                    self.device_slot_id,
+                    RequestedOperation::Control(ControlTransfer {
+                        request_type: bmRequestType::new(
+                            Direction::In,
+                            DataTransferType::Vendor,
+                            Recipient::Device,
+                        ),
+                        request: bRequest::DriverSpec(0x95),
+                        index: 0 as u16,
+                        value: 0x0706 as u16,
+                        data: Some(self.receiption_buffer.lock().addr_len_tuple()),
+                    }),
+                )]);
+                None
+            }
+            DeviceStateMachine::fifth =>{
+                let mut vec = Vec::new();
                 vec.push(URB::new(
                     self.device_slot_id,
                     RequestedOperation::Control(ControlTransfer {
@@ -369,23 +435,6 @@ where
                 self.sending_waiting_with_count_state_machine =
                     SendingWaitingWithCountStateMachine::Waiting(vec.len());
                 Some(vec)
-            }
-            DeviceStateMachine::CH341State => {
-                trace!("CH341State!");
-                return Some(vec![URB::<O>::new(
-                    self.device_slot_id,
-                    RequestedOperation::Control(ControlTransfer {
-                        request_type: bmRequestType::new(
-                            Direction::In,
-                            DataTransferType::Vendor,
-                            Recipient::Device,
-                        ),
-                        request: bRequest::DriverSpec(0x95),
-                        index: 0 as u16,
-                        value: 0x0708 as u16,
-                        data: Some(self.receiption_buffer.lock().addr_len_tuple()),
-                    }),
-                )]);
             }
             DeviceStateMachine::Opening => {
                 trace!("start transfer");
@@ -423,13 +472,13 @@ where
                         self.sending_waiting_with_count_state_machine =
                             SendingWaitingWithCountStateMachine::Waiting(new_count);
                         if new_count <= 0 {
-                            self.driver_state_machine = DeviceStateMachine::CH341State;
+                            self.driver_state_machine = DeviceStateMachine::first;
                         }
                     }
                 }
                 other => panic!("received {:?}", other),
             },
-            DeviceStateMachine::CH341State => match ucb.code {
+            DeviceStateMachine::first => match ucb.code {
                 crate::glue::ucb::CompleteCode::Event(TransferEventCompleteCode::Success) => {
                     trace!("completed!");
                     let vec = self.receiption_buffer.lock().to_vec();
@@ -440,7 +489,69 @@ where
                     trace!("+++");
                     trace!("+++");
                     trace!("+++");
-                    self.driver_state_machine = DeviceStateMachine::Opening;
+                    self.driver_state_machine = DeviceStateMachine::second;
+                }
+                other => panic!("received {:?}", other),
+            },
+            DeviceStateMachine::second => match ucb.code {
+                crate::glue::ucb::CompleteCode::Event(TransferEventCompleteCode::Success) => {
+                    if let SendingWaitingWithCountStateMachine::Waiting(waiting_count) =
+                        &mut self.sending_waiting_with_count_state_machine
+                    {
+                        trace!("{:#?}", waiting_count);
+                        let new_count = *waiting_count - 1;
+                        self.sending_waiting_with_count_state_machine =
+                            SendingWaitingWithCountStateMachine::Waiting(new_count);
+                        if new_count <= 0 {
+                            self.driver_state_machine = DeviceStateMachine::third;
+                        }
+                    }
+                }
+                other => panic!("received {:?}", other),
+            },
+            DeviceStateMachine::third => match ucb.code {
+                crate::glue::ucb::CompleteCode::Event(TransferEventCompleteCode::Success) => {
+                    trace!("completed!");
+                    let vec = self.receiption_buffer.lock().to_vec();
+                    trace!("+++");
+                    trace!("+++");
+                    trace!("+++");
+                    trace!("current buffer:{:?}", vec);
+                    trace!("+++");
+                    trace!("+++");
+                    trace!("+++");
+                    self.driver_state_machine = DeviceStateMachine::fourth;
+                }
+                other => panic!("received {:?}", other),
+            },
+            DeviceStateMachine::fourth => match ucb.code {
+                crate::glue::ucb::CompleteCode::Event(TransferEventCompleteCode::Success) => {
+                    trace!("completed!");
+                    let vec = self.receiption_buffer.lock().to_vec();
+                    trace!("+++");
+                    trace!("+++");
+                    trace!("+++");
+                    trace!("current buffer:{:?}", vec);
+                    trace!("+++");
+                    trace!("+++");
+                    trace!("+++");
+                    self.driver_state_machine = DeviceStateMachine::fifth;
+                }
+                other => panic!("received {:?}", other),
+            },
+            DeviceStateMachine::fifth => match ucb.code {
+                crate::glue::ucb::CompleteCode::Event(TransferEventCompleteCode::Success) => {
+                    if let SendingWaitingWithCountStateMachine::Waiting(waiting_count) =
+                        &mut self.sending_waiting_with_count_state_machine
+                    {
+                        trace!("{:#?}", waiting_count);
+                        let new_count = *waiting_count - 1;
+                        self.sending_waiting_with_count_state_machine =
+                            SendingWaitingWithCountStateMachine::Waiting(new_count);
+                        if new_count <= 0 {
+                            self.driver_state_machine = DeviceStateMachine::Opening;
+                        }
+                    }
                 }
                 other => panic!("received {:?}", other),
             },
