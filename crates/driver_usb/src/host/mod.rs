@@ -100,12 +100,13 @@ where
         request: URB<O>,
         dev: &mut Vec<DriverIndependentDeviceInstance<O>>,
     ) -> crate::err::Result<UCB<O>> {
+        trace!("urb request! {:?}", request);
         match request.operation {
             usb::urb::RequestedOperation::Control(control) => {
                 trace!("request transfer!");
                 self.control_transfer(request.device_slot_id, control)
             }
-            usb::urb::RequestedOperation::Bulk => todo!(),
+            usb::urb::RequestedOperation::Bulk => todo!("bulk has completely same request block as interrupt, so use interrupt urb instead for now"),
             usb::urb::RequestedOperation::Interrupt(interrupt_transfer) => self
                 .controller
                 .lock()

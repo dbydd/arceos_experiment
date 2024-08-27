@@ -23,6 +23,18 @@ where
     pub sender: Option<Arc<SpinNoIrq<dyn USBSystemDriverModuleInstance<'a, O>>>>,
 }
 
+impl<'a, O> core::fmt::Debug for URB<'a, O>
+where
+    O: PlatformAbstractions,
+{
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.debug_struct("URB")
+            .field("device_slot_id", &self.device_slot_id)
+            .field("operation", &self.operation)
+            .finish()
+    }
+}
+
 impl<'a, O> URB<'a, O>
 where
     O: PlatformAbstractions,

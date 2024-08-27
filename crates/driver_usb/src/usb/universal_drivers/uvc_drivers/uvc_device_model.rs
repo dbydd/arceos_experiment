@@ -125,7 +125,7 @@ impl UVCControlInterfaceModelParser {
 pub struct UVCVSInterfaceModel {
     pub interface0_stream_desca: Interface,
     pub input_header: UVCVSInterfaceInputHeader,
-    pub output_header: (), //todo!
+    pub output_header: (), //todo! not exist for now
     pub formarts: Vec<(
         UVCStreamingFormartInterface,
         Vec<UVCStreamingFrameInterface>,

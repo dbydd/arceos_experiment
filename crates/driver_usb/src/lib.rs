@@ -163,6 +163,7 @@ where
                         )
                         .bits(),
                         data: Some(buffer_device.addr_len_tuple()),
+                        report: false,
                     },
                 ) {
                     Ok(_) => {
@@ -194,6 +195,7 @@ where
                                         )
                                         .bits(),
                                         data: Some(buffer.addr_len_tuple()),
+                                        report: false,
                                     },
                                 )
                                 .inspect(|_| {
