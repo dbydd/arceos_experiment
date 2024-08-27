@@ -12,6 +12,7 @@ pub struct ControlTransfer {
     pub index: u16,
     pub value: u16,
     pub data: Option<(usize, usize)>,
+    pub report: bool,
 }
 
 #[derive(Debug, Clone)]

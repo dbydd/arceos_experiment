@@ -100,6 +100,7 @@ where
         request: URB<O>,
         dev: &mut Vec<DriverIndependentDeviceInstance<O>>,
     ) -> crate::err::Result<UCB<O>> {
+        trace!("urb request! {:?}", request);
         match request.operation {
             usb::urb::RequestedOperation::Control(control) => {
                 trace!("request transfer!");

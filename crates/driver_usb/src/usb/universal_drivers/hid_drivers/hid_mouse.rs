@@ -182,6 +182,7 @@ where
                 index: self.interface_value as u16,
                 value: self.config_value as u16,
                 data: None,
+                report: false,
             }),
         ));
         todo_list.push(URB::new(
@@ -196,6 +197,7 @@ where
                 index: self.interface_alternative_value as u16,
                 value: self.interface_value as u16,
                 data: None,
+                report: false,
             }),
         ));
 
@@ -212,6 +214,7 @@ where
                     index: if self.bootable == 2 { 1 } else { 0 },
                     value: self.interface_value as u16,
                     data: None,
+                    report: false,
                 }),
             ));
         }
@@ -239,6 +242,7 @@ where
                     )
                     .bits(),
                     data: Some({ buf.lock().addr_len_tuple() }),
+                    report: false,
                 }),
             ));
         }

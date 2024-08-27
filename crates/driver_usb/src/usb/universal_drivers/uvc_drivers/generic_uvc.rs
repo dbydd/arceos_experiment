@@ -258,40 +258,28 @@ where
         }))
     }
 
-    pub fn determine_stream_interface(&mut self) {
-        // self.alternative_settings
-        //     .iter()
-        //     .filter_map(|(id, alternatives)| {
-        //         alternatives
-        //             .iter()
-        //             .map(|(int, endp)| (id, int, endp))
-        //             .min_by(|(_, _, e1), (_, _, e2)| {
-        //                 let max_packet_size1 = e1.max_packet_size;
-        //                 let max_packet_size2 = e2.max_packet_size;
-        //                 max_packet_size1.cmp(&max_packet_size2)
-        //             })
-        //     })
-        //     .last()
-        //     .inspect(|(dci, interface, endpoint)| {
-        //         trace!("founded!{:#?},{:#?}", interface, endpoint);
-        //         self.interface_value = interface.interface_number as _;
-        //         self.interface_alternative_value = interface.alternate_setting as _;
-        //     });
-
+    pub fn determine_stream_interface(&mut self) -> Endpoint {
         self.alternative_settings
             .iter()
-            .find_map(|(id, alternatives)| {
+            .filter_map(|(id, alternatives)| {
                 alternatives
                     .iter()
                     .map(|(int, endp)| (id, int, endp))
-                    .find(|(_, _, e1)| (e1.max_packet_size & 0x7ff) == 1024)
+                    .min_by(|(_, _, e1), (_, _, e2)| {
+                        let max_packet_size1 = e1.max_packet_size;
+                        let max_packet_size2 = e2.max_packet_size;
+                        max_packet_size1.cmp(&max_packet_size2)
+                    })
             })
+            .last()
             .inspect(|(dci, interface, endpoint)| {
                 trace!("founded!{:#?},{:#?}", interface, endpoint);
                 self.interface_value = interface.interface_number as _;
                 self.interface_alternative_value = interface.alternate_setting as _;
-                self.isoch_endpoint = Some(**dci as _);
-            });
+                self.isoch_endpoint = Some(**dci as _)
+            })
+            .map(|(_, _, e)| e.clone())
+            .unwrap()
     }
 }
 
@@ -304,39 +292,27 @@ where
 
         let mut todo_list = Vec::new();
 
-        // todo_list.push(URB::new(
-        //     self.device_slot_id,
-        //     RequestedOperation::Control(ControlTransfer {
-        //         request_type: bmRequestType::new(
-        //             Direction::Out,
-        //             DataTransferType::Class,
-        //             Recipient::Interface,
-        //         ),
-        //         request: UVCSpecBRequest::SET_CUR.into(),
-        //         index: (self.interface_value as u8) as u16,
-        //         value: 1u16 << 8 | 0b00000000u16,
-        //         data: todo!(),
-        //     }),
-        // ));
+        {
+            let find_map = self
+                .interrupt_endpoints
+                .iter()
+                .find_map(|a| {
+                    if let TopologicalUSBDescriptorEndpoint::Standard(ep) = a {
+                        Some(ep)
+                    } else {
+                        None
+                    }
+                })
+                .unwrap();
 
-        // todo_list.push(URB::new(
-        //     self.device_slot_id,
-        //     RequestedOperation::Debug(Debugop::DumpDevice),
-        // ));
-
-        self.determine_stream_interface();
-
-        // self.alternative_settings.keys().for_each(|dci| {
-        //     todo_list.push(URB::new(
-        //         self.device_slot_id,
-        //         RequestedOperation::ExtraStep(ExtraStep::PrepareForTransfer(*dci as _)),
-        //     ))
-        // });
-
-        // // todo_list.push(URB::new(
-        // //     self.device_slot_id,
-        // //     RequestedOperation::Debug(Debugop::DumpDevice),
-        // // ));
+            todo_list.push(URB::new(
+                self.device_slot_id,
+                RequestedOperation::ConfigureDevice(Configuration::ReEnableEndpoint(
+                    find_map.doorbell_value_aka_dci() as _,
+                    find_map.clone(),
+                )),
+            ));
+        }
 
         todo_list.push(URB::new(
             self.device_slot_id,
@@ -350,14 +326,64 @@ where
                 index: 0,
                 value: 1,
                 data: None,
+                report: true,
             }),
         ));
+
+        // let determined_endpoint = self.determine_stream_interface();
+        // todo_list.push(URB::new(
+        //     self.device_slot_id,
+        //     RequestedOperation::ConfigureDevice(Configuration::ReEnableEndpoint(
+        //         self.isoch_endpoint.unwrap(),
+        //         determined_endpoint,
+        //     )),
+        // ));
+
+        // todo_list.push(URB::new(
+        //     self.device_slot_id,
+        //     RequestedOperation::ExtraStep(ExtraStep::PrepareForTransfer(7)),
+        // ));
+
+        // todo_list.push(URB::new(
+        //     self.device_slot_id,
+        //     RequestedOperation::Debug(Debugop::DumpConfigAndInterface),
+        // ));
+
+        // let determined_endpoint = self.determine_stream_interface();
+        // todo_list.push(URB::new(
+        //     self.device_slot_id,
+        //     RequestedOperation::ConfigureDevice(Configuration::ReEnableEndpoint(
+        //         self.isoch_endpoint.unwrap(),
+        //         determined_endpoint,
+        //     )),
+        // ));
+
+        // todo_list.push(URB::new(
+        //     self.device_slot_id,
+        //     RequestedOperation::Control(ControlTransfer {
+        //         request_type: bmRequestType::new(
+        //             Direction::Out,
+        //             DataTransferType::Standard,
+        //             Recipient::Device,
+        //         ),
+        //         request: StandardbRequest::SetConfiguration.into(),
+        //         index: 0,
+        //         value: 1,
+        //         data: None,
+        //     }),
+        // ));
+
+        // todo_list.push(URB::new(
+        //     self.device_slot_id,
+        //     RequestedOperation::Debug(Debugop::DumpDevice),
+        // ));
 
         // todo_list.push(URB::new(
         //     self.device_slot_id,
         //     RequestedOperation::ConfigureDevice(Configuration::SwitchInterface(
-        //         self.interface_value,
-        //         self.interface_alternative_value,
+        //         // self.interface_value,
+        //         // self.interface_alternative_value,
+        //         1, 1,
         //     )),
         // ));
 
@@ -376,57 +402,27 @@ where
         //     }),
         // ));
 
-        // if let Some(ReportDescState::Binary(buf)) = &self.report_descriptor {
-        //     todo_list.push(URB::new(
-        //         self.device_slot_id,
-        //         RequestedOperation::Control(ControlTransfer {
-        //             request_type: bmRequestType::new(
-        //                 Direction::In,
-        //                 DataTransferType::Standard,
-        //                 Recipient::Interface,
-        //             ),
-        //             request: bRequest::GetDescriptor,
-        //             index: self.interface_alternative_value as u16,
-        //             value: crate::usb::descriptors::construct_control_transfer_type(
-        //                 HIDDescriptorTypes::HIDReport as u8,
-        //                 0,
-        //             )
-        //             .bits(),
-        //             data: Some({ buf.lock().addr_len_tuple() }),
-        //         }),
-        //     ));
-        // }
-
-        // self.interrupt_in_channels
-        //     .iter()
-        //     .chain(self.interrupt_out_channels.iter())
-        //     .for_each(|dci| {
-        //         todo_list.push(URB::new(
-        //             self.device_slot_id,
-        //             RequestedOperation::ExtraStep(ExtraStep::PrepareForTransfer(*dci as _)),
-        //         ));
-        //     });
-
         Some(todo_list)
     }
 
     fn gather_urb(&mut self) -> Option<Vec<crate::usb::urb::URB<'a, O>>> {
-        if let Some(buf) = &self.receiption_buffer {
-            let mut test = Vec::new();
-            // todo!() //试试直接从端口获取？
-            test.push(URB::new(
-                self.device_slot_id,
-                RequestedOperation::Isoch(IsochTransfer {
-                    endpoint_id: 3,
-                    buffer_addr_len: buf.lock().addr_len_tuple(),
-                    request_times: 3,
-                    packet_size: 800,
-                }),
-            ));
-            Some(test)
-        } else {
-            None
-        }
+        // if let Some(buf) = &self.receiption_buffer {
+        //     let mut test = Vec::new();
+        //     // todo!() //试试直接从端口获取？
+        //     test.push(URB::new(
+        //         self.device_slot_id,
+        //         RequestedOperation::Isoch(IsochTransfer {
+        //             endpoint_id: 3,
+        //             buffer_addr_len: buf.lock().addr_len_tuple(),
+        //             request_times: 3,
+        //             packet_size: 800,
+        //         }),
+        //     ));
+        //     Some(test)
+        // } else {
+        //     None
+        // }
+        None
     }
 
     fn receive_complete_event(&mut self, ucb: crate::glue::ucb::UCB<O>) {

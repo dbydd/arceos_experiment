@@ -8,6 +8,7 @@ pub enum Configuration<'a> {
     SwitchInterface(InterfaceNumber, AltnativeNumber),
     SwitchConfig(ConfigurationID, InterfaceNumber),
     ReEnableEndpoint(EndpointIndex, Endpoint),
+    DisableEndpoint(EndpointIndex),
 }
 
 pub type ConfigurationID = usize;
@@ -23,4 +24,5 @@ pub type EndpointIndex = usize;
 #[derive(Debug, Clone)]
 pub enum Debugop {
     DumpDevice,
+    DumpConfigAndInterface,
 }

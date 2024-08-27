@@ -15,6 +15,8 @@ use log::debug;
 use log::trace;
 pub use xhci::ring::trb;
 use xhci::ring::trb::command;
+use xhci::ring::trb::command::Allowed;
+use xhci::ring::trb::command::Noop;
 use xhci::ring::trb::event;
 use xhci::ring::trb::transfer;
 use xhci::ring::trb::Link;
@@ -51,6 +53,19 @@ impl<O: OSAbstractions> Ring<O> {
         self.get_trb().as_ptr() as usize as u64
     }
 
+    pub fn reset(&mut self) -> &mut Self {
+        self.trbs.fill({
+            let mut noop = Noop::default();
+            if !self.cycle {
+                noop.set_cycle_bit();
+            }
+            noop.into_raw()
+        });
+        self.i = 0;
+        self.cycle = self.link;
+        self
+    }
+
     pub fn enque_command(&mut self, mut trb: command::Allowed) -> usize {
         if self.cycle {
             trb.set_cycle_bit();
@@ -58,7 +73,7 @@ impl<O: OSAbstractions> Ring<O> {
             trb.clear_cycle_bit();
         }
         let addr = self.enque_trb(trb.clone().into_raw());
-        trace!("[CMD] >> {:?} @{:X}", trb, addr);
+        debug!("[CMD] >> {:?} @{:X}", trb, addr);
         addr
     }
 
