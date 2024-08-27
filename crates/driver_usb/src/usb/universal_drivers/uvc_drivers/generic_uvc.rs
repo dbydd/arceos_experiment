@@ -330,14 +330,27 @@ where
             }),
         ));
 
-        // let determined_endpoint = self.determine_stream_interface();
-        // todo_list.push(URB::new(
-        //     self.device_slot_id,
-        //     RequestedOperation::ConfigureDevice(Configuration::ReEnableEndpoint(
-        //         self.isoch_endpoint.unwrap(),
-        //         determined_endpoint,
-        //     )),
-        // ));
+        todo_list.push(URB::new(
+            self.device_slot_id,
+            RequestedOperation::ConfigureDevice(Configuration::SwitchInterface(1, 0)),
+        ));
+
+        let determined_endpoint = self.determine_stream_interface();
+        todo_list.push(URB::new(
+            self.device_slot_id,
+            RequestedOperation::ConfigureDevice(Configuration::ReEnableEndpoint(
+                self.isoch_endpoint.unwrap(),
+                determined_endpoint,
+            )),
+        ));
+
+        todo_list.push(URB::new(
+            self.device_slot_id,
+            RequestedOperation::ConfigureDevice(Configuration::SwitchInterface(
+                self.interface_value,
+                self.interface_alternative_value,
+            )),
+        ));
 
         // todo_list.push(URB::new(
         //     self.device_slot_id,
@@ -406,23 +419,22 @@ where
     }
 
     fn gather_urb(&mut self) -> Option<Vec<crate::usb::urb::URB<'a, O>>> {
-        // if let Some(buf) = &self.receiption_buffer {
-        //     let mut test = Vec::new();
-        //     // todo!() //试试直接从端口获取？
-        //     test.push(URB::new(
-        //         self.device_slot_id,
-        //         RequestedOperation::Isoch(IsochTransfer {
-        //             endpoint_id: 3,
-        //             buffer_addr_len: buf.lock().addr_len_tuple(),
-        //             request_times: 3,
-        //             packet_size: 800,
-        //         }),
-        //     ));
-        //     Some(test)
-        // } else {
-        //     None
-        // }
-        None
+        if let Some(buf) = &self.receiption_buffer {
+            let mut test = Vec::new();
+            // todo!() //试试直接从端口获取？
+            test.push(URB::new(
+                self.device_slot_id,
+                RequestedOperation::Isoch(IsochTransfer {
+                    endpoint_id: 3,
+                    buffer_addr_len: buf.lock().addr_len_tuple(),
+                    request_times: 3,
+                    packet_size: 800,
+                }),
+            ));
+            Some(test)
+        } else {
+            None
+        }
     }
 
     fn receive_complete_event(&mut self, ucb: crate::glue::ucb::UCB<O>) {
