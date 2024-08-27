@@ -15,7 +15,7 @@ use crate::{
     glue::{driver_independent_device_instance::DriverIndependentDeviceInstance, ucb::UCB},
     usb::{
         operation::{Configuration, Debugop, ExtraStep},
-        trasnfer::{control::ControlTransfer, interrupt::InterruptTransfer, isoch::IsochTransfer},
+        trasnfer::{bulk::BulkTransfer, control::ControlTransfer, interrupt::InterruptTransfer, isoch::IsochTransfer},
     },
     USBSystemConfig,
 };
@@ -40,6 +40,12 @@ where
         &mut self,
         dev_slot_id: usize,
         urb_req: InterruptTransfer,
+    ) -> crate::err::Result<UCB<O>>;
+
+    fn bulk_transfer(
+        &mut self,
+        dev_slot_id: usize,
+        urb_req: BulkTransfer,
     ) -> crate::err::Result<UCB<O>>;
 
     fn isoch_transfer(

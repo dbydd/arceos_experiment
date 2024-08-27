@@ -1231,6 +1231,43 @@ where
         }
     }
 
+    fn bulk_transfer(
+        &mut self,
+        dev_slot_id: usize,
+        urb_req: trasnfer::bulk::BulkTransfer,
+    ) -> crate::err::Result<UCB<O>>{
+        let (addr, len) = urb_req.buffer_addr_len;
+        let enqued_transfer = self
+            .ep_ring_mut(dev_slot_id, urb_req.endpoint_id as _)
+            .enque_transfer(transfer::Allowed::Normal(
+                *Normal::new()
+                    .set_data_buffer_pointer(addr as _)
+                    .set_trb_transfer_length(len as _)
+                    .set_interrupter_target(0)
+                    .set_interrupt_on_short_packet()
+                    .set_interrupt_on_completion(),
+            ));
+        self.regs.doorbell.update_volatile_at(dev_slot_id, |r| {
+            r.set_doorbell_target(urb_req.endpoint_id as _);
+        });
+
+        let transfer_event = self.event_busy_wait_transfer(enqued_transfer as _).unwrap();
+        match transfer_event.completion_code() {
+            Ok(complete) => match complete {
+                CompletionCode::Success | CompletionCode::ShortPacket => {
+                    trace!("ok! return a success ucb!");
+                    Ok(UCB::new(CompleteCode::Event(
+                        TransferEventCompleteCode::Success,
+                    )))
+                }
+                err => panic!("{:?}", err),
+            },
+            Err(fail) => Ok(UCB::new(CompleteCode::Event(
+                TransferEventCompleteCode::Unknown(fail),
+            ))),
+        }
+    }
+
     fn extra_step(&mut self, dev_slot_id: usize, urb_req: ExtraStep) -> crate::err::Result<UCB<O>> {
         match urb_req {
             ExtraStep::PrepareForTransfer(dci) => {
