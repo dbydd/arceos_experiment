@@ -1378,45 +1378,6 @@ where
         let mut packet_size = urb_req.packet_size;
         let mut remain = None;
 
-        // let enqued_transfer = self
-        //     .ep_ring_mut(dev_slot_id, urb_req.endpoint_id as _)
-        //     .enque_transfer(transfer::Allowed::Isoch(
-        //         *Isoch::new()
-        //             .set_data_buffer_pointer(buffer_addr as _)
-        //             .set_trb_transfer_length(128 as _)
-        //             .set_interrupter_target(0)
-        //             .set_interrupt_on_short_packet()
-        //             // .set_transfer_last_burst_packet_count(0b01)
-        //             .set_start_isoch_asap()
-        //             .set_start_isoch_asap()
-        //             .set_data_buffer_pointer((buffer_addr + request_times * packet_size) as _)
-        //             .set_trb_transfer_length(remain.unwrap() as _)
-        //             .set_td_size_or_tbc(0)
-        //             .set_start_isoch_asap()
-        //             .set_data_buffer_pointer((buffer_addr + request_times * packet_size) as _)
-        //             .set_trb_transfer_length(remain.unwrap() as _)
-        //             .set_td_size_or_tbc(0)
-        //             .set_interrupt_on_completion(),
-        //     ));
-        // self.regs.doorbell.update_volatile_at(dev_slot_id, |r| {
-        //     r.set_doorbell_target(urb_req.endpoint_id as _);
-        // });
-
-        // let transfer_event = self.event_busy_wait_transfer(enqued_transfer as _).unwrap();
-        // match transfer_event.completion_code() {
-        //     Ok(complete) => match complete {
-        //         CompletionCode::Success | CompletionCode::ShortPacket => {
-        //             trace!("ok! return a success ucb!");
-        //             Ok(UCB::new(CompleteCode::Event(
-        //                 TransferEventCompleteCode::Success,
-        //             )))
-        //         }
-        //         err => panic!("{:?}", err),
-        //     },
-        //     Err(fail) => Ok(UCB::new(CompleteCode::Event(
-        //         TransferEventCompleteCode::Unknown(fail),
-        //     ))),
-        // }
         //------------------------------
         trace!("packet size:{packet_size},request_times:{request_times},total_len:{total_len}");
         assert!(packet_size * request_times <= total_len);
