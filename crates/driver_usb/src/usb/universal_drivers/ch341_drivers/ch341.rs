@@ -254,6 +254,7 @@ where
                 index: self.interface_value as u16,
                 value: self.config_value as u16,
                 data: None,
+                report: false,
             }),
         ));
         todo_list.push(URB::new(
@@ -268,6 +269,7 @@ where
                 index: self.interface_alternative_value as u16,
                 value: self.interface_value as u16,
                 data: None,
+                report: todo!(),
             }),
         ));
 
@@ -300,9 +302,10 @@ where
                             Recipient::Device,
                         ),
                         request: bRequest::DriverSpec(0x5F),
-                        index: 0 as u16,
-                        value: 0 as u16,
+                        index: 0asu16,
+                        value: 0asu16,
                         data: Some(self.receiption_buffer.lock().addr_len_tuple()),
+                        report: false,
                     }),
                 )]);
                 None
@@ -322,6 +325,7 @@ where
                         index: 0 as u16,
                         value: 0 as u16,
                         data: None,
+                        report: false,
                     }),
                 ));
                 vec.push(URB::new(
@@ -329,13 +333,14 @@ where
                     RequestedOperation::Control(ControlTransfer {
                         request_type: bmRequestType::new(
                             Direction::Out,
-                            DataTransferType::Vendor,   
+                            DataTransferType::Vendor,
                             Recipient::Device,
                         ),
                         request: bRequest::DriverSpec(0xA1),
                         index: 0 as u16,
                         value: 0 as u16,
                         data: None,
+                        report: false,
                     }),
                 ));
                 vec.push(URB::new(
@@ -350,6 +355,7 @@ where
                         index: 0xB282 as u16,
                         value: 0x1312 as u16,
                         data: None,
+                        report: false,
                     }),
                 ));
                 vec.push(URB::new(
@@ -364,6 +370,7 @@ where
                         index: 0xC3 as u16,
                         value: 0x2518 as u16,
                         data: None,
+                        report: false,
                     }),
                 ));
                 vec.push(URB::new(
@@ -378,6 +385,7 @@ where
                         index: 0 as u16,
                         value: 0xFFFF as u16,
                         data: None,
+                        report: false,
                     }),
                 ));
                 vec.push(URB::new(
@@ -392,8 +400,9 @@ where
                         index: 0xB282 as u16,
                         value: 0x1312 as u16,
                         data: None,
+                        report: false,
                     }),
-                ));                
+                ));
                 self.sending_waiting_with_count_state_machine =
                     SendingWaitingWithCountStateMachine::Waiting(vec.len());
                 Some(vec)
@@ -409,9 +418,10 @@ where
                             Recipient::Device,
                         ),
                         request: bRequest::DriverSpec(0x95),
-                        index: 0 as u16,
-                        value: 0x0706 as u16,
+                        index: 0asu16,
+                        value: 0x0706asu16,
                         data: Some(self.receiption_buffer.lock().addr_len_tuple()),
+                        report: false,
                     }),
                 )]);
                 None
@@ -421,12 +431,11 @@ where
                 return Some(vec![URB::<O>::new(
                     self.device_slot_id,
                     RequestedOperation::Interrupt(InterruptTransfer {
-                        endpoint_id: self.interrupt_in_channels.last().unwrap().clone()
-                            as usize,
+                        endpoint_id: self.interrupt_in_channels.last().unwrap().clone() as usize,
                         buffer_addr_len: self.receiption_buffer.lock().addr_len_tuple(),
                     }),
                 )]);
-            },
+            }
         }
     }
 
@@ -458,7 +467,7 @@ where
                 }
                 other => panic!("received {:?}", other),
             },
-            DeviceStateMachine::CH341Status => match ucb.code{
+            DeviceStateMachine::CH341Status => match ucb.code {
                 crate::glue::ucb::CompleteCode::Event(TransferEventCompleteCode::Success) => {
                     trace!("transfer completed!");
                     let vec = self.receiption_buffer.lock().to_vec();
@@ -473,7 +482,7 @@ where
                 }
                 other => panic!("wrror no success"),
             },
-            DeviceStateMachine::Opening => match ucb.code{
+            DeviceStateMachine::Opening => match ucb.code {
                 crate::glue::ucb::CompleteCode::Event(TransferEventCompleteCode::Success) => {
                     trace!("transfer completed!");
                     let vec = self.receiption_buffer.lock().to_vec();
