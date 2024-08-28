@@ -16,4 +16,4 @@ mod config {
 pub use config::*;
 
 /// End address of the whole physical memory.
-pub const PHYS_MEMORY_END: usize = PHYS_MEMORY_BASE + PHYS_MEMORY_SIZE - NOCACHE_MEMORY_SIZE;
+pub const PHYS_MEMORY_END: usize = PHYS_MEMORY_BASE + PHYS_MEMORY_SIZE;

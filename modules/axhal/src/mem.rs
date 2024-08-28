@@ -129,9 +129,9 @@ pub(crate) fn default_mmio_regions() -> impl Iterator<Item = MemRegion> {
 /// Returns the default free memory regions (kernel image end to physical memory end).
 #[allow(dead_code)]
 pub(crate) fn default_free_regions() -> impl Iterator<Item = MemRegion> {
-    let start = VirtAddr::from(_ekernel as usize + axconfig::NOCACHE_MEMORY_SIZE).align_up_4k();
+    let start = VirtAddr::from(_ekernel as usize).align_up_4k();
     let start = virt_to_phys(start);
-    let end = PhysAddr::from(axconfig::PHYS_MEMORY_END);
+    let end = PhysAddr::from(axconfig::PHYS_MEMORY_END - axconfig::NOCACHE_MEMORY_SIZE);
     core::iter::once(MemRegion {
         paddr: start,
         size: end.as_usize() - start.as_usize(),
@@ -143,8 +143,7 @@ pub(crate) fn default_free_regions() -> impl Iterator<Item = MemRegion> {
 /// Returns the default free memory regions (kernel image end to physical memory end).
 #[allow(dead_code)]
 pub(crate) fn default_nocache_regions() -> impl Iterator<Item = MemRegion> {
-    let start = VirtAddr::from(_ekernel as usize).align_up_4k();
-    let start = virt_to_phys(start);
+    let start = PhysAddr::from(axconfig::PHYS_MEMORY_END - axconfig::NOCACHE_MEMORY_SIZE);
 
     core::iter::once(MemRegion {
         paddr: start,
