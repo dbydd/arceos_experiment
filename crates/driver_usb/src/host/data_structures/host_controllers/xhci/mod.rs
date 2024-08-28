@@ -570,7 +570,6 @@ where
     fn re_enable_endpoint(
         &mut self,
         device_slot_id: usize,
-        dci: usize,
         desc: Endpoint,
     ) -> crate::err::Result<UCB<O>> {
         trace!(
@@ -578,6 +577,7 @@ where
             desc,
             desc.endpoint_type()
         );
+        let dci = desc.doorbell_value_aka_dci() as _;
 
         {
             let ctx_in = self
@@ -1157,9 +1157,7 @@ where
                 switch_interface
             }
             Configuration::SwitchConfig(_, _) => todo!(),
-            Configuration::ReEnableEndpoint(ep, desc) => {
-                self.re_enable_endpoint(dev_slot_id, ep, desc)
-            }
+            Configuration::ReEnableEndpoint(desc) => self.re_enable_endpoint(dev_slot_id, desc),
             Configuration::DisableEndpoint(idx) => self.disable_endpoint(dev_slot_id, idx),
         }
     }
@@ -1376,62 +1374,29 @@ where
         let (buffer_addr, total_len) = urb_req.buffer_addr_len;
         let isoch_id = urb_req.endpoint_id;
         let mut packet_size = urb_req.packet_size;
-        let mut remain = None;
+        // let mut remain = None;
 
-        //------------------------------
-        trace!("packet size:{packet_size},request_times:{request_times},total_len:{total_len}");
-        assert!(packet_size * request_times <= total_len);
-
-        let max_packet_size = self
-            .dev_ctx
-            .device_out_context_list
-            .get(dev_slot_id)
-            .unwrap()
-            .endpoint(urb_req.endpoint_id)
-            .max_packet_size() as usize;
-        if max_packet_size < packet_size {
-            let total = packet_size * request_times;
-            remain = Some((total % max_packet_size));
-            request_times = total / max_packet_size;
-            packet_size = max_packet_size;
-        }
-
-        assert!(request_times < 32 || (request_times < 31 && remain.is_some())); //HARDCODE ring size is 32, should not over flap previous enqueued trb.
-
-        if remain.is_none() {
-            request_times -= 1;
-            remain = Some(packet_size)
-        }
-
-        let mut collect = (0..request_times)
-            .map(|i| i * packet_size + buffer_addr)
-            .enumerate()
-            .map(|(i, addr)| {
-                transfer::Allowed::Isoch({
-                    let mut isoch = Isoch::new();
-                    isoch
+        let mut enqued_trb = 0;
+        for _ in 0..10 {
+            enqued_trb = self.ep_ring_mut(dev_slot_id, isoch_id as _).enque_transfer(
+                transfer::Allowed::Isoch(
+                    *Isoch::default()
+                        .set_data_buffer_pointer(buffer_addr as _)
+                        .set_trb_transfer_length(1024)
                         .set_start_isoch_asap()
-                        .set_data_buffer_pointer(addr as _)
-                        .set_trb_transfer_length(packet_size as _)
-                        .set_td_size_or_tbc((request_times - 1 - i) as _);
-                    isoch
-                })
-            })
-            .collect::<Vec<_>>();
-        collect.push(transfer::Allowed::Isoch(
-            *Isoch::new()
-                .set_start_isoch_asap()
-                .set_data_buffer_pointer((buffer_addr + request_times * packet_size) as _)
-                .set_trb_transfer_length(remain.unwrap() as _)
-                .set_td_size_or_tbc(0)
-                .set_interrupt_on_completion(),
-        ));
+                        .set_transfer_last_burst_packet_count(0b10)
+                        .set_block_event_interrupt()
+                        .set_interrupt_on_completion()
+                        .set_interrupt_on_short_packet(),
+                ),
+            );
+        }
 
-        let enqued_trbs = self
-            .ep_ring_mut(dev_slot_id, isoch_id as _)
-            .enque_trbs(collect.iter().map(|a| a.into_raw()).collect());
+        self.regs.doorbell.update_volatile_at(dev_slot_id, |r| {
+            r.set_doorbell_target(urb_req.endpoint_id as _);
+        });
 
-        let transfer_event = self.event_busy_wait_transfer(enqued_trbs as _).unwrap();
+        let transfer_event = self.event_busy_wait_transfer(enqued_trb as _).unwrap();
 
         match transfer_event.completion_code() {
             Ok(complete) => match complete {
@@ -1447,6 +1412,77 @@ where
                 TransferEventCompleteCode::Unknown(fail),
             ))),
         }
+
+        //------------------------------
+        // trace!("packet size:{packet_size},request_times:{request_times},total_len:{total_len}");
+        // // assert!(packet_size * request_times <= total_len);
+
+        // let max_packet_size = self
+        //     .dev_ctx
+        //     .device_out_context_list
+        //     .get(dev_slot_id)
+        //     .unwrap()
+        //     .endpoint(urb_req.endpoint_id)
+        //     .max_packet_size() as usize;
+        // if max_packet_size < packet_size {
+        //     let total = packet_size * request_times;
+        //     remain = Some((total % max_packet_size));
+        //     request_times = total / max_packet_size;
+        //     packet_size = max_packet_size;
+        // }
+
+        // assert!(request_times < 32 || (request_times < 31 && remain.is_some())); //HARDCODE ring size is 32, should not over flap previous enqueued trb.
+
+        // if remain.is_none() {
+        //     request_times -= 1;
+        //     remain = Some(packet_size)
+        // }
+
+        // let mut collect = (0..request_times)
+        //     // .map(|i| i * packet_size + buffer_addr)
+        //     .map(|i| buffer_addr)
+        //     .enumerate()
+        //     .map(|(i, addr)| {
+        //         transfer::Allowed::Isoch({
+        //             let mut isoch = Isoch::new();
+        //             isoch
+        //                 .set_start_isoch_asap()
+        //                 .set_data_buffer_pointer(addr as _)
+        //                 .set_trb_transfer_length(packet_size as _);
+        //             // .set_td_size_or_tbc((request_times - 1 - i) as _);
+        //             isoch
+        //         })
+        //     })
+        //     .collect::<Vec<_>>();
+        // collect.push(transfer::Allowed::Isoch(
+        //     *Isoch::new()
+        //         .set_start_isoch_asap()
+        //         .set_data_buffer_pointer((buffer_addr + request_times * packet_size) as _)
+        //         .set_trb_transfer_length(remain.unwrap() as _)
+        //         .set_td_size_or_tbc(0)
+        //         .set_interrupt_on_completion(),
+        // ));
+
+        // let enqued_trbs = self
+        //     .ep_ring_mut(dev_slot_id, isoch_id as _)
+        //     .enque_trbs(collect.iter().map(|a| a.into_raw()).collect());
+
+        // let transfer_event = self.event_busy_wait_transfer(enqued_trbs as _).unwrap();
+
+        // match transfer_event.completion_code() {
+        //     Ok(complete) => match complete {
+        //         CompletionCode::Success | CompletionCode::ShortPacket => {
+        //             trace!("ok! return a success ucb!");
+        //             Ok(UCB::new(CompleteCode::Event(
+        //                 TransferEventCompleteCode::Success,
+        //             )))
+        //         }
+        //         err => panic!("{:?}", err),
+        //     },
+        //     Err(fail) => Ok(UCB::new(CompleteCode::Event(
+        //         TransferEventCompleteCode::Unknown(fail),
+        //     ))),
+        // }
     }
 
     fn debug_op(&mut self, dev_slot_id: usize, debug_op: Debugop) -> crate::err::Result<UCB<O>> {

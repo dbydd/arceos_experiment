@@ -7,7 +7,7 @@ pub enum Configuration<'a> {
     SetupDevice(&'a TopologicalUSBDescriptorConfiguration),
     SwitchInterface(InterfaceNumber, AltnativeNumber),
     SwitchConfig(ConfigurationID, InterfaceNumber),
-    ReEnableEndpoint(EndpointIndex, Endpoint),
+    ReEnableEndpoint(Endpoint),
     DisableEndpoint(EndpointIndex),
 }
 

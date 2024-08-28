@@ -63,6 +63,21 @@ where
         Self::new(value, 4096, allocator)
     }
 
+    pub fn reserve_with_0(align: usize, allocator: A) -> DMA<T, A> {
+        //计算所需内存大小
+        let buff_size = size_of::<T>();
+        // 根据元素数量和对其要求创建内存布局
+        let layout = Layout::from_size_align(buff_size, align).unwrap();
+        // 使用分配器分配内存
+        let mut data = allocator.allocate_zeroed(layout).unwrap();
+        Self {
+            layout,
+            data,
+            allocator,
+            __marker: PhantomData::default(),
+        }
+    }
+
     pub fn fill_zero(mut self) -> Self {
         unsafe { self.data.as_mut().iter_mut().for_each(|u| *u = 0u8) }
         self

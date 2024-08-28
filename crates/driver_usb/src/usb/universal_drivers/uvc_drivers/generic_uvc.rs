@@ -1,8 +1,14 @@
-use core::{fmt::Debug, mem::MaybeUninit};
+use core::{fmt::Debug, mem::MaybeUninit, ops::DerefMut};
 
-use alloc::{collections::btree_map::BTreeMap, sync::Arc, vec, vec::Vec};
+use alloc::{
+    collections::{btree_map::BTreeMap, vec_deque::VecDeque},
+    sync::Arc,
+    vec,
+    vec::Vec,
+};
 use log::trace;
 use spinlock::SpinNoIrq;
+use tock_registers::interfaces::Writeable;
 use xhci::{context::EndpointType, ring::trb::transfer::Direction};
 
 use crate::{
@@ -40,7 +46,9 @@ use super::{
     uvc_device_model::{
         UVCControlInterfaceModel, UVCControlInterfaceModelParser, UVCVSInterfaceModel,
     },
-    uvc_spec_transfer::UVCSpecBRequest,
+    uvc_spec_transfer::{
+        Hint, StreamControlBlockVersionToSizeMap, UVCSpecBRequest, UVCStreamControlBlock,
+    },
 };
 
 pub struct GenericUVCDriverModule; //TODO: Create annotations to register
@@ -61,6 +69,7 @@ where
     send_receive_state: BasicSendReceiveStateMachine,
     lifecycle_machine: ExtraLifeCycle,
     receiption_buffer: Option<SpinNoIrq<DMA<[u8], O::DMA>>>,
+    control_blocks: VecDeque<SpinNoIrq<DMA<UVCStreamControlBlock, O::DMA>>>,
 }
 
 impl<'a, O> USBSystemDriverModule<'a, O> for GenericUVCDriverModule
@@ -187,30 +196,28 @@ where
         let mut alternative_interface_endpoint: BTreeMap<u32, Vec<(Interface, Endpoint)>> =
             BTreeMap::new();
 
-        function
-            .iter()
-            .filter_map(|a| {
-                a.iter().find(|(i, o, e)| {
-                    o.is_empty() //yeah, this is a special point of uvc
+        function.last().unwrap().iter().for_each(|(i, o, es)| {
+            es //uvc standard says the last group always stream interfaces
+                .last()
+                .and_then(|e| {
+                    if let TopologicalUSBDescriptorEndpoint::Standard(ep) = e {
+                        Some(ep)
+                    } else {
+                        None
+                    }
                 })
-            })
-            .for_each(|(interface, _, endpoints)| {
-                endpoints
-                    .iter()
-                    .filter_map(|e| {
-                        if let TopologicalUSBDescriptorEndpoint::Standard(ep) = e {
-                            Some(ep)
-                        } else {
-                            None
-                        }
-                    })
-                    .for_each(|ep| {
+                .inspect(|last| {
+                    if !alternative_interface_endpoint.contains_key(&last.doorbell_value_aka_dci())
+                    {
                         alternative_interface_endpoint
-                            .entry(ep.doorbell_value_aka_dci())
-                            .or_insert(Vec::new())
-                            .push((interface.clone(), ep.clone()))
-                    })
-            });
+                            .insert(last.doorbell_value_aka_dci(), Vec::new());
+                    }
+
+                    alternative_interface_endpoint
+                        .get_mut(&last.doorbell_value_aka_dci())
+                        .and_then(|v| Some(v.push((*i, **last))));
+                });
+        });
 
         // trace!("goted function:{:#?}", function);
         Arc::new(SpinNoIrq::new(Self {
@@ -255,6 +262,7 @@ where
                 config.clone().lock().os.dma_alloc(),
             ))),
             isoch_endpoint: None,
+            control_blocks: VecDeque::new(),
         }))
     }
 
@@ -281,6 +289,33 @@ where
             .map(|(_, _, e)| e.clone())
             .unwrap()
     }
+
+    fn select_stream_interface_manual(
+        &mut self,
+        interface_value: usize,
+        alternative_val: usize,
+    ) -> Endpoint {
+        trace!("current alternatives:{:#?}", self.alternative_settings);
+        self.alternative_settings
+            .iter()
+            .find_map(|(_, alternatives)| {
+                alternatives.iter().find_map(|(intf, endp)| {
+                    if intf.interface_number == interface_value as _
+                        && intf.alternate_setting == alternative_val as _
+                    {
+                        trace!("found!");
+                        self.interface_alternative_value = alternative_val;
+                        self.interface_value = interface_value;
+                        self.isoch_endpoint = Some(endp.doorbell_value_aka_dci() as _);
+                        Some(endp)
+                    } else {
+                        None
+                    }
+                })
+            })
+            .map(|e| e.clone())
+            .unwrap()
+    }
 }
 
 impl<'a, O> USBSystemDriverModuleInstance<'a, O> for GenericUVCDriver<O>
@@ -291,6 +326,47 @@ where
         // todo!();
 
         let mut todo_list = Vec::new();
+
+        {
+            let control_block = {
+                let mut ctrl_block =
+                    DMA::create_uvcstream_control_block(self.config.lock().os.dma_alloc());
+
+                ctrl_block.hint.set(1);
+                ctrl_block.format_index = 2;
+                ctrl_block.frame_index = 1;
+                ctrl_block.frame_interval = 333333;
+                ctrl_block.keyframe_rate = 0;
+                ctrl_block.p_frame_rate = 0;
+                ctrl_block.compress_quality = 0;
+                ctrl_block.compress_window_size = 0;
+                ctrl_block.delay = 0;
+                ctrl_block.max_video_frame_size = 614400;
+                ctrl_block.max_payload_transfer_size = 3072;
+
+                let buffer = ctrl_block.to_buffer(StreamControlBlockVersionToSizeMap::Ver1p0);
+                self.control_blocks.push_back(SpinNoIrq::new(ctrl_block));
+                buffer
+            };
+
+            todo_list.push(URB::new(
+                self.device_slot_id,
+                RequestedOperation::Control(ControlTransfer {
+                    request_type: bmRequestType::new(
+                        Direction::Out,
+                        DataTransferType::Class,
+                        Recipient::Interface,
+                    ),
+                    request: crate::usb::trasnfer::control::bRequest::DriverSpec(
+                        UVCSpecBRequest::SET_CUR as _,
+                    ),
+                    index: 1,
+                    value: 256,
+                    data: Some(control_block),
+                    report: true,
+                }),
+            ))
+        }
 
         {
             let find_map = self
@@ -308,7 +384,6 @@ where
             todo_list.push(URB::new(
                 self.device_slot_id,
                 RequestedOperation::ConfigureDevice(Configuration::ReEnableEndpoint(
-                    find_map.doorbell_value_aka_dci() as _,
                     find_map.clone(),
                 )),
             ));
@@ -335,11 +410,11 @@ where
             RequestedOperation::ConfigureDevice(Configuration::SwitchInterface(1, 0)),
         ));
 
-        let determined_endpoint = self.determine_stream_interface();
+        let determined_endpoint = self.select_stream_interface_manual(1, 6);
+
         todo_list.push(URB::new(
             self.device_slot_id,
             RequestedOperation::ConfigureDevice(Configuration::ReEnableEndpoint(
-                self.isoch_endpoint.unwrap(),
                 determined_endpoint,
             )),
         ));
@@ -352,97 +427,156 @@ where
             )),
         ));
 
-        // todo_list.push(URB::new(
-        //     self.device_slot_id,
-        //     RequestedOperation::ExtraStep(ExtraStep::PrepareForTransfer(7)),
-        // ));
-
-        // todo_list.push(URB::new(
-        //     self.device_slot_id,
-        //     RequestedOperation::Debug(Debugop::DumpConfigAndInterface),
-        // ));
-
-        // let determined_endpoint = self.determine_stream_interface();
-        // todo_list.push(URB::new(
-        //     self.device_slot_id,
-        //     RequestedOperation::ConfigureDevice(Configuration::ReEnableEndpoint(
-        //         self.isoch_endpoint.unwrap(),
-        //         determined_endpoint,
-        //     )),
-        // ));
-
-        // todo_list.push(URB::new(
-        //     self.device_slot_id,
-        //     RequestedOperation::Control(ControlTransfer {
-        //         request_type: bmRequestType::new(
-        //             Direction::Out,
-        //             DataTransferType::Standard,
-        //             Recipient::Device,
-        //         ),
-        //         request: StandardbRequest::SetConfiguration.into(),
-        //         index: 0,
-        //         value: 1,
-        //         data: None,
-        //     }),
-        // ));
-
-        // todo_list.push(URB::new(
-        //     self.device_slot_id,
-        //     RequestedOperation::Debug(Debugop::DumpDevice),
-        // ));
-
-        // todo_list.push(URB::new(
-        //     self.device_slot_id,
-        //     RequestedOperation::ConfigureDevice(Configuration::SwitchInterface(
-        //         // self.interface_value,
-        //         // self.interface_alternative_value,
-        //         1, 1,
-        //     )),
-        // ));
-
-        // todo_list.push(URB::new(
-        //     self.device_slot_id,
-        //     RequestedOperation::Control(ControlTransfer {
-        //         request_type: bmRequestType::new(
-        //             Direction::Out,
-        //             DataTransferType::Class,
-        //             Recipient::Interface,
-        //         ),
-        //         request: UVCSpecBRequest::SET_CUR.into(),
-        //         index: (self.interface_value as u8) as u16,
-        //         value: 1u16 << 8 | 0b00000000u16,
-        //         data: todo!(),
-        //     }),
-        // ));
-
         Some(todo_list)
     }
 
     fn gather_urb(&mut self) -> Option<Vec<crate::usb::urb::URB<'a, O>>> {
-        if let Some(buf) = &self.receiption_buffer {
-            let mut test = Vec::new();
-            // todo!() //试试直接从端口获取？
-            test.push(URB::new(
-                self.device_slot_id,
-                RequestedOperation::Isoch(IsochTransfer {
-                    endpoint_id: 3,
-                    buffer_addr_len: buf.lock().addr_len_tuple(),
-                    request_times: 3,
-                    packet_size: 800,
-                }),
-            ));
-            Some(test)
-        } else {
-            None
+        match self.lifecycle_machine {
+            ExtraLifeCycle::STDWorking(
+                BasicDriverLifeCycleStateMachine::BeforeFirstSendAkaPreparingForDrive,
+            ) => {
+                self.lifecycle_machine = ExtraLifeCycle::ConfigureCS;
+                self.send_receive_state = BasicSendReceiveStateMachine::Waiting;
+                self.control_blocks.pop_front();
+                None
+            }
+            ExtraLifeCycle::ConfigureCS => {
+                let mut todos = Vec::new();
+
+                {
+                    let buffer = {
+                        let mut ctrl_block =
+                            DMA::create_uvcstream_control_block(self.config.lock().os.dma_alloc());
+
+                        ctrl_block.hint.set(1);
+                        ctrl_block.format_index = 2;
+                        ctrl_block.frame_index = 1;
+                        ctrl_block.frame_interval = 333333;
+                        ctrl_block.keyframe_rate = 0;
+                        ctrl_block.p_frame_rate = 0;
+                        ctrl_block.compress_quality = 0;
+                        ctrl_block.compress_window_size = 0;
+                        ctrl_block.delay = 0;
+                        ctrl_block.max_video_frame_size = 0;
+                        ctrl_block.max_payload_transfer_size = 0;
+
+                        let buffer =
+                            ctrl_block.to_buffer(StreamControlBlockVersionToSizeMap::Ver1p0);
+                        self.control_blocks.push_back(SpinNoIrq::new(ctrl_block));
+                        buffer
+                    };
+
+                    todos.push(URB::new(
+                        self.device_slot_id,
+                        RequestedOperation::Control(ControlTransfer {
+                            request_type: bmRequestType::new(
+                                Direction::Out,
+                                DataTransferType::Class,
+                                Recipient::Interface,
+                            ),
+                            request: crate::usb::trasnfer::control::bRequest::DriverSpec(
+                                UVCSpecBRequest::SET_CUR as _,
+                            ),
+                            index: 1,
+                            value: 256,
+                            data: Some(buffer),
+                            report: true,
+                        }),
+                    ))
+                }
+
+                {
+                    let control_block = {
+                        let mut ctrl_block =
+                            DMA::create_uvcstream_control_block(self.config.lock().os.dma_alloc());
+
+                        ctrl_block.hint.set(1);
+                        ctrl_block.format_index = 2;
+                        ctrl_block.frame_index = 1;
+                        ctrl_block.frame_interval = 333333;
+                        ctrl_block.keyframe_rate = 0;
+                        ctrl_block.p_frame_rate = 0;
+                        ctrl_block.compress_quality = 0;
+                        ctrl_block.compress_window_size = 0;
+                        ctrl_block.delay = 0;
+                        ctrl_block.max_video_frame_size = 614400;
+                        ctrl_block.max_payload_transfer_size = 3072;
+                        ctrl_block.clock_frequency = 15000000;
+
+                        let buffer =
+                            ctrl_block.to_buffer(StreamControlBlockVersionToSizeMap::Ver1p0);
+                        self.control_blocks.push_back(SpinNoIrq::new(ctrl_block));
+                        buffer
+                    };
+
+                    todos.push(URB::new(
+                        self.device_slot_id,
+                        RequestedOperation::Control(ControlTransfer {
+                            request_type: bmRequestType::new(
+                                Direction::Out,
+                                DataTransferType::Class,
+                                Recipient::Interface,
+                            ),
+                            request: crate::usb::trasnfer::control::bRequest::DriverSpec(
+                                UVCSpecBRequest::SET_CUR as _,
+                            ),
+                            index: 1,
+                            value: 512,
+                            data: Some(control_block),
+                            report: true,
+                        }),
+                    ))
+                }
+
+                Some(todos)
+            }
+            ExtraLifeCycle::STDWorking(BasicDriverLifeCycleStateMachine::Driving) => {
+                let mut todos = Vec::new();
+
+                todos.push(URB::new(
+                    self.device_slot_id,
+                    RequestedOperation::Isoch(IsochTransfer {
+                        endpoint_id: self.isoch_endpoint.unwrap(),
+                        buffer_addr_len: {
+                            self.receiption_buffer
+                                .as_ref()
+                                .map(|b| b.lock().addr_len_tuple())
+                                .unwrap()
+                        },
+                        request_times: 10,
+                        packet_size: 0xc00,
+                    }),
+                ));
+
+                Some(todos)
+            }
+            _ => None,
         }
     }
 
     fn receive_complete_event(&mut self, ucb: crate::glue::ucb::UCB<O>) {
-        trace!("received ucb:{:#?}", ucb.code)
+        trace!("received ucb:{:#?}", ucb.code);
+        match self.send_receive_state {
+            BasicSendReceiveStateMachine::Waiting => match self.lifecycle_machine {
+                ExtraLifeCycle::STDWorking(
+                    BasicDriverLifeCycleStateMachine::BeforeFirstSendAkaPreparingForDrive,
+                ) => {}
+                ExtraLifeCycle::STDWorking(_) => {}
+                ExtraLifeCycle::ConfigureCS => {
+                    self.control_blocks.pop_front();
+                    if self.control_blocks.is_empty() {
+                        self.send_receive_state = BasicSendReceiveStateMachine::Sending;
+                        self.lifecycle_machine =
+                            ExtraLifeCycle::STDWorking(BasicDriverLifeCycleStateMachine::Driving)
+                    }
+                }
+            },
+            BasicSendReceiveStateMachine::Sending => {}
+        }
     }
 }
 
 enum ExtraLifeCycle {
     STDWorking(BasicDriverLifeCycleStateMachine),
-    ConfigureCS(u16),
+    ConfigureCS,
 }
