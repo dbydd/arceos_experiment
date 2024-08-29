@@ -663,6 +663,7 @@ where
         match command_completion.completion_code() {
             Ok(ok) => match ok {
                 CompletionCode::Success => {
+                    self.trace_dump_context(device_slot_id);
                     self.prepare_transfer_normal(device_slot_id, dci as _);
                     Ok(UCB::<O>::new(CompleteCode::Event(
                         TransferEventCompleteCode::Success,
@@ -1376,6 +1377,7 @@ where
         dev_slot_id: usize,
         urb_req: trasnfer::isoch::IsochTransfer,
     ) -> crate::err::Result<UCB<O>> {
+        let urb_max_packet_count = urb_req.max_packet;
         let (buffer_addr, total_len) = urb_req.buffer_addr_len;
         let isoch_id = urb_req.endpoint_id;
         let mut transfer_size = urb_req.transfer_size_bytes;
@@ -1392,7 +1394,8 @@ where
         let max_packet_size = endpoint.max_packet_size() as usize;
         let max_burst_size = endpoint.max_burst_size();
         let actual_burst_payload_per_trb = (max_burst_size as usize + 1) * max_packet_size;
-        let actual_trb_count = (transfer_size / actual_burst_payload_per_trb) + 1;
+        let actual_trb_count =
+            (transfer_size / actual_burst_payload_per_trb).min(urb_max_packet_count) + 1;
         //just for high speed, superspeed also should condiser mult size
         trace!(
             "each transfer size:{transfer_size},each trb len: {actual_burst_payload_per_trb}, trb count per transfer:{actual_trb_count}"
@@ -1453,7 +1456,9 @@ where
                         }
                     };
                 }
-                Err(_) => {}
+                Err(err) => {
+                    panic!("{:#?}", err)
+                }
             };
         }
 

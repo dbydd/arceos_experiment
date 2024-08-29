@@ -552,7 +552,8 @@ where
                                 .map(|b| b.lock().addr_len_tuple())
                                 .unwrap()
                         },
-                        transfer_size_bytes: 614400 / 8,
+                        transfer_size_bytes: 614400,
+                        max_packet: 32, //hardcode, refer linux
                     }),
                 ));
 
