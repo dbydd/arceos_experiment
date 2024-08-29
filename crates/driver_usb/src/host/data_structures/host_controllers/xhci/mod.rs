@@ -875,7 +875,7 @@ where
         }
 
         let ep_mut = input.device_mut().endpoint_mut(dci);
-        ep_mut.set_interval(ep.interval - 1);
+        ep_mut.set_interval(3);
         ep_mut.set_endpoint_type(ep.endpoint_type());
         ep_mut.set_tr_dequeue_pointer(ring_addr);
         ep_mut.set_max_packet_size(max_packet_size);
@@ -905,11 +905,11 @@ where
                 ep_mut.set_max_endpoint_service_time_interval_payload_low(4);
                 //best guess?
 
-                if extra_step {
-                    ep_mut.set_max_endpoint_service_time_interval_payload_low(16);
-                    ep_mut.set_average_trb_length(16);
-                    ep_mut.set_endpoint_state(EndpointState::Stopped)
-                }
+                // if extra_step {
+                //     ep_mut.set_max_endpoint_service_time_interval_payload_low(16);
+                //     ep_mut.set_average_trb_length(16);
+                //     ep_mut.set_endpoint_state(EndpointState::Stopped)
+                // }
             }
             EndpointType::NotValid => {
                 unreachable!("Not Valid Endpoint should not exist.")
@@ -1355,17 +1355,17 @@ where
         &mut self,
         dev_slot_id: usize,
         urb_req: trasnfer::bulk::BulkTransfer,
-    ) -> crate::err::Result<UCB<O>>{
+    ) -> crate::err::Result<UCB<O>> {
         let (addr, len) = urb_req.buffer_addr_len;
         let enqued_transfer = self
             .ep_ring_mut(dev_slot_id, urb_req.endpoint_id as _)
             .enque_transfer(transfer::Allowed::Normal(
                 *Normal::new()
-                    .set_data_buffer_pointer(addr as _)
-                    .set_trb_transfer_length(len as _)
-                    .set_interrupter_target(0)
-                    .set_interrupt_on_short_packet()
-                    .set_interrupt_on_completion(),
+                        .set_data_buffer_pointer(addr as _)
+                        .set_trb_transfer_length(len as _)
+                        .set_interrupter_target(0)
+                        .set_interrupt_on_short_packet()
+                        .set_interrupt_on_completion(),
             ));
         self.regs.doorbell.update_volatile_at(dev_slot_id, |r| {
             r.set_doorbell_target(urb_req.endpoint_id as _);

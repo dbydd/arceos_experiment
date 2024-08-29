@@ -220,7 +220,7 @@ where
             driver_state_machine: DeviceStateMachine::FetchingVersion,
             receiption_buffer: SpinNoIrq::new(DMA::new_vec(
                 0u8,
-                8,
+                O::PAGE_SIZE,
                 O::PAGE_SIZE,
                 config.lock().os.dma_alloc(),
             )),
@@ -269,7 +269,7 @@ where
                 index: self.interface_alternative_value as u16,
                 value: self.interface_value as u16,
                 data: None,
-                report: todo!(),
+                report: false,
             }),
         ));
 
@@ -302,8 +302,8 @@ where
                             Recipient::Device,
                         ),
                         request: bRequest::DriverSpec(0x5F),
-                        index: 0asu16,
-                        value: 0asu16,
+                        index: 0,
+                        value: 0,
                         data: Some(self.receiption_buffer.lock().addr_len_tuple()),
                         report: false,
                     }),
@@ -418,8 +418,8 @@ where
                             Recipient::Device,
                         ),
                         request: bRequest::DriverSpec(0x95),
-                        index: 0asu16,
-                        value: 0x0706asu16,
+                        index: 0,
+                        value: 0x0706,
                         data: Some(self.receiption_buffer.lock().addr_len_tuple()),
                         report: false,
                     }),
@@ -428,13 +428,23 @@ where
             }
             DeviceStateMachine::Opening => {
                 trace!("start transfer");
-                return Some(vec![URB::<O>::new(
-                    self.device_slot_id,
-                    RequestedOperation::Interrupt(InterruptTransfer {
-                        endpoint_id: self.interrupt_in_channels.last().unwrap().clone() as usize,
-                        buffer_addr_len: self.receiption_buffer.lock().addr_len_tuple(),
-                    }),
-                )]);
+                return Some(vec![
+                    URB::<O>::new(
+                        self.device_slot_id,
+                        RequestedOperation::Bulk(BulkTransfer {
+                            endpoint_id: self.bulk_out_channels.last().unwrap().clone() as usize,
+                            buffer_addr_len: self.receiption_buffer.lock().addr_len_tuple(),
+                        }),
+                    ),
+                    // URB::<O>::new(
+                    //     self.device_slot_id,
+                    //     RequestedOperation::Interrupt(InterruptTransfer {
+                    //         endpoint_id: self.interrupt_in_channels.last().unwrap().clone()
+                    //             as usize,
+                    //         buffer_addr_len: self.receiption_buffer.lock().addr_len_tuple(),
+                    //     }),
+                    // ),
+                ]);
             }
         }
     }
