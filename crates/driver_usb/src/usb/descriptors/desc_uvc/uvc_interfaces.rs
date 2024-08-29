@@ -240,35 +240,35 @@ pub struct UVCVSInterfaceInputHeader {
 #[derive(Clone, Debug, Copy)]
 #[allow(non_camel_case_types)]
 pub struct UVCVSInterfaceFormatMJPEG {
-    length: u8,
-    descriptor_type: u8,
-    descriptor_sub_type: u8,
-    format_index: u8,
-    num_frame_descriptors: u8,
-    flags: u8,
-    default_frame_index: u8,
-    aspect_ratio_x: u8,
-    aspect_ratio_y: u8,
-    interlace_flags: u8,
-    is_copy_protect: u8,
+    pub length: u8,
+    pub descriptor_type: u8,
+    pub descriptor_sub_type: u8,
+    pub format_index: u8,
+    pub num_frame_descriptors: u8,
+    pub flags: u8,
+    pub default_frame_index: u8,
+    pub aspect_ratio_x: u8,
+    pub aspect_ratio_y: u8,
+    pub interlace_flags: u8,
+    pub is_copy_protect: u8,
 }
 
 #[derive(Clone, Debug)]
 #[allow(non_camel_case_types)]
 pub struct UVCVSInterfaceFrameMJPEG {
-    length: u8,
-    descriptor_type: u8,
-    descriptor_sub_type: u8,
-    frame_index: u8,
-    capabilities: u8,
-    width: u16,
-    height: u16,
-    min_bit_rate: u32,
-    max_bit_rate: u32,
-    max_video_frame_buffer_size: u32,
-    default_frame_interval: u32,
-    frame_interval_type: u8,
-    frame_interval: FrameInterval,
+    pub length: u8,
+    pub descriptor_type: u8,
+    pub descriptor_sub_type: u8,
+    pub frame_index: u8,
+    pub capabilities: u8,
+    pub width: u16,
+    pub height: u16,
+    pub min_bit_rate: u32,
+    pub max_bit_rate: u32,
+    pub max_video_frame_buffer_size: u32,
+    pub default_frame_interval: u32,
+    pub frame_interval_type: u8,
+    pub frame_interval: FrameInterval,
 }
 
 #[derive(Clone, Debug)]
@@ -287,36 +287,36 @@ pub struct UVCVSInterfaceStillImageFrame {
 #[derive(Clone, Copy, Debug)]
 #[allow(non_camel_case_types)]
 pub struct UVCVSInterfaceFormatUncompressed {
-    length: u8,
-    descriptor_type: u8,
-    descriptor_sub_type: u8,
-    format_index: u8,
-    number_frame_descriptor: u8,
-    guid_format: [u8; 16],
-    bits_per_pixel: u8,
-    default_frame_index: u8,
-    aspect_ratio_x: u8,
-    aspect_ratio_y: u8,
-    m_interlace_flags: u8,
-    is_copy_protect: u8,
+    pub length: u8,
+    pub descriptor_type: u8,
+    pub descriptor_sub_type: u8,
+    pub format_index: u8,
+    pub number_frame_descriptor: u8,
+    pub guid_format: [u8; 16],
+    pub bits_per_pixel: u8,
+    pub default_frame_index: u8,
+    pub aspect_ratio_x: u8,
+    pub aspect_ratio_y: u8,
+    pub m_interlace_flags: u8,
+    pub is_copy_protect: u8,
 }
 
 #[derive(Clone, Debug)]
 #[allow(non_camel_case_types)]
 pub struct UVCVSInterfaceFrameUncompressed {
-    length: u8,
-    descriptor_type: u8,
-    descriptor_sub_type: u8,
-    frame_index: u8,
-    capabilities: u8,
-    width: u16,
-    height: u16,
-    min_bit_rate: u32,
-    max_bit_rate: u32,
-    max_video_frame_buffer_size: u32,
-    default_frame_interval: u32,
-    frame_interval_type: u8,
-    frame_interval: FrameInterval,
+    pub length: u8,
+    pub descriptor_type: u8,
+    pub descriptor_sub_type: u8,
+    pub frame_index: u8,
+    pub capabilities: u8,
+    pub width: u16,
+    pub height: u16,
+    pub min_bit_rate: u32,
+    pub max_bit_rate: u32,
+    pub max_video_frame_buffer_size: u32,
+    pub default_frame_interval: u32,
+    pub frame_interval_type: u8,
+    pub frame_interval: FrameInterval,
 }
 
 #[derive(Clone, Debug)]
@@ -329,12 +329,12 @@ pub enum FrameInterval {
 #[derive(Clone, Debug, Copy)]
 #[allow(non_camel_case_types)]
 pub struct UVCVSInterfaceColorFormat {
-    length: u8,
-    descriptor_type: u8,
-    descriptor_sub_type: u8,
-    color_primaries: u8,
-    transfer_characteristics: u8,
-    matrix_coefficients: u8,
+    pub length: u8,
+    pub descriptor_type: u8,
+    pub descriptor_sub_type: u8,
+    pub color_primaries: u8,
+    pub transfer_characteristics: u8,
+    pub matrix_coefficients: u8,
 }
 
 impl UVCControlInterface {

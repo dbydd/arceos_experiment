@@ -18,13 +18,20 @@ impl<O> USBSystemConfig<O>
 where
     O: PlatformAbstractions,
 {
-    pub fn new(mmio_base_addr: usize, irq_num: u32, irq_priority: u32, os_dep: O) -> Self {
+    pub fn new(
+        mmio_base_addr: usize,
+        irq_num: u32,
+        irq_priority: u32,
+        transfer_ring_buffer_size: usize,
+        os_dep: O,
+    ) -> Self {
         let base_addr = O::VirtAddr::from(mmio_base_addr);
         Self {
             base_addr,
             irq_num,
             irq_priority,
             os: os_dep,
+            transfer_ring_size: transfer_ring_buffer_size.min(O::PAGE_SIZE),
         }
     }
 }

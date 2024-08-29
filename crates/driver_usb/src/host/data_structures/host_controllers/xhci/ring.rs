@@ -87,6 +87,10 @@ impl<O: OSAbstractions> Ring<O> {
         addr
     }
 
+    pub fn enque_transfers(&mut self, mut trb: Vec<transfer::Allowed>) -> usize {
+        trb.iter().map(|t| self.enque_transfer(*t)).last().unwrap()
+    }
+
     pub fn enque_trb(&mut self, mut trb: TrbData) -> usize {
         self.trbs[self.i].copy_from_slice(&trb);
         let addr = self.trbs[self.i].as_ptr() as usize;

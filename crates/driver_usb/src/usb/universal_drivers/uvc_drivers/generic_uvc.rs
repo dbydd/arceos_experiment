@@ -2,11 +2,12 @@ use core::{fmt::Debug, mem::MaybeUninit, ops::DerefMut};
 
 use alloc::{
     collections::{btree_map::BTreeMap, vec_deque::VecDeque},
+    format,
     sync::Arc,
     vec,
     vec::Vec,
 };
-use log::trace;
+use log::{debug, trace};
 use spinlock::SpinNoIrq;
 use tock_registers::interfaces::Writeable;
 use xhci::{context::EndpointType, ring::trb::transfer::Direction};
@@ -255,12 +256,7 @@ where
             uvc_control_model: uvccontrol_interface_model,
             uvc_stream_model: uvc_stream_interface_model,
             alternative_settings: alternative_interface_endpoint,
-            receiption_buffer: Some(SpinNoIrq::new(DMA::new_vec(
-                0u8,
-                O::PAGE_SIZE,
-                O::PAGE_SIZE,
-                config.clone().lock().os.dma_alloc(),
-            ))),
+            receiption_buffer: None,
             isoch_endpoint: None,
             control_blocks: VecDeque::new(),
         }))
@@ -315,6 +311,18 @@ where
             })
             .map(|e| e.clone())
             .unwrap()
+    }
+
+    fn configure_buffer_by_index(&mut self, format_index: usize, frame_index: usize) {
+        let get_frame_size = self
+            .uvc_stream_model
+            .get_frame_size_by_index(format_index, frame_index);
+        self.receiption_buffer = Some(SpinNoIrq::new(DMA::new_vec(
+            0u8,
+            get_frame_size,
+            O::PAGE_SIZE,
+            self.config.lock().os.dma_alloc(),
+        )))
     }
 }
 
@@ -411,6 +419,7 @@ where
         ));
 
         let determined_endpoint = self.select_stream_interface_manual(1, 6);
+        self.configure_buffer_by_index(2, 1);
 
         todo_list.push(URB::new(
             self.device_slot_id,
@@ -543,10 +552,11 @@ where
                                 .map(|b| b.lock().addr_len_tuple())
                                 .unwrap()
                         },
-                        request_times: 10,
-                        packet_size: 0xc00,
+                        transfer_size_bytes: 614400 / 8,
                     }),
                 ));
+
+                self.send_receive_state = BasicSendReceiveStateMachine::Waiting;
 
                 Some(todos)
             }
@@ -555,12 +565,23 @@ where
     }
 
     fn receive_complete_event(&mut self, ucb: crate::glue::ucb::UCB<O>) {
-        trace!("received ucb:{:#?}", ucb.code);
+        trace!(
+            "received ucb:{:#?} at state: {:?}-{:?}",
+            ucb.code,
+            self.send_receive_state,
+            self.lifecycle_machine
+        );
         match self.send_receive_state {
             BasicSendReceiveStateMachine::Waiting => match self.lifecycle_machine {
                 ExtraLifeCycle::STDWorking(
                     BasicDriverLifeCycleStateMachine::BeforeFirstSendAkaPreparingForDrive,
                 ) => {}
+                ExtraLifeCycle::STDWorking(BasicDriverLifeCycleStateMachine::Driving) => {
+                    self.send_receive_state = BasicSendReceiveStateMachine::Sending;
+                    self.receiption_buffer
+                        .as_ref()
+                        .inspect(|b| debug!("{:?}", b.lock().iter().max()));
+                }
                 ExtraLifeCycle::STDWorking(_) => {}
                 ExtraLifeCycle::ConfigureCS => {
                     self.control_blocks.pop_front();
@@ -576,6 +597,7 @@ where
     }
 }
 
+#[derive(Debug)]
 enum ExtraLifeCycle {
     STDWorking(BasicDriverLifeCycleStateMachine),
     ConfigureCS,

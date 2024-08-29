@@ -2,7 +2,7 @@
 #![no_main]
 #![allow(warnings)]
 
-use axalloc::GlobalNoCacheAllocator;
+use axalloc::{GlobalNoCacheAllocator, PAGE_SIZE};
 use axhal::{mem::VirtAddr, paging::PageSize};
 use driver_usb::{USBSystem, USBSystemConfig};
 
@@ -30,7 +30,13 @@ impl driver_usb::abstractions::HALAbstractions for PlatformAbstraction {
 #[no_mangle]
 fn main() {
     let mut usbsystem = driver_usb::USBSystem::new({
-        USBSystemConfig::new(0xffff_0000_31a0_8000, 48, 0, PlatformAbstraction)
+        USBSystemConfig::new(
+            0xffff_0000_31a0_8000,
+            48,
+            0,
+            PageSize::Size4K.into(),
+            PlatformAbstraction,
+        )
     })
     .init()
     .init_probe()

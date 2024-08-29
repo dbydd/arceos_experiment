@@ -51,6 +51,7 @@ where
     pub(crate) base_addr: O::VirtAddr,
     pub(crate) irq_num: u32,
     pub(crate) irq_priority: u32,
+    pub(crate) transfer_ring_size: usize,
     pub(crate) os: O,
 }
 

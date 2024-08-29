@@ -1,5 +1,6 @@
 use alloc::{
     collections::{btree_map::BTreeMap, btree_set::BTreeSet},
+    format,
     vec::Vec,
 };
 
@@ -122,6 +123,7 @@ impl UVCControlInterfaceModelParser {
  * StatusPacket-fetch from Interrupt endpoint, variable size, should refer page 30 to determine rest structure
 */
 
+#[derive(Debug)]
 pub struct UVCVSInterfaceModel {
     pub interface0_stream_desca: Interface,
     pub input_header: UVCVSInterfaceInputHeader,
@@ -201,5 +203,96 @@ impl UVCVSInterfaceModel {
             .collect_into(&mut ret.colorformart);
 
         ret
+    }
+
+    pub fn get_frame_size(&self, format_index: u8, frame_index: u8) -> usize {
+        (match self
+            .find_video_formats(format_index, frame_index)
+            .expect(&format!(
+                "there is no format / frame indexed {format_index}:{frame_index}",
+            )) {
+            UVCStreamingFrameInterface::StillImageFrame(_) => {
+                panic!("stream model decode error! please report this issue!")
+            }
+            UVCStreamingFrameInterface::FrameUncompressed(frame) => {
+                frame.max_video_frame_buffer_size
+            }
+            UVCStreamingFrameInterface::FrameMjpeg(frame) => frame.max_video_frame_buffer_size,
+            UVCStreamingFrameInterface::FrameFrameBased => todo!(),
+            UVCStreamingFrameInterface::FrameH264 => todo!(),
+            UVCStreamingFrameInterface::FrameVp8 => todo!(),
+        }) as usize
+    }
+
+    pub fn get_frame_size_by_index(&self, format_index: usize, frame_index: usize) -> usize {
+        (match self
+            .find_video_formats_by_index(format_index, frame_index)
+            .expect(&format!(
+                "there is no format / frame indexed {format_index}:{frame_index}",
+            )) {
+            UVCStreamingFrameInterface::StillImageFrame(_) => {
+                panic!("stream model decode error! please report this issue!")
+            }
+            UVCStreamingFrameInterface::FrameUncompressed(frame) => {
+                frame.max_video_frame_buffer_size
+            }
+            UVCStreamingFrameInterface::FrameMjpeg(frame) => frame.max_video_frame_buffer_size,
+            UVCStreamingFrameInterface::FrameFrameBased => todo!(),
+            UVCStreamingFrameInterface::FrameH264 => todo!(),
+            UVCStreamingFrameInterface::FrameVp8 => todo!(),
+        }) as usize
+    }
+
+    pub fn find_video_formats_by_index<'a>(
+        &'a self,
+        format_index: usize,
+        frame_index: usize,
+    ) -> Option<&'a UVCStreamingFrameInterface> {
+        self.formarts
+            .get(format_index - 1)
+            .and_then(|(_, frames)| frames.get(frame_index - 1))
+    }
+
+    pub fn find_video_formats<'a>(
+        &'a self,
+        format_index: u8,
+        frame_index: u8,
+    ) -> Option<&'a UVCStreamingFrameInterface> {
+        self.formarts.iter().find_map(|(format, frames)| {
+            if match format {
+                UVCStreamingFormartInterface::FormatUncompressed(format) => {
+                    format.format_index == format_index
+                }
+                UVCStreamingFormartInterface::FormatMjpeg(format) => {
+                    format.format_index == format_index
+                }
+                UVCStreamingFormartInterface::COLORFORMAT(format) => false,
+                UVCStreamingFormartInterface::FormatMpeg2ts => todo!(),
+                UVCStreamingFormartInterface::FormatDv => todo!(),
+                UVCStreamingFormartInterface::FormatFrameBased => todo!(),
+                UVCStreamingFormartInterface::FormatStreamBased => todo!(),
+                UVCStreamingFormartInterface::FormatH264 => todo!(),
+                UVCStreamingFormartInterface::FormatH264Simulcast => todo!(),
+                UVCStreamingFormartInterface::FormatVp8 => todo!(),
+                UVCStreamingFormartInterface::FormatVp8Simulcast => todo!(),
+            } {
+                frames.iter().find(|frame| match frame {
+                    UVCStreamingFrameInterface::StillImageFrame(_) => {
+                        panic!("stream model decode error! please report this issue!")
+                    }
+                    UVCStreamingFrameInterface::FrameUncompressed(frame) => {
+                        frame.frame_index == frame_index
+                    }
+                    UVCStreamingFrameInterface::FrameMjpeg(frame) => {
+                        frame.frame_index == frame_index
+                    }
+                    UVCStreamingFrameInterface::FrameFrameBased => todo!(),
+                    UVCStreamingFrameInterface::FrameH264 => todo!(),
+                    UVCStreamingFrameInterface::FrameVp8 => todo!(),
+                })
+            } else {
+                None
+            }
+        })
     }
 }

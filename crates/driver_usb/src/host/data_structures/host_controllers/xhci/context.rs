@@ -9,7 +9,7 @@ use alloc::sync::Arc;
 use alloc::{boxed::Box, vec::Vec};
 use alloc::{format, vec};
 use core::borrow::BorrowMut;
-use core::num;
+use core::{mem, num};
 use log::debug;
 use spinlock::SpinNoIrq;
 use xhci::context::Input64Byte;
@@ -76,9 +76,12 @@ where
 
         let os = self.config.lock().os.clone();
 
+        let entries_per_page =
+            self.config.lock().transfer_ring_size / mem::size_of::<ring::TrbData>();
+
         let trs = (0..num_ep)
             .into_iter()
-            .map(|i| Ring::new(os.clone(), 32, true).unwrap())
+            .map(|i| Ring::new(os.clone(), entries_per_page, true).unwrap())
             .collect();
 
         self.transfer_rings[slot] = trs;
@@ -88,6 +91,8 @@ where
 use tock_registers::interfaces::Writeable;
 use tock_registers::register_structs;
 use tock_registers::registers::{ReadOnly, ReadWrite, WriteOnly};
+
+use super::ring;
 
 register_structs! {
     ScratchpadBufferEntry{
