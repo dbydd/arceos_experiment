@@ -16,7 +16,7 @@ use crate::usb::descriptors::topological_desc::{
     TopologicalUSBDescriptorEndpoint, TopologicalUSBDescriptorFunction,
 };
 use crate::usb::descriptors::USBStandardDescriptorTypes;
-use crate::usb::operation::ExtraStep;
+use crate::usb::operation::{Debugop, ExtraStep};
 use crate::usb::trasnfer::control::{
     bmRequestType, ControlTransfer, DataTransferType, Recipient, StandardbRequest,
 };
@@ -164,6 +164,11 @@ where
         trace!("hid mouse preparing for drive!");
         let endpoint_in = self.interrupt_in_channels.last().unwrap();
         let mut todo_list = Vec::new();
+
+        todo_list.push(URB::new(
+            self.device_slot_id,
+            RequestedOperation::Debug(Debugop::DumpDevice),
+        ));
 
         trace!(
             "set interface for {},{}",
