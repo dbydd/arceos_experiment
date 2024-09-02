@@ -16,7 +16,7 @@ xhci=[]
 
 [dependencies]
 log="0.4"
-xhci = {path = "../../crates/xhci"}
+xhci = {git = "https://github.com/dbydd/xhci.git"}
 memory_addr = {path= "../../crates/memory_addr"}
 spinlock = { path = "../../crates/spinlock" }
 tock-registers = "0.9.0"
