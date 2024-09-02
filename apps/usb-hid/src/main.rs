@@ -33,6 +33,7 @@ impl driver_usb::abstractions::HALAbstractions for PlatformAbstraction {
 
 #[no_mangle]
 fn main() {
+    //comm
     let mut usbsystem = driver_usb::USBSystem::new({
         USBSystemConfig::new(0xffff_0000_31a0_8000, 48, 0, PlatformAbstraction)
     })
