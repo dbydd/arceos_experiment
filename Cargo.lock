@@ -2226,6 +2226,7 @@ dependencies = [
 [[package]]
 name = "xhci"
 version = "0.9.2"
+source = "git+https://github.com/dbydd/xhci.git#6c4f76787c473d11a915d889e15e850473ae79ba"
 dependencies = [
  "accessor",
  "bit_field",

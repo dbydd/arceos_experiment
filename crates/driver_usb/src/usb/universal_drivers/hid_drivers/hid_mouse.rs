@@ -210,7 +210,7 @@ where
                         DataTransferType::Class,
                         Recipient::Interface,
                     ),
-                    request: StandardbRequest::SetInterface.into(), //actually set protocol
+                    request: StandardbRequest::SetInterfaceDs.into(), //actually set protocol
                     index: if self.bootable == 2 { 1 } else { 0 },
                     value: self.interface_value as u16,
                     data: None,
