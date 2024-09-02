@@ -146,6 +146,7 @@ where
 
     fn receive_complete_event(&mut self, ucb: UCB<O>) {
         match ucb.code {
+            crate::glue::ucb::CompleteCode::Debug => {}
             crate::glue::ucb::CompleteCode::Event(TransferEventCompleteCode::Success) => {
                 trace!("completed!");
                 self.receiption_buffer
