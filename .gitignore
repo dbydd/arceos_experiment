@@ -8,3 +8,4 @@ qemu.log
 rusty-tags.vi
 .vscode-ctags
 .gdb_history
+.direnv/
