@@ -903,7 +903,6 @@ where
                 ep_mut.set_max_packet_size(max_packet_size & 0x7ff); //refer xhci page 162
                 ep_mut.set_max_burst_size(((max_packet_size & 0x1800) >> 11).try_into().unwrap());
                 ep_mut.set_mult(0); //always 0 for interrupt
-                ep_mut.set_interval(0);
 
                 if let EndpointType::IsochOut | EndpointType::IsochIn = endpoint_type {
                     ep_mut.set_error_count(0);

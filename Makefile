@@ -45,6 +45,7 @@ BLK ?= n
 NET ?= n
 GRAPHIC ?= n
 BUS ?= mmio
+XHCI ?= n
 
 DISK_IMG ?= disk.img
 QEMU_LOG ?= n
@@ -56,6 +57,9 @@ VHOST ?= n
 # Network options
 IP ?= 10.0.2.15
 GW ?= 10.0.2.2
+
+# XHCI options
+XHCI_ADDR = 0x31a08000
 
 # App type
 ifeq ($(wildcard $(APP)),)

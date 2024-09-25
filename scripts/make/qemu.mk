@@ -59,6 +59,10 @@ ifneq ($(VFIO_PCI),)
   QEMU := sudo $(QEMU)
 endif
 
+ifeq ($(XHCI),y) 
+  qemu_args-$(XHCI) += -device usb-xhci,id=xhci,addr=0x1b,mmio=on,mmio_addr=$(XHCI_ADDR) #need test
+endif
+
 ifeq ($(NET_DUMP), y)
   qemu_args-$(NET) += -object filter-dump,id=dump0,netdev=net0,file=netdump.pcap
 endif
