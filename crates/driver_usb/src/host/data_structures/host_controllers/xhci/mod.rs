@@ -913,9 +913,10 @@ where
                 //best guess?
 
                 if extra_step {
-                    ep_mut.set_max_endpoint_service_time_interval_payload_low(16);
-                    ep_mut.set_average_trb_length(16);
-                    ep_mut.set_endpoint_state(EndpointState::Stopped)
+                    // ep_mut.set_max_endpoint_service_time_interval_payload_low(16);
+                    // ep_mut.set_average_trb_length(16);
+                    // ep_mut.set_endpoint_state(EndpointState::Stopped)
+                    ep_mut.set_interval(1);
                 }
             }
             EndpointType::NotValid => {

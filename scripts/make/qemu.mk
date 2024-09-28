@@ -60,7 +60,7 @@ ifneq ($(VFIO_PCI),)
 endif
 
 ifeq ($(XHCI),y) 
-  qemu_args-$(XHCI) += -device usb-xhci,id=xhci,addr=0x1b,mmio=on,mmio_addr=$(XHCI_ADDR) #need test
+  qemu_args-$(XHCI) += -device qemu-xhci,id=xhci #need test
 endif
 
 ifeq ($(NET_DUMP), y)
@@ -77,6 +77,10 @@ endif
 
 ifeq ($(QEMU_LOG), y)
   qemu_args-y += -D qemu.log -d in_asm,int,mmu,pcall,cpu_reset,guest_errors
+endif
+
+ifeq ($(QEMU_CONSOLE),y)
+  qemu_args-y += -monitor unix:/tmp/qemu-monitor-socket,server,nowait
 endif
 
 qemu_args-debug := $(qemu_args-y) -s -S
