@@ -74,7 +74,7 @@ members = [
     "apps/task/tls",
     "apps/cli",
     "apps/boards/raspi4",   
-    "apps/boards/raspi4-usb",
+    "apps/boards/raspi4-usb", "crates/axdtb",
 ]
 
 
