@@ -16,4 +16,7 @@ default = []
 # crate_interface = { path = "../../../crates/crate_interface", optional = true }
 axstd = { path = "../../ulib/axstd", features = ["alloc"], optional = true }
 
+axdtb = {path = "../../crates/axdtb"}
+
 # axstd = { path = "../../ulib/axstd", optional = true }
+

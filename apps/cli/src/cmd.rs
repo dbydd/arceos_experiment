@@ -18,7 +18,8 @@ const CMD_TABLE: &[(&str, CmdHandler)] = &[
     ("help", do_help),
     ("uname", do_uname),
     ("ldr", do_ldr),
-    ("str", do_str)
+    ("str", do_str),
+    ("dump_dtb",dump_dtb)
 ];
 
 fn do_uname(_args: &str) {
@@ -152,4 +153,9 @@ fn split_whitespace(str: &str) -> (&str, &str) {
     let str = str.trim();
     str.find(char::is_whitespace)
         .map_or((str, ""), |n| (&str[..n], str[n + 1..].trim()))
+}
+
+
+fn dump_dtb(str:&str){
+    axdtb::dump_dtb();
 }
