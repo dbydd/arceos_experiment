@@ -6,3 +6,5 @@ edition = "2021"
 [dependencies]
 dtb-walker = "0.1.3"
 lazy_init = {path="../../crates/lazy_init"}
+axhal = {path="../../modules/axhal"}
+log = "0.4.22"

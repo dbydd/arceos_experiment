@@ -1,30 +1,39 @@
 #![no_std]
 #![feature(allocator_api)]
 #![feature(iter_collect_into)]
+#![feature(strict_provenance)]
 
 
 extern crate alloc;
 extern  crate dtb_walker;
 
 use core::{alloc::Allocator, ops::Range, slice};
+use axhal::mem::phys_to_virt;
 use dtb_walker::{utils::indent, Dtb, DtbObj, HeaderError as E, PHandle, Reg, StrList, WalkOperation as Op};
 
 
 use alloc::{collections::btree_map::{BTreeMap}, string::{String, ToString}, vec::{self, Vec}};
+use log::{debug, log};
 
 const INDENT_WIDTH: usize = 4;
 
 pub static mut DTB:lazy_init::LazyInit<Option<dtb_walker::Dtb<'static>>> = lazy_init::LazyInit::new();
 
 pub fn init(dtb:usize){
+    debug!("in! addr:{dtb}");
     unsafe {
-        let dtb_ptr = dtb as *const u8;
-        if *(dtb_ptr as *const u32) != 0xd00dfeed {
+        let mut dtb_ptr = phys_to_virt(dtb.into()).as_ptr();
+
+        debug!("aligned!:{:x}",dtb_ptr.addr());
+
+        if *(dtb_ptr as *const u32) != 0xedfe0dd0 {
+            debug!("magic number invalid! {:x}",*(dtb_ptr as *const u32));
             DTB.init_by(None);
             return;
         }
         let size = (dtb_ptr.offset(4) as *const u32).read();
         if !(size > 0 && size <= 0x7FFF_FFFF) {
+            debug!("head invalid!");
             DTB.init_by(None);
             return;
         }
