@@ -86,7 +86,11 @@ pub fn dump_dtb() {
     };
 }
 
-pub fn find_dtb_node(compatible_name: &str, mut dtb: dtb_walker::Dtb) -> Option<DTBNode> {
+pub fn find_dtb_node(compatible_name: &str) -> Option<DTBNode> {
+    walk_dtb_node(compatible_name, unsafe { DTB.as_mut().unwrap() })
+}
+
+fn walk_dtb_node(compatible_name: &str, dtb: &mut dtb_walker::Dtb) -> Option<DTBNode> {
     unsafe {
         let mut target_path: String = String::new();
 
@@ -155,4 +159,3 @@ fn convert_dtb_to_big_endian(data: &[u8]) -> Vec<u8> {
 
     result
 }
-
