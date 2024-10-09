@@ -3,31 +3,36 @@
 #![feature(iter_collect_into)]
 #![feature(strict_provenance)]
 
-
 extern crate alloc;
-extern  crate dtb_walker;
+extern crate dtb_walker;
 
-use core::{alloc::Allocator, ops::Range, slice};
 use axhal::mem::phys_to_virt;
 use byteorder::{BigEndian, ByteOrder, LittleEndian};
-use dtb_walker::{utils::indent, Dtb, DtbObj, HeaderError as E, PHandle, Reg, StrList, WalkOperation as Op};
+use core::{alloc::Allocator, ops::Range, slice};
+use dtb_walker::{
+    utils::indent, Dtb, DtbObj, HeaderError as E, PHandle, Reg, StrList, WalkOperation as Op,
+};
 
-
-use alloc::{collections::btree_map::{BTreeMap}, string::{String, ToString}, vec::{self, Vec}};
+use alloc::{
+    collections::btree_map::BTreeMap,
+    string::{String, ToString},
+    vec::{self, Vec},
+};
 use log::{debug, info, log};
 
 const INDENT_WIDTH: usize = 4;
 
-pub static mut DTB:lazy_init::LazyInit<Option<dtb_walker::Dtb<'static>>> = lazy_init::LazyInit::new();
+pub static mut DTB: lazy_init::LazyInit<Option<dtb_walker::Dtb<'static>>> =
+    lazy_init::LazyInit::new();
 
-pub fn init(dtb:usize){
+pub fn init(dtb: usize) {
     debug!("in! addr:{dtb}");
     unsafe {
         let mut dtb_ptr = phys_to_virt(dtb.into()).as_ptr();
 
-        debug!("aligned!:{:x}",dtb_ptr.addr());
+        debug!("aligned!:{:x}", dtb_ptr.addr());
         if *(dtb_ptr as *const u32) != 0xedfe0dd0 {
-            debug!("magic number invalid! {:x}",*(dtb_ptr as *const u32));
+            debug!("magic number invalid! {:x}", *(dtb_ptr as *const u32));
             DTB.init_by(None);
             return;
         }
@@ -37,45 +42,48 @@ pub fn init(dtb:usize){
             DTB.init_by(None);
             return;
         }
-        
-        let dtb_slice = convert_dtb_to_big_endian(slice::from_raw_parts(dtb_ptr, size as usize));
+
+        // let dtb_slice = convert_dtb_to_big_endian(slice::from_raw_parts(dtb_ptr, size as usize));
+        // let dtb_slice = slice::from_raw_parts(dtb_ptr, size as usize).to_vec;
 
         // let dtb = Dtb::from(dtb_slice.as_ptr() as _, |e| {
-        let dtb = Dtb::from_raw_parts_filtered(dtb_slice.as_ptr() as _, |e| {
-            matches!(e, E::Misaligned(4) | E::LastCompVersion(16) | E::StructContent)
+        let dtb = Dtb::from_raw_parts_filtered(dtb_ptr as _, |e| {
+            matches!(
+                e,
+                E::Misaligned(4) | E::LastCompVersion(16) | E::StructContent
+            )
         });
 
-        DTB.init_by(
-            dtb.inspect_err(|err|debug!("dtb:{:#?}",err)).ok()
-        );
+        DTB.init_by(dtb.inspect_err(|err| debug!("dtb:{:#?}", err)).ok());
     }
-
 }
 
-#[derive(Debug,Default)]
-pub struct DTBNode{
-    compatible:Vec<String>,
-    model:Option<String>,
+#[derive(Debug, Default)]
+pub struct DTBNode {
+    compatible: Vec<String>,
+    model: Option<String>,
     phandle: Option<PHandle>,
-    status:Option<String>,
-    reg: Vec<Range< usize>>,
-    virtual_reg:Option<u32>,
-    dma_coherent:bool,
-    generals:BTreeMap<String,Vec<u8>>,
+    status: Option<String>,
+    reg: Vec<Range<usize>>,
+    virtual_reg: Option<u32>,
+    dma_coherent: bool,
+    generals: BTreeMap<String, Vec<u8>>,
 }
 
-pub fn dump_dtb(){
-        unsafe { DTB.as_ref().unwrap().walk(|path, obj| match obj {
-        DtbObj::SubNode { name } => {
-            info!("{}{path}/{:?}", indent(path.level(), INDENT_WIDTH),name);
-            Op::StepInto
-        }
-        DtbObj::Property(prop) => {
-            let indent = indent(path.level(), INDENT_WIDTH);
-            info!("{indent}{prop:?}");
-            Op::StepOver
-        }
-    }) };
+pub fn dump_dtb() {
+    unsafe {
+        DTB.as_ref().unwrap().walk(|path, obj| match obj {
+            DtbObj::SubNode { name } => {
+                info!("{}{path}/{:?}", indent(path.level(), INDENT_WIDTH), name);
+                Op::StepInto
+            }
+            DtbObj::Property(prop) => {
+                let indent = indent(path.level(), INDENT_WIDTH);
+                info!("{indent}{prop:?}");
+                Op::StepOver
+            }
+        })
+    };
 }
 
 pub fn find_dtb_node(compatible_name: &str, mut dtb: dtb_walker::Dtb) -> Option<DTBNode> {
@@ -147,3 +155,4 @@ fn convert_dtb_to_big_endian(data: &[u8]) -> Vec<u8> {
 
     result
 }
+
