@@ -17,6 +17,7 @@ default = []
 axstd = { path = "../../ulib/axstd", features = ["alloc"], optional = true }
 
 axdtb = {path = "../../crates/axdtb"}
+axhal = {path = "../../modules/axhal"}
 
 # axstd = { path = "../../ulib/axstd", optional = true }
 

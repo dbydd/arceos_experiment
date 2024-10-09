@@ -1,5 +1,7 @@
 use std::io::{self};
 
+use axhal::mem::phys_to_virt;
+
 #[cfg(all(not(feature = "axstd"), unix))]
 
 macro_rules! print_err {
@@ -19,7 +21,8 @@ const CMD_TABLE: &[(&str, CmdHandler)] = &[
     ("uname", do_uname),
     ("ldr", do_ldr),
     ("str", do_str),
-    ("dump_dtb",dump_dtb)
+    ("dump_dtb", dump_dtb),
+    ("test", test),
 ];
 
 fn do_uname(_args: &str) {
@@ -84,7 +87,6 @@ fn do_ldr(args: &str) {
     }
 }
 
-
 // use crate::mem::phys_to_virt;
 // use core::ptr::{read_volatile, write_volatile};
 
@@ -132,7 +134,6 @@ fn do_str(args: &str) {
             str_one(addr, val).unwrap(); // 调用 str_one 函数并传递 addr 和 val
         }
     }
-
 }
 
 pub fn run_cmd(line: &[u8]) {
@@ -155,7 +156,11 @@ fn split_whitespace(str: &str) -> (&str, &str) {
         .map_or((str, ""), |n| (&str[..n], str[n + 1..].trim()))
 }
 
-
-fn dump_dtb(str:&str){
+fn dump_dtb(str: &str) {
     axdtb::dump_dtb();
+}
+
+fn test(_str: &str) {
+    let phys_to_virt = 0x40_1000_0000usize as *const u8;
+    println!("read:0x{}", unsafe { *(phys_to_virt as *const u64) })
 }
