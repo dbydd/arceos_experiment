@@ -40,7 +40,8 @@ DOCKER_CMD_INTERACT   = $(DOCKER_CMD) -i
 DOCKER_ARG_DIR_COMMON = -v $(shell pwd)/tools/raspi4/common:/work/common
 DOCKER_ARG_DIR_JTAG   = -v $(shell pwd)/tools/raspi4/X1_JTAG_boot:/work/X1_JTAG_boot
 DOCKER_ARG_DEV        = --privileged -v /dev:/dev
-DOCKER_ARG_NET        = --network host
+# DOCKER_ARG_NET        = --network host
+DOCKER_ARG_NET        = --expose 3333
 
 # DOCKER_IMAGE defined in include file (see top of this file).
 DOCKER_GDB   = $(DOCKER_CMD_INTERACT) $(DOCKER_ARG_NET) $(DOCKER_IMAGE)
@@ -50,7 +51,7 @@ ifeq ($(shell uname -s),Linux)
     DOCKER_CMD_DEV = $(DOCKER_CMD_INTERACT) $(DOCKER_ARG_DEV)
     DOCKER_CHAINBOOT = $(DOCKER_CMD_DEV) $(DOCKER_ARG_DIR_COMMON) $(DOCKER_IMAGE)
     DOCKER_JTAGBOOT  = $(DOCKER_CMD_DEV) $(DOCKER_ARG_DIR_COMMON) $(DOCKER_ARG_DIR_JTAG) $(DOCKER_IMAGE)
-    DOCKER_OPENOCD   = $(DOCKER_CMD_DEV) $(DOCKER_ARG_NET) $(DOCKER_IMAGE)
+    DOCKER_OPENOCD   = $(DOCKER_CMD_DEV) $(DOCKER_ARG_NET) $(DOCKER_IMAGE) 
 else
     DOCKER_OPENOCD   = echo "Not yet supported on non-Linux systems."; \#
 endif

@@ -74,7 +74,11 @@ pub fn dump_dtb() {
     unsafe {
         DTB.as_ref().unwrap().walk(|path, obj| match obj {
             DtbObj::SubNode { name } => {
-                info!("{}{path}/{:?}", indent(path.level(), INDENT_WIDTH), name);
+                info!(
+                    "{}{path}/{:?}",
+                    indent(path.level(), INDENT_WIDTH),
+                    String::from_utf8(name.to_vec())
+                );
                 Op::StepInto
             }
             DtbObj::Property(prop) => {

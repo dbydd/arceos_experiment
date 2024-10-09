@@ -45,6 +45,7 @@ BLK ?= n
 NET ?= n
 GRAPHIC ?= n
 BUS ?= mmio
+XHCI ?= n
 
 DISK_IMG ?= disk.img
 QEMU_LOG ?= n
@@ -52,10 +53,14 @@ NET_DUMP ?= n
 NET_DEV ?= user
 VFIO_PCI ?=
 VHOST ?= n
+QEMU_CONSOLE ?=n
 
 # Network options
 IP ?= 10.0.2.15
 GW ?= 10.0.2.2
+
+# XHCI options
+XHCI_ADDR = 31a08000
 
 # App type
 ifeq ($(wildcard $(APP)),)
@@ -107,6 +112,10 @@ else ifeq ($(ARCH), aarch64)
   ACCEL ?= n
   PLATFORM_NAME ?= aarch64-qemu-virt
   TARGET := aarch64-unknown-none-softfloat
+# else ifeq ($(ARCH), phytium-pi)
+#   ACCEL ?= n
+#   PLATFORM_NAME ?= aarch64-phytium-pi
+#   TARGET := aarch64-unknown-none-softfloat
 else
   $(error "ARCH" must be one of "x86_64", "riscv64", or "aarch64")
 endif
@@ -145,8 +154,12 @@ include scripts/make/utils.mk
 include scripts/make/build.mk
 include scripts/make/qemu.mk
 include scripts/make/test.mk
+
+
 ifeq ($(PLATFORM_NAME), aarch64-raspi4)
   include scripts/make/raspi4.mk
+else ifeq ($(PLATFORM_NAME), aarch64-phytium-pi)
+  include scripts/make/phytium-pi.mk
 else ifeq ($(PLATFORM_NAME), aarch64-bsta1000b)
   include scripts/make/bsta1000b-fada.mk
 endif
@@ -157,6 +170,14 @@ disasm:
 	$(OBJDUMP) $(OUT_ELF) | less
 
 run: build justrun
+
+shumei:
+	qemu-system-aarch64 -m 2G -smp 4 -cpu cortex-a72 -machine raspi4b -nographic -kernel kernel8.img
+
+# debugs:
+#     qemu-system-aarch64 -s -S -machine raspi4b -m 2G -cpu cortex-a72 -kernel kernel8.img -nographic
+
+
 
 justrun:
 	$(call run_qemu)
