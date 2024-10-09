@@ -77,7 +77,7 @@ pub fn dump_dtb() {
                 info!(
                     "{}{path}/{:?}",
                     indent(path.level(), INDENT_WIDTH),
-                    String::from_utf8(name.to_vec())
+                    String::from_utf8(name.to_vec()).unwrap()
                 );
                 Op::StepInto
             }
