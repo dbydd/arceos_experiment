@@ -9,8 +9,8 @@ pub(crate) fn platform_regions() -> impl Iterator<Item = MemRegion> {
         flags: MemRegionFlags::RESERVED | MemRegionFlags::READ | MemRegionFlags::WRITE,
         name: "spintable",
     })
-    .chain(crate::mem::default_free_regions())
     .chain(crate::mem::default_nocache_regions())
+    .chain(crate::mem::default_free_regions())
     .chain(crate::mem::default_mmio_regions())
 }
 

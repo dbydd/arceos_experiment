@@ -1,10 +1,7 @@
 mod boot;
 
 pub mod generic_timer;
-#[cfg(not(any(
-    all(platform_family = "aarch64-raspi"),
-    all(platform_family = "aarch64-phytium-pi"),
-)))]
+#[cfg(not(platform_family = "aarch64-raspi"))]
 pub mod psci;
 
 #[cfg(feature = "irq")]
