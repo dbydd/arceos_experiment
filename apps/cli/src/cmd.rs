@@ -18,7 +18,8 @@ const CMD_TABLE: &[(&str, CmdHandler)] = &[
     ("help", do_help),
     ("uname", do_uname),
     ("ldr", do_ldr),
-    ("str", do_str)
+    ("str", do_str),
+    ("test_pci", do_test_pci),
 ];
 
 fn do_uname(_args: &str) {
@@ -36,6 +37,11 @@ fn do_uname(_args: &str) {
         arch = arch,
         plat = platform,
     );
+}
+
+fn do_test_pci(_args: &str) {
+    println!("test pci");
+    let init_drivers = axdriver::init_drivers();
 }
 
 fn do_help(_args: &str) {
@@ -82,7 +88,6 @@ fn do_ldr(args: &str) {
         }
     }
 }
-
 
 // use crate::mem::phys_to_virt;
 // use core::ptr::{read_volatile, write_volatile};
@@ -131,7 +136,6 @@ fn do_str(args: &str) {
             str_one(addr, val).unwrap(); // 调用 str_one 函数并传递 addr 和 val
         }
     }
-
 }
 
 pub fn run_cmd(line: &[u8]) {

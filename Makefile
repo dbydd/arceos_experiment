@@ -44,7 +44,7 @@ APP_FEATURES ?=
 BLK ?= n
 NET ?= n
 GRAPHIC ?= n
-BUS ?= mmio
+BUS ?= pci
 
 DISK_IMG ?= disk.img
 QEMU_LOG ?= n

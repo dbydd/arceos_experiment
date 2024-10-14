@@ -15,5 +15,5 @@ default = []
 # axfs_ramfs = { path = "../../../crates/axfs_ramfs", optional = true }
 # crate_interface = { path = "../../../crates/crate_interface", optional = true }
 axstd = { path = "../../ulib/axstd", features = ["alloc"], optional = true }
-
+axdriver ={ path = "../../modules/axdriver",features = ["bus-pci",]}
 # axstd = { path = "../../ulib/axstd", optional = true }
