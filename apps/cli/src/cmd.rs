@@ -34,7 +34,6 @@ const CMD_TABLE: &[(&str, CmdHandler)] = &[
 
 //     let phytium_cfg_id_0 = (0xffff_0000_31a0_8000, 48, 0);
 
-
 //     let config = USBHostConfig::new(
 //         phytium_cfg_id_0.0, phytium_cfg_id_0.1, phytium_cfg_id_0.2);
 //     let usb = USBHost::<Xhci>::new(config).unwrap();
@@ -177,7 +176,6 @@ fn split_whitespace(str: &str) -> (&str, &str) {
         .map_or((str, ""), |n| (&str[..n], str[n + 1..].trim()))
 }
 
-fn test_net(str: &str) {}
 fn dump_dtb(str: &str) {
     axdtb::dump_dtb();
 }
