@@ -158,6 +158,9 @@ pub extern "C" fn rust_main(cpu_id: usize, dtb: usize) -> ! {
     #[cfg(feature = "alloc")]
     init_allocator();
 
+
+    axdtb::init(dtb);
+
     #[cfg(feature = "paging")]
     {
         info!("Initialize kernel page table...");
@@ -172,6 +175,7 @@ pub extern "C" fn rust_main(cpu_id: usize, dtb: usize) -> ! {
 
     #[cfg(feature = "multitask")]
     axtask::init_scheduler();
+
 
     #[cfg(any(feature = "fs", feature = "net", feature = "display", feature = "usb"))]
     {

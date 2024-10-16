@@ -1,6 +1,7 @@
 use std::io::{self};
 
 // use driver_usb::host::{xhci::MemoryMapper, USBHost, USBHostConfig, Xhci};
+use axhal::mem::phys_to_virt;
 
 #[cfg(all(not(feature = "axstd"), unix))]
 
@@ -22,6 +23,9 @@ const CMD_TABLE: &[(&str, CmdHandler)] = &[
     ("ldr", do_ldr),
     ("str", do_str),
     // ("test_xhci", test_xhci),
+    ("dump_dtb", dump_dtb),
+    ("test", test),
+    ("test_pci", do_test_pci),
 ];
 
 // fn test_xhci(_args: &str) {
@@ -52,6 +56,11 @@ fn do_uname(_args: &str) {
         arch = arch,
         plat = platform,
     );
+}
+
+fn do_test_pci(_args: &str) {
+    println!("test pci");
+    let init_drivers = axdriver::init_drivers();
 }
 
 fn do_help(_args: &str) {
@@ -169,3 +178,11 @@ fn split_whitespace(str: &str) -> (&str, &str) {
 }
 
 fn test_net(str: &str) {}
+fn dump_dtb(str: &str) {
+    axdtb::dump_dtb();
+}
+
+fn test(_str: &str) {
+    let phys_to_virt = 0x40_1000_0000usize as *const u8;
+    println!("read:0x{}", unsafe { *(phys_to_virt as *const u64) })
+}

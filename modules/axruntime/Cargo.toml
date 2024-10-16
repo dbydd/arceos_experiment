@@ -40,3 +40,5 @@ crate_interface = { path = "../../crates/crate_interface" }
 percpu = { path = "../../crates/percpu", optional = true }
 kernel_guard = { path = "../../crates/kernel_guard", optional = true }
 lazy_init = { path = "../../crates/lazy_init", optional = true }
+
+axdtb = {path="../../crates/axdtb"}

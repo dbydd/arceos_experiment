@@ -28,7 +28,7 @@ qemu_args-y := -m 2G -smp $(SMP) $(qemu_args-$(ARCH))
 else
 qemu_args-aarch64 := \
   -cpu cortex-a72 \
-  -machine virt \
+  -machine virt,highmem=off \
   -kernel $(OUT_BIN)
 qemu_args-y := -m 128M -smp $(SMP) $(qemu_args-$(ARCH))
 endif
@@ -84,6 +84,8 @@ ifeq ($(QEMU_CONSOLE),y)
 endif
 
 qemu_args-debug := $(qemu_args-y) -s -S
+
+qemu_args-y += -device edu -machine highmem=off
 
 # Do not use KVM for debugging
 ifeq ($(shell uname), Darwin)

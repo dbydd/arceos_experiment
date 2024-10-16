@@ -12,7 +12,7 @@ documentation = "https://rcore-os.github.io/arceos/axdriver/index.html"
 [features]
 dyn = []
 bus-mmio = []
-bus-pci = ["dep:driver_pci", "dep:axhal", "dep:axconfig"]
+bus-pci = ["dep:driver_pci", "dep:axhal", "dep:axconfig", "dep:axalloc"]
 net = ["driver_net"]
 block = ["driver_block"]
 display = ["driver_display"]

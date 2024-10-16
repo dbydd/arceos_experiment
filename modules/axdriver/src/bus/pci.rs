@@ -1,4 +1,4 @@
-use crate::{prelude::*, AllDevices};
+use crate::{bus::pci, prelude::*, AllDevices};
 use axhal::mem::phys_to_virt;
 use driver_pci::*;
 
@@ -12,9 +12,10 @@ impl AllDevices {
         );
 
         debug!("probing in pci.rs!");
+        debug!("PCI RANGE {:x} {:x}", pci_range.0, pci_range.1);
 
         for (bdf, dev_info, cfg) in root.enumerate_bus() {
-            debug!("PCI {}: {}", bdf, dev_info);
+            debug!("PCI {} {}", bdf, dev_info);
             for_each_drivers!(type Driver,{
                             if let Some(dev) = Driver::probe_pci(&mut root, bdf.clone(), &dev_info, &cfg) {
                                 info!(
@@ -28,5 +29,6 @@ impl AllDevices {
                             }
             });
         }
+        debug!("new root over");
     }
 }

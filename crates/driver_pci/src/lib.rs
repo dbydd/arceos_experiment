@@ -10,7 +10,7 @@
 #![allow(warnings)]
 #![feature(cfg_match)]
 
-#[cfg(feature = "bcm2711")]
+// #[cfg(feature = "bcm2711")]
 mod bcm2711;
 extern crate alloc;
 pub mod err;
@@ -52,6 +52,8 @@ cfg_match! {
         }
     }
 }
+// #[cfg(feature = "bcm2711")]
+pub type RootComplex = PciRootComplex<bcm2711::BCM2711>;
 
 pub type PciRoot = RootComplex;
 pub type DeviceFunction = PciAddress;
