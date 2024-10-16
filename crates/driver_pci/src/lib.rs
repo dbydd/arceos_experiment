@@ -34,24 +34,24 @@ impl core::fmt::Display for PciAddress {
     }
 }
 
-cfg_match! {
-    cfg(feature = "bcm2711")=>{
-        pub type RootComplex = PciRootComplex<bcm2711::BCM2711>;
-    }
-    _=>{
-        struct DummyPciRoot;
-        pub type RootComplex = PciRootComplex<DummyPciRoot>;
-        impl Access for DummyPciRoot {
-            fn setup(mmio_base: usize) {}
-
-            fn probe_bridge(mmio_base: usize, bridge_header: &ConifgPciPciBridge) {}
-
-            fn map_conf(mmio_base: usize, addr: PciAddress) -> Option<usize> {
-                None
-            }
-        }
-    }
-}
+// cfg_match! {
+//     cfg(feature = "bcm2711")=>{
+//         pub type RootComplex = PciRootComplex<bcm2711::BCM2711>;
+//     }
+//     _=>{
+//         struct DummyPciRoot;
+//         pub type RootComplex = PciRootComplex<DummyPciRoot>;
+//         impl Access for DummyPciRoot {
+//             fn setup(mmio_base: usize) {}
+//
+//             fn probe_bridge(mmio_base: usize, bridge_header: &ConifgPciPciBridge) {}
+//
+//             fn map_conf(mmio_base: usize, addr: PciAddress) -> Option<usize> {
+//                 None
+//             }
+//         }
+//     }
+// }
 // #[cfg(feature = "bcm2711")]
 pub type RootComplex = PciRootComplex<bcm2711::BCM2711>;
 

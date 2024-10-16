@@ -30,7 +30,7 @@ qemu_args-aarch64 := \
   -cpu cortex-a72 \
   -machine virt,highmem=off \
   -kernel $(OUT_BIN)
-qemu_args-y := -m 128M -smp $(SMP) $(qemu_args-$(ARCH))
+qemu_args-y := -m 2G -smp $(SMP) $(qemu_args-$(ARCH))
 endif
 
 #qemu_args-y := -m 128M -smp $(SMP) $(qemu_args-$(ARCH))
