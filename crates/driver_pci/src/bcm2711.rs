@@ -1,14 +1,12 @@
 use crate::types::{ConfigCommand, ConifgPciPciBridge};
-use crate::{err::*, Access, PciAddress};
+use crate::{Access, PciAddress};
 use aarch64_cpu::registers::*;
-use core::{marker::PhantomData, ops::Add, ptr::NonNull};
 use ratio::Ratio;
 use tock_registers::{
     interfaces::{ReadWriteable, Readable, Writeable},
     register_bitfields, register_structs,
     registers::{ReadOnly, ReadWrite},
 };
-use virtio_drivers::transport::mmio;
 
 register_bitfields![
     u32,
@@ -315,9 +313,14 @@ fn cfg_index(addr: PciAddress) -> usize {
 
 impl BCM2711 {
     unsafe fn do_setup(mmio_base: usize) {
+        debug!(
+            "PCIe 7link start @0x{:X}... value {:X}",
+            mmio_base,
+            *(mmio_base as *mut u32)
+        );
+
         let regs = &mut *(mmio_base as *mut BCM2711PCIeHostBridgeRegs);
 
-        debug!("PCIe link start @0x{:X}...", mmio_base);
         /*
          * Reset the bridge, assert the fundamental reset. Note for some SoCs,
          * e.g. BCM7278, the fundamental reset should not be asserted here.
@@ -326,6 +329,7 @@ impl BCM2711 {
         regs.rgr1_sw_init.modify(
             RGR1_SW_INIT_1::RGR1_SW_INTI_1_INIT::SET + RGR1_SW_INIT_1::RGR1_SW_INTI_1_PERST::SET,
         );
+
         debug!("assert fundamental reset");
         /*
          * The delay is a safety precaution to preclude the reset signal
@@ -352,7 +356,6 @@ impl BCM2711 {
                 + MISC_MISC_CTRL::CFG_READ_UR_MODE::SET
                 + MISC_MISC_CTRL::SCB2_SIZE::SET,
         );
-
 
         regs.misc_rc_bar2_config_lo
             .write(MISC_RC_BAR2_CONFIG_LO::VALUE_LO::init_val);
@@ -411,7 +414,7 @@ impl BCM2711 {
 
         // outbound memory
         // regs.misc_cpu_2_pcie_mem_win0_lo.set(0xC0000000);
-        // regs.misc_cpu_2_pcie_mem_win0_hi.set(0x0);        
+        // regs.misc_cpu_2_pcie_mem_win0_hi.set(0x0);
         regs.misc_cpu_2_pcie_mem_win0_lo.set(0x0);
         regs.misc_cpu_2_pcie_mem_win0_hi.set(0x6);
         regs.misc_cpu_2_pcie_mem_win0_base_limit.set(0x3FF00000);
@@ -469,14 +472,21 @@ fn link_speed_to_str(cls: u16) -> &'static str {
 
 impl Access for BCM2711 {
     fn map_conf(mmio_base: usize, addr: PciAddress) -> Option<usize> {
+        // debug!("mmio_base {:X} addr {addr}", mmio_base);
         // bus 0 bus 1 只有一个Device
-        if addr.bus <= 2 && addr.device > 0 {
-            return None;
-        }
+        // if addr.bus <= 2 && addr.device > 0 {
+        //     return None;
+        // }
 
-        if addr.bus == 0 {
-            return Some(mmio_base);
-        }
+        // if addr.bus == 0 {
+        //     return Some(mmio_base);
+        // }
+
+        let cfg_address = mmio_base
+            + ((addr.bus as usize) << 20)
+            + ((addr.device as usize) << 15)
+            + ((addr.function as usize) << 12);
+        return Some(cfg_address);
 
         let idx = cfg_index(addr);
         unsafe {
@@ -489,6 +499,7 @@ impl Access for BCM2711 {
         debug!("bridge bcm2711");
 
         bridge.set_cache_line_size(64 / 4);
+
         bridge.set_memory_base((0xF8000000u32 >> 16) as u16);
         bridge.set_memory_limit((0xF8000000u32 >> 16) as u16);
         bridge.set_control(0x01);
@@ -562,4 +573,3 @@ pub fn busy_wait_until(deadline: Duration) {
         core::hint::spin_loop();
     }
 }
-

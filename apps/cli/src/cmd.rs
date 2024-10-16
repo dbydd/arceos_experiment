@@ -23,6 +23,7 @@ const CMD_TABLE: &[(&str, CmdHandler)] = &[
     ("str", do_str),
     ("dump_dtb", dump_dtb),
     ("test", test),
+    ("test_pci", do_test_pci),
 ];
 
 fn do_uname(_args: &str) {
@@ -40,6 +41,11 @@ fn do_uname(_args: &str) {
         arch = arch,
         plat = platform,
     );
+}
+
+fn do_test_pci(_args: &str) {
+    println!("test pci");
+    let init_drivers = axdriver::init_drivers();
 }
 
 fn do_help(_args: &str) {

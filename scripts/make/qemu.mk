@@ -85,6 +85,8 @@ endif
 
 qemu_args-debug := $(qemu_args-y) -s -S
 
+qemu_args-y += -device edu -machine highmem=off
+
 # Do not use KVM for debugging
 ifeq ($(shell uname), Darwin)
   qemu_args-$(ACCEL) += -cpu host -accel hvf

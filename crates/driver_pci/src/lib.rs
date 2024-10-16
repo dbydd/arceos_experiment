@@ -8,18 +8,17 @@
 
 #![no_std]
 
-#[cfg(feature = "bcm2711")]
+// #[cfg(feature = "bcm2711")]
 mod bcm2711;
 extern crate alloc;
-pub mod types;
 pub mod err;
 mod root_complex;
+pub mod types;
 use core::ops::Range;
 
 pub use root_complex::*;
 use types::ConifgPciPciBridge;
 // pub use virtio_drivers::transport::pci::bus::{BarInfo};
-
 
 #[derive(Clone, Copy)]
 pub struct PciAddress {
@@ -33,24 +32,19 @@ impl core::fmt::Display for PciAddress {
     }
 }
 
-
-
-#[cfg(feature="bcm2711")]
+// #[cfg(feature = "bcm2711")]
 pub type RootComplex = PciRootComplex<bcm2711::BCM2711>;
 
-pub type  PciRoot = RootComplex;
+pub type PciRoot = RootComplex;
 pub type DeviceFunction = PciAddress;
 pub type BarInfo = types::Bar;
 
-pub fn new_root_complex(mmio_base: usize, bar_range: Range<u64>) ->RootComplex {
+pub fn new_root_complex(mmio_base: usize, bar_range: Range<u64>) -> RootComplex {
     PciRootComplex::new(mmio_base, bar_range)
 }
-
 
 pub trait Access {
     fn setup(mmio_base: usize);
     fn probe_bridge(mmio_base: usize, bridge_header: &ConifgPciPciBridge);
-    fn map_conf(mmio_base: usize, addr: PciAddress)->Option<usize>;
+    fn map_conf(mmio_base: usize, addr: PciAddress) -> Option<usize>;
 }
-
-

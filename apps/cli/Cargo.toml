@@ -21,3 +21,5 @@ axhal = {path = "../../modules/axhal"}
 
 # axstd = { path = "../../ulib/axstd", optional = true }
 
+axdriver ={ path = "../../modules/axdriver",features = ["bus-pci",]}
+# axstd = { path = "../../ulib/axstd", optional = true }

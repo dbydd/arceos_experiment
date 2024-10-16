@@ -61,7 +61,7 @@ virtio-mmio-regions = [
     ["0x0a00_3e00", "0x200"],
 ]
 # Base physical address of the PCIe ECAM space.
-pci-ecam-base = "0x40_1000_0000"
+pci-ecam-base = "0x3f000000"
 # End PCI bus number (`bus-range` property in device tree).
 pci-bus-end = "0xff"
 # PCI device memory ranges (`ranges` property in device tree).
