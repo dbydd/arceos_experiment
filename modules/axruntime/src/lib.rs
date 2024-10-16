@@ -158,7 +158,6 @@ pub extern "C" fn rust_main(cpu_id: usize, dtb: usize) -> ! {
     #[cfg(feature = "alloc")]
     init_allocator();
 
-
     axdtb::init(dtb);
 
     #[cfg(feature = "paging")]
@@ -175,7 +174,6 @@ pub extern "C" fn rust_main(cpu_id: usize, dtb: usize) -> ! {
 
     #[cfg(feature = "multitask")]
     axtask::init_scheduler();
-
 
     #[cfg(any(feature = "fs", feature = "net", feature = "display", feature = "usb"))]
     {
@@ -275,6 +273,8 @@ fn init_allocator_no_cache() {
                 break;
             }
         }
+
+        debug!(" Actual Initialize global no cache memory allocator...");
         axalloc::global_nocache_init(nocache_init);
     }
 }

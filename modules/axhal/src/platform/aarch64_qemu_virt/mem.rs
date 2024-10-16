@@ -4,9 +4,9 @@ use page_table_entry::{aarch64::A64PTE, GenericPTE, MappingFlags};
 /// Returns platform-specific memory regions.
 pub(crate) fn platform_regions() -> impl Iterator<Item = MemRegion> {
     crate::mem::default_free_regions()
-        .chain(crate::mem::default_nocache_regions())
-        .chain(crate::mem::default_free_regions())
-        .chain(crate::mem::default_mmio_regions())
+    //.chain(crate::mem::default_nocache_regions())
+    //.chain(crate::mem::default_free_regions())
+    //.chain(crate::mem::default_mmio_regions())
 }
 
 pub(crate) unsafe fn init_boot_page_table(

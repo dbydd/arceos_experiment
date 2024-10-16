@@ -247,6 +247,7 @@ impl GlobalNoCacheAllocator {
     /// added nocache allocator-2024.1.23
     pub fn init(&self, (nocache_base, nocache_size): (usize, usize)) {
         if nocache_size > 0 {
+            debug!("init balloc!");
             self.balloc.lock().init(nocache_base, nocache_size);
         }
     }
