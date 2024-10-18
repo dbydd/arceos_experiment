@@ -36,7 +36,8 @@ members = [
     "crates/spinlock",
     "crates/timer_list",
     "crates/tuple_for_each",
-
+    "crates/page_box",
+    "crates/ax_event_bus",
 
     "modules/axalloc",
     "modules/axconfig",
@@ -77,7 +78,8 @@ members = [
     "apps/usb",
     "apps/boards/raspi4",   
     "apps/boards/raspi4-usb", 
-    "apps/usb-hid", "crates/ax_event_bus", "apps/boards/phytium-car",
+    "apps/usb-hid",
+    "apps/boards/phytium-car",
 ]
 
 
