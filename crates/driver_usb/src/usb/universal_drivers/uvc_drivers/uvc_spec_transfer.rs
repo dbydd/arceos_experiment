@@ -82,11 +82,10 @@ where
     }
 
     pub fn create_uvcstream_control_block(a: A) -> Self {
-        DMA::reserve_with_0(PageSize::Size4K as usize, a)
+        DMA::reserve_with_0(4096, a)
     }
 }
 
-use axhal::paging::PageSize;
 use const_enum::ConstEnum;
 use tock_registers::register_bitfields;
 use tock_registers::register_structs;

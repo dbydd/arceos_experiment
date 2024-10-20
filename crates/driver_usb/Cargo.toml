@@ -10,29 +10,32 @@ documentation = "https://rcore-os.github.io/arceos/driver_usb/index.html"
 
 
 [features]
-default = ["xhci","packed_drivers"]
-packed_drivers=[]
-xhci=[]
+default = ["xhci", "packed_drivers"]
+packed_drivers = []
+xhci = []
+pci = ["dep:pci_types"]
 
 [dependencies]
-log="0.4"
-xhci = {git = "https://github.com/dbydd/xhci.git"}
-memory_addr = {path= "../../crates/memory_addr"}
+log = "0.4"
+xhci = { git = "https://github.com/dbydd/xhci.git" }
+memory_addr = { path = "../../crates/memory_addr" }
 spinlock = { path = "../../crates/spinlock" }
 tock-registers = "0.9.0"
 bit_field = "0.10"
 num-derive = "0.4.0"
 num-traits = { version = "0.2.16", default-features = false }
 byteorder = { version = "1.4.3", default-features = false }
-const-enum = {git = "https://github.com/dbydd/const-enum-new.git"}
+const-enum = { git = "https://github.com/dbydd/const-enum-new.git" }
 # hidreport = {path = "../../crates/hidreport"}
-
 
 
 # arceos
 driver_common = { path = "../driver_common" }
 driver_pci = { path = "../driver_pci" }
-axhal = {path = "../../modules/axhal",features=["irq"]}
-axtask = {path = "../../modules/axtask",features = ["multitask","sched_rr"]}
-axconfig = {path = "../../modules/axconfig"}
-axalloc = {path="../../modules/axalloc"}
+axhal = { path = "../../modules/axhal", features = ["irq"] }
+axtask = { path = "../../modules/axtask", features = ["multitask", "sched_rr"] }
+axconfig = { path = "../../modules/axconfig" }
+axalloc = { path = "../../modules/axalloc" }
+
+pci_types = { version = "0.6", optional = true }
+cfg-if = "1.0.0"

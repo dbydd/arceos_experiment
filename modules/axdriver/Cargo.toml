@@ -2,7 +2,10 @@
 name = "axdriver"
 version = "0.1.0"
 edition = "2021"
-authors = ["Yuekai Jia <equation618@gmail.com>", "ChengXiang Qi <kuangjux@outlook.com>"]
+authors = [
+  "Yuekai Jia <equation618@gmail.com>",
+  "ChengXiang Qi <kuangjux@outlook.com>",
+]
 description = "ArceOS device drivers"
 license = "GPL-3.0-or-later OR Apache-2.0"
 homepage = "https://github.com/rcore-os/arceos"
@@ -28,6 +31,7 @@ ramdisk = ["block", "driver_block/ramdisk"]
 bcm2835-sdhci = ["block", "driver_block/bcm2835-sdhci"]
 ixgbe = ["net", "driver_net/ixgbe", "dep:axalloc", "dep:axhal"]
 bcm2711 = ["driver_pci/bcm2711"]
+pci-xhci = ["driver_usb/pci"]
 # more devices example: e1000 = ["net", "driver_net/e1000"]
 
 default = ["bus-mmio"]
@@ -41,6 +45,7 @@ driver_net = { path = "../../crates/driver_net", optional = true }
 driver_display = { path = "../../crates/driver_display", optional = true }
 driver_pci = { path = "../../crates/driver_pci", optional = true }
 driver_virtio = { path = "../../crates/driver_virtio", optional = true }
+driver_usb = { path = "../../crates/driver_usb", optional = true }
 axalloc = { path = "../axalloc", optional = true }
 axhal = { path = "../axhal", optional = true }
 axconfig = { path = "../axconfig", optional = true }

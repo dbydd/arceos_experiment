@@ -16,10 +16,13 @@ default = []
 # crate_interface = { path = "../../../crates/crate_interface", optional = true }
 axstd = { path = "../../ulib/axstd", features = ["alloc"], optional = true }
 
-axdtb = {path = "../../crates/axdtb"}
-axhal = {path = "../../modules/axhal"}
+axdtb = { path = "../../crates/axdtb" }
+axhal = { path = "../../modules/axhal" }
 
 # axstd = { path = "../../ulib/axstd", optional = true }
 
-axdriver ={ path = "../../modules/axdriver",features = ["bus-pci",]}
+axdriver = { path = "../../modules/axdriver", features = [
+  "bus-pci",
+  "pci-xhci",
+] }
 # axstd = { path = "../../ulib/axstd", optional = true }

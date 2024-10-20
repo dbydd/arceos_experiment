@@ -337,6 +337,7 @@ dependencies = [
  "driver_display",
  "driver_net",
  "driver_pci",
+ "driver_usb",
  "driver_virtio",
  "log",
 ]
@@ -978,6 +979,7 @@ dependencies = [
  "axtask",
  "bit_field",
  "byteorder",
+ "cfg-if",
  "const-enum",
  "driver_common",
  "driver_pci",
@@ -985,6 +987,7 @@ dependencies = [
  "memory_addr",
  "num-derive 0.4.2",
  "num-traits",
+ "pci_types",
  "spinlock",
  "tock-registers 0.9.0",
  "xhci",

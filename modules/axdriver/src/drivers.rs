@@ -2,6 +2,8 @@
 
 #![allow(unused_imports)]
 
+use core::any::Any;
+
 use crate::AxDeviceEnum;
 use axalloc::{global_allocator, global_no_cache_allocator};
 use cfg_if::cfg_if;
@@ -87,6 +89,30 @@ cfg_if::cfg_if! {
                 driver_block::bcm2835sdhci::SDHCIDriver::try_new().ok().map(AxDeviceEnum::from_block)
             }
         }
+    }
+}
+
+cfg_if::cfg_if! {
+    if #[cfg(feature="pci-xhci")]{
+       pub struct PciXHCIDriver;
+       register_usb_host_driver!(PciXHCIDriver,driver_usb::XHCIPCIDriver<'static>);
+
+       impl DriverProbe for PciXHCIDriver{
+
+           fn probe_pci(
+               _root: &mut PciRoot,
+               _bdf: DeviceFunction,
+               dev_info: &DeviceFunctionInfo,
+               _config: &ConfigSpace,
+           ) -> Option<AxDeviceEnum> {
+               use driver_pci::types::ConfigSpace;
+                if driver_usb::filter_xhci(dev_info.class,dev_info.subclass,dev_info.prog_if) {
+
+                }
+
+               None
+           }
+       }
     }
 }
 

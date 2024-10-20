@@ -19,6 +19,7 @@ use alloc::{
     sync::Arc,
     vec::Vec,
 };
+use cfg_if::cfg_if;
 use glue::driver_independent_device_instance::DriverIndependentDeviceInstance;
 use host::{data_structures::MightBeInited, USBHostSystem};
 use log::{error, trace};
@@ -42,6 +43,14 @@ pub mod err;
 pub mod glue;
 pub mod host;
 pub mod usb;
+
+cfg_if! {
+ if #[cfg(feature = "pci")]{
+        pub mod pci_interface;
+        pub use pci_interface::*;
+        pub use pci_interface::XHCIPCIDriver;
+    }
+}
 
 #[derive(Clone, Debug)]
 pub struct USBSystemConfig<O>
