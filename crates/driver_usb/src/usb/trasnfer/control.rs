@@ -11,6 +11,7 @@ pub struct ControlTransfer {
     pub index: u16,
     pub value: u16,
     pub data: Option<(usize, usize)>,
+    pub response:bool
 }
 
 #[allow(non_camel_case_types)]

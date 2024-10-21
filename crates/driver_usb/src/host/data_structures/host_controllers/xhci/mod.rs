@@ -928,6 +928,10 @@ where
 
         let mut status = *transfer::StatusStage::default().set_interrupt_on_completion();
 
+        if urb_req.response {
+            status.set_direction();
+        }
+
         //=====post!=======
         let mut trbs: Vec<transfer::Allowed> = Vec::new();
 
@@ -966,21 +970,25 @@ where
             r.set_doorbell_target(1);
         });
 
-        let complete = self
-            .event_busy_wait_transfer(*trb_pointers.last().unwrap() as _)
-            .unwrap();
+        // if urb_req.response {
+            let complete = self
+                .event_busy_wait_transfer(*trb_pointers.last().unwrap() as _)
+                .unwrap();
 
-        match complete.completion_code() {
-            Ok(complete) => match complete {
-                CompletionCode::Success => Ok(UCB::new(CompleteCode::Event(
-                    TransferEventCompleteCode::Success,
+            match complete.completion_code() {
+                Ok(complete) => match complete {
+                    CompletionCode::Success => Ok(UCB::new(CompleteCode::Event(
+                        TransferEventCompleteCode::Success,
+                    ))),
+                    err => panic!("{:?}", err),
+                },
+                Err(fail) => Ok(UCB::new(CompleteCode::Event(
+                    TransferEventCompleteCode::Unknown(fail),
                 ))),
-                err => panic!("{:?}", err),
-            },
-            Err(fail) => Ok(UCB::new(CompleteCode::Event(
-                TransferEventCompleteCode::Unknown(fail),
-            ))),
-        }
+            }
+        // }else {
+        //     Ok(UCB::new(CompleteCode::Event(TransferEventCompleteCode::Success)))
+        // }
     }
 
     fn configure_device(
@@ -1110,6 +1118,7 @@ where
                 )
                 .bits(),
                 data: Some((buffer.addr() as usize, buffer.length_for_bytes())),
+                response: false,
             },
         )
         .unwrap();

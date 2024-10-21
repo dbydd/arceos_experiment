@@ -194,6 +194,7 @@ where
                 index: self.interface_value as u16,
                 value: self.config_value as u16,
                 data: None,
+                response:true
             }),
         ));
         todo_list.push(URB::new(
@@ -210,25 +211,27 @@ where
                 index: 0 as u16,
                 value: 0 as u16,
                 data: None,
+                response:true
             }),
         ));
 
-        if self.bootable > 0 {
-            todo_list.push(URB::new(
-                self.device_slot_id,
-                RequestedOperation::Control(ControlTransfer {
-                    request_type: bmRequestType::new(
-                        Direction::Out,
-                        DataTransferType::Class,
-                        Recipient::Interface,
-                    ),
-                    request: bRequest::SetInterfaceDs, //actually set protocol
-                    index: if self.bootable == 2 { 1 } else { 0 },
-                    value: self.interface_value as u16,
-                    data: None,
-                }),
-            ));
-        }
+        // if self.bootable > 0 {
+        //     todo_list.push(URB::new(
+        //         self.device_slot_id,
+        //         RequestedOperation::Control(ControlTransfer {
+        //             request_type: bmRequestType::new(
+        //                 Direction::Out,
+        //                 DataTransferType::Class,
+        //                 Recipient::Interface,
+        //             ),
+        //             request: bRequest::SetInterfaceDs, //actually set protocol
+        //             index: if self.bootable == 2 { 1 } else { 0 },
+        //             value: self.interface_value as u16,
+        //             data: None,
+        //             response:false
+        //         }),
+        //     ));
+        // }
 
         self.report_descriptor = Some(ReportDescState::<O>::Binary(SpinNoIrq::new(DMA::new(
             0u8,
@@ -253,6 +256,7 @@ where
                     )
                     .bits(),
                     data: Some({ buf.lock().addr_len_tuple() }),
+                    response:true
                 }),
             ));
         }

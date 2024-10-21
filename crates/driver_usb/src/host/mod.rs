@@ -1,6 +1,6 @@
 use alloc::{boxed::Box, collections::binary_heap::Iter, sync::Arc, vec::Vec};
 use data_structures::host_controllers::{xhci::XHCI, Controller, ControllerArc};
-use log::trace;
+use log::{debug, trace};
 use spinlock::SpinNoIrq;
 use xhci::ring::trb::event;
 
@@ -121,10 +121,10 @@ where
         trace!("tock! check deadlock!");
         todo_list_list.iter().for_each(|list| {
             list.iter().for_each(|todo| {
+                debug!("tock! req: {:#?}",todo.operation);
                 if let Ok(ok) = self.urb_request(todo.clone())
                     && let Some(sender) = &todo.sender
                 {
-                    trace!("tock! check deadlock! 2");
                     sender.lock().receive_complete_event(ok);
                 };
             })
