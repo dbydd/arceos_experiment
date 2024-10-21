@@ -1,5 +1,6 @@
 use bit_field::BitField;
 use driver_common::BaseDriverOps;
+use log::debug;
 use memory_addr::VirtAddr;
 
 use crate::{
@@ -32,6 +33,7 @@ impl HALAbstractions for PlatAbstraction {
 
 #[inline]
 pub fn filter_xhci(class_id: u8, subclass_id: u8, prog_if: u8) -> bool {
+    debug!("filter:class-{class_id},sub-{subclass_id},progif-{prog_if}");
     pci_types::device_type::DeviceType::from((class_id, subclass_id))
         == pci_types::device_type::DeviceType::UsbController
         && pci_types::device_type::UsbType::try_from(prog_if)

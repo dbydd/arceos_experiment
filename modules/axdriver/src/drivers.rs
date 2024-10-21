@@ -107,6 +107,7 @@ cfg_if::cfg_if! {
            ) -> Option<AxDeviceEnum> {
                use driver_pci::types::ConfigSpace;
                 if driver_usb::filter_xhci(dev_info.class,dev_info.subclass,dev_info.prog_if) {
+                    debug!("founded!");
 
                 }
 
