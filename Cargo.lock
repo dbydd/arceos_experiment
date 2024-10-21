@@ -1418,6 +1418,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b410bbe7e14ab526a0e86877eb47c6996a2bd7746f027ba551028c925390e4e9"
 
 [[package]]
+name = "page_box"
+version = "0.1.0"
+dependencies = [
+ "axalloc",
+ "axhal",
+ "page_table",
+ "page_table_entry",
+]
+
+[[package]]
 name = "page_table"
 version = "0.1.0"
 dependencies = [
