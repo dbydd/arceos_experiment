@@ -110,7 +110,7 @@ unsafe fn init_boot_page_table() {
 unsafe extern "C" fn _start() -> ! {
     // PC = 0x8_0000
     // X0 = dtb
-    core::arch::asm!("
+    core::arch::naked_asm!("
         mrs     x19, mpidr_el1
         bl      {debug}         // put debug a
         and     x19, x19, #0xffffff     // get current CPU id
@@ -149,7 +149,6 @@ unsafe extern "C" fn _start() -> ! {
         boot_stack_size = const TASK_STACK_SIZE,
         phys_virt_offset = const axconfig::PHYS_VIRT_OFFSET,
         entry = sym crate::platform::rust_entry,
-        options(noreturn),
     )
 }
 
