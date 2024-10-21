@@ -10,7 +10,7 @@ use crate::{
 pub type XHCIPCIDriver<'a> = USBSystem<'a, PlatAbstraction>;
 
 #[derive(Clone, Debug)]
-struct PlatAbstraction;
+pub struct PlatAbstraction;
 
 impl OSAbstractions for PlatAbstraction {
     type VirtAddr = VirtAddr;

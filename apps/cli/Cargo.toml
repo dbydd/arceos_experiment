@@ -15,6 +15,7 @@ default = []
 # axfs_ramfs = { path = "../../../crates/axfs_ramfs", optional = true }
 # crate_interface = { path = "../../../crates/crate_interface", optional = true }
 axstd = { path = "../../ulib/axstd", features = ["alloc"], optional = true }
+axfeat = { path = "../../api/axfeat", features = ["multitask", "sched_rr"] }
 
 axdtb = { path = "../../crates/axdtb" }
 axhal = { path = "../../modules/axhal" }
