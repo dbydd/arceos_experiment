@@ -8,6 +8,8 @@ use crate::AxDeviceEnum;
 use axalloc::{global_allocator, global_no_cache_allocator};
 use cfg_if::cfg_if;
 use driver_common::DeviceType;
+use driver_pci::types::ConfigCommand;
+use driver_usb::create_xhci_from_pci;
 // use driver_usb::OsDep;
 
 const VL805_VENDOR_ID: u16 = 0x1106;
@@ -100,17 +102,43 @@ cfg_if::cfg_if! {
        impl DriverProbe for PciXHCIDriver{
 
            fn probe_pci(
-               _root: &mut PciRoot,
-               _bdf: DeviceFunction,
+               root: &mut PciRoot,
+               bdf: DeviceFunction,
                dev_info: &DeviceFunctionInfo,
-               _config: &ConfigSpace,
+               config: &ConfigSpace,
            ) -> Option<AxDeviceEnum> {
                use driver_pci::types::ConfigSpace;
-                if driver_usb::filter_xhci(dev_info.class,dev_info.subclass,dev_info.prog_if) {
-                    debug!("founded!");
+               if driver_usb::filter_xhci(dev_info.class,dev_info.subclass,dev_info.prog_if) {
+                   //info!("XHCI PCI device found at {:?}", bdf);
 
-                }
+                   return match root.bar_info(bdf,0).unwrap() {
+                       driver_pci::types::Bar::Memory32 { address, size, prefetchable } => {
+                        config.header.set_command([
+                            ConfigCommand::MemorySpaceEnable,
+                            ConfigCommand::BusMasterEnable,
+                            ConfigCommand::ParityErrorResponse,
+                            ConfigCommand::SERREnable,
+                        ]);
+                           let (interrupt_pin,interrupt_line) = root.interrupt_pin_info(bdf);
+                           create_xhci_from_pci(address as _, interrupt_line as _, 1)
+                       },
+                       driver_pci::types::Bar::Memory64 { address, size, prefetchable } => {
+                        config.header.set_command([
+                            ConfigCommand::MemorySpaceEnable,
+                            ConfigCommand::BusMasterEnable,
+                            ConfigCommand::ParityErrorResponse,
+                            ConfigCommand::SERREnable,
+                        ]);
+                           let (interrupt_pin,interrupt_line) = root.interrupt_pin_info(bdf);
+                           create_xhci_from_pci(address as _, interrupt_line as _, 1)
+                       },
+                       driver_pci::types::Bar::Io { port } => {
+                           error!("xhci: BAR0 is of I/O type");
+                           None
+                       },
+                   }.map(|dev|AxDeviceEnum::from_usb(dev))
 
+               }
                None
            }
        }

@@ -1,15 +1,24 @@
+use core::ops::DerefMut;
+
 #[cfg(feature = "block")]
 pub use crate::drivers::AxBlockDevice;
 #[cfg(feature = "display")]
 pub use crate::drivers::AxDisplayDevice;
 #[cfg(feature = "net")]
 pub use crate::drivers::AxNetDevice;
+#[cfg(feature = "pci-xhci")]
+use crate::drivers::AxUSBHostDevice;
 
 impl super::AxDeviceEnum {
     /// Constructs a network device.
     #[cfg(feature = "net")]
     pub const fn from_net(dev: AxNetDevice) -> Self {
         Self::Net(dev)
+    }
+    /// Constructs a xhci device.
+    #[cfg(feature = "pci-xhci")]
+    pub const fn from_usb(dev: AxUSBHostDevice) -> Self {
+        Self::XHCI(dev)
     }
 
     /// Constructs a block device.
@@ -71,6 +80,13 @@ impl<D> core::ops::Deref for AxDeviceContainer<D> {
         &self.0
     }
 }
+
+impl<D> core::ops::DerefMut for AxDeviceContainer<D> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
 
 impl<D> Default for AxDeviceContainer<D> {
     fn default() -> Self {

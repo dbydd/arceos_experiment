@@ -34,6 +34,7 @@ fn print_prompt() {
 fn main() {
     let mut stdin = std::io::stdin();
     let mut stdout = std::io::stdout();
+    // axhal::irq::register_handler(33, ||{});
 
     let mut buf = [0; MAX_CMD_LEN];
     let mut cursor = 0;

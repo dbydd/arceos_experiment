@@ -1,7 +1,9 @@
-use std::io::{self};
+use std::{io::{self}, sync::Mutex};
 
+use axdriver::AllDevices;
 // use driver_usb::host::{xhci::MemoryMapper, USBHost, USBHostConfig, Xhci};
 use axhal::mem::phys_to_virt;
+use lazy_init::LazyInit;
 
 #[cfg(all(not(feature = "axstd"), unix))]
 
@@ -13,6 +15,8 @@ macro_rules! print_err {
         println!("{}: {}: {}", $cmd, $arg, $err);
     };
 }
+
+static Drivers:LazyInit<Mutex<AllDevices>> = LazyInit::new();
 
 type CmdHandler = fn(&str);
 
@@ -26,7 +30,11 @@ const CMD_TABLE: &[(&str, CmdHandler)] = &[
     ("dump_dtb", dump_dtb),
     ("test", test),
     ("test_pci", do_test_pci),
+    ("init_usb",do_init_usb),
+    ("test_usb",do_run_usb)
 ];
+
+
 
 // fn test_xhci(_args: &str) {
 //     // driver_usb::try_init(0x31a08000 as usize);
@@ -39,6 +47,14 @@ const CMD_TABLE: &[(&str, CmdHandler)] = &[
 //     let usb = USBHost::<Xhci>::new(config).unwrap();
 
 // }
+
+fn do_init_usb(_args:&str){
+    Drivers.lock().xhci.iter_mut().for_each(|controller|{controller.init();});
+}
+
+fn do_run_usb(_args:&str){
+    Drivers.lock().xhci.iter_mut().for_each(|controller|{controller.drive_all();});
+}
 
 fn do_uname(_args: &str) {
     let arch = option_env!("AX_ARCH").unwrap_or("");
@@ -59,7 +75,7 @@ fn do_uname(_args: &str) {
 
 fn do_test_pci(_args: &str) {
     println!("test pci");
-    let init_drivers = axdriver::init_drivers();
+    Drivers.init_by(Mutex::new(axdriver::init_drivers()));
 }
 
 fn do_help(_args: &str) {
@@ -177,7 +193,8 @@ fn split_whitespace(str: &str) -> (&str, &str) {
 }
 
 fn dump_dtb(str: &str) {
-    axdtb::dump_dtb();
+    // axdtb::dump_dtb();
+    println!("{:#?}",axdtb::find_dtb_node("pci-host-ecam-generic"));
 }
 
 fn test(_str: &str) {

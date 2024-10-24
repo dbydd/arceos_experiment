@@ -4,7 +4,8 @@ use driver_pci::*;
 
 impl AllDevices {
     pub(crate) fn probe_bus_devices(&mut self) {
-        let base_vaddr = phys_to_virt(axconfig::PCI_ECAM_BASE.into());
+        // let base_vaddr = phys_to_virt(axconfig::PCI_ECAM_BASE.into());
+        let base_vaddr = phys_to_virt(axdtb::find_dtb_node("pci-host-ecam-generic").unwrap().reg.first().map(|range|range.start).unwrap().into());
         let pci_range = axconfig::PCI_RANGES.get(1).unwrap();
         let mut root = driver_pci::new_root_complex(
             base_vaddr.as_usize(),

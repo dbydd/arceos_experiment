@@ -944,6 +944,7 @@ where
     {
         let mmio_base = config.lock().base_addr.clone().into();
         unsafe {
+            debug!("new registers!");
             let regs = RegistersBase::new(mmio_base, MemMapper);
             let ext_list =
                 RegistersExtList::new(mmio_base, regs.capability.hccparams1.read(), MemMapper);
@@ -970,6 +971,7 @@ where
             let event = EventRing::new(config.lock().os.clone()).unwrap();
 
             debug!("{TAG} ring size {}", cmd.len());
+            debug!("created xhci structure!");
 
             Self {
                 regs,
@@ -994,7 +996,7 @@ where
             .init_ir()
             .setup_scratchpads()
             .start()
-            .test_cmd()
+            // .test_cmd()
             .reset_ports();
     }
 

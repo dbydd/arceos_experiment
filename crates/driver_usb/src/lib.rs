@@ -90,7 +90,7 @@ where
         }
     }
 
-    pub fn init(mut self) -> Self {
+    pub fn init(&mut self) -> &mut Self {
         trace!("initializing!");
         self.host_driver_layer.init();
         self.usb_driver_layer.init();
@@ -98,7 +98,7 @@ where
         self
     }
 
-    pub fn init_probe(mut self) -> Self {
+    pub fn init_probe(&mut self) -> &mut Self {
         // async { //todo:async it!
         {
             self.driver_independent_devices.clear(); //need to have a merge algorithm for hot plug
@@ -127,11 +127,11 @@ where
         self
     }
 
-    pub fn driver_active(mut self) -> Self {
+    pub fn driver_active(&mut self) -> &mut Self {
         self
     }
 
-    pub fn drive_all(mut self) -> Self {
+    pub fn drive_all(&mut self) ->&mut  Self {
         //TODO: Drive All
 
         loop {

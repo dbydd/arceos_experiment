@@ -29,7 +29,7 @@ unsafe extern "C" fn _start() -> ! {
     // PC = 0x8020_0000
     // a0 = hartid
     // a1 = dtb
-    core::arch::asm!("
+    core::arch::naked_asm!("
         mv      s0, a0                  // save hartid
         mv      s1, a1                  // save DTB pointer
         la      sp, {boot_stack}
@@ -54,7 +54,6 @@ unsafe extern "C" fn _start() -> ! {
         init_boot_page_table = sym init_boot_page_table,
         init_mmu = sym init_mmu,
         entry = sym super::rust_entry,
-        options(noreturn),
     )
 }
 

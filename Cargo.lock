@@ -83,6 +83,7 @@ dependencies = [
  "axfeat",
  "axhal",
  "axstd",
+ "lazy_init",
 ]
 
 [[package]]
@@ -331,6 +332,7 @@ version = "0.1.0"
 dependencies = [
  "axalloc",
  "axconfig",
+ "axdtb",
  "axhal",
  "cfg-if",
  "driver_block",

@@ -81,6 +81,8 @@ mod ixgbe;
 
 pub mod prelude;
 
+use drivers::AxUSBHostDevice;
+
 #[allow(unused_imports)]
 use self::prelude::*;
 pub use self::structs::{AxDeviceContainer, AxDeviceEnum};
@@ -104,7 +106,10 @@ pub struct AllDevices {
     /// All graphics device drivers.
     #[cfg(feature = "display")]
     pub display: AxDeviceContainer<AxDisplayDevice>,
+    #[cfg(feature = "pci-xhci")]
+    pub xhci: AxDeviceContainer<AxUSBHostDevice>,
 }
+
 
 impl AllDevices {
     /// Returns the device model used, either `dyn` or `static`.
@@ -145,6 +150,7 @@ impl AllDevices {
             AxDeviceEnum::Block(dev) => self.block.push(dev),
             #[cfg(feature = "display")]
             AxDeviceEnum::Display(dev) => self.display.push(dev),
+            AxDeviceEnum::XHCI(dev) => self.xhci.push(dev),
         }
     }
 }

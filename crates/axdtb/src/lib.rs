@@ -30,23 +30,6 @@ pub fn init(dtb: usize) {
     unsafe {
         let mut dtb_ptr = phys_to_virt(dtb.into()).as_ptr();
 
-        debug!("aligned!:{:x}", dtb_ptr.addr());
-        if *(dtb_ptr as *const u32) != 0xedfe0dd0 {
-            debug!("magic number invalid! {:x}", *(dtb_ptr as *const u32));
-            DTB.init_by(None);
-            return;
-        }
-        let size = (dtb_ptr.offset(4) as *const u32).read();
-        if !(size > 0 && size <= 0x7FFF_FFFF) {
-            debug!("head invalid!");
-            DTB.init_by(None);
-            return;
-        }
-
-        // let dtb_slice = convert_dtb_to_big_endian(slice::from_raw_parts(dtb_ptr, size as usize));
-        // let dtb_slice = slice::from_raw_parts(dtb_ptr, size as usize).to_vec;
-
-        // let dtb = Dtb::from(dtb_slice.as_ptr() as _, |e| {
         let dtb = Dtb::from_raw_parts_filtered(dtb_ptr as _, |e| {
             matches!(
                 e,
@@ -60,14 +43,14 @@ pub fn init(dtb: usize) {
 
 #[derive(Debug, Default)]
 pub struct DTBNode {
-    compatible: Vec<String>,
-    model: Option<String>,
-    phandle: Option<PHandle>,
-    status: Option<String>,
-    reg: Vec<Range<usize>>,
-    virtual_reg: Option<u32>,
-    dma_coherent: bool,
-    generals: BTreeMap<String, Vec<u8>>,
+    pub compatible: Vec<String>,
+    pub model: Option<String>,
+    pub phandle: Option<PHandle>,
+    pub status: Option<String>,
+    pub reg: Vec<Range<usize>>,
+    pub virtual_reg: Option<u32>,
+    pub dma_coherent: bool,
+    pub generals: BTreeMap<String, Vec<u8>>,
 }
 
 pub fn dump_dtb() {

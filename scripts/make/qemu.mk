@@ -36,7 +36,7 @@ endif
 #qemu_args-y := -m 128M -smp $(SMP) $(qemu_args-$(ARCH))
 
 qemu_args-$(BLK) += \
-  -device virtio-blk-$(vdev-suffix),drive=disk0 \
+  -device virtio-blk-$(vdev-suffix),drive=disk0/ \
   -drive id=disk0,if=none,format=raw,file=$(DISK_IMG)
 
 qemu_args-$(NET) += \
@@ -60,7 +60,7 @@ ifneq ($(VFIO_PCI),)
 endif
 
 ifeq ($(XHCI),y) 
-  qemu_args-$(XHCI) += -device qemu-xhci,id=xhci #need test
+  qemu_args-$(XHCI) += -usb -device nec-usb-xhci,id=xhci #need test
 endif
 
 ifeq ($(NET_DUMP), y)
@@ -76,7 +76,7 @@ ifeq ($(GRAPHIC), n)
 endif
 
 ifeq ($(QEMU_LOG), y)
-  qemu_args-y += -D qemu.log -d in_asm,int,mmu,pcall,cpu_reset,guest_errors
+  qemu_args-y += -D qemu.log -d in_asm,int,mmu,pcall,cpu_reset,guest_errors,usb
 endif
 
 ifeq ($(QEMU_CONSOLE),y)
@@ -85,7 +85,7 @@ endif
 
 qemu_args-debug := $(qemu_args-y) -s -S
 
-qemu_args-y += -device edu -machine highmem=off
+# qemu_args-y += -device edu -machine highmem=off
 
 # Do not use KVM for debugging
 ifeq ($(shell uname), Darwin)

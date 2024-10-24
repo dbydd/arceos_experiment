@@ -26,4 +26,5 @@ axdriver = { path = "../../modules/axdriver", features = [
   "bus-pci",
   "pci-xhci",
 ] }
+lazy_init = { version = "0.1.0", path = "../../crates/lazy_init" }
 # axstd = { path = "../../ulib/axstd", optional = true }

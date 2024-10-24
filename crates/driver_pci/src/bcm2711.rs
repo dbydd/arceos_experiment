@@ -1,6 +1,6 @@
 use crate::types::{ConfigCommand, ConifgPciPciBridge};
 use crate::{Access, PciAddress};
-use aarch64_cpu::registers::*;
+// use aarch64_cpu::registers::*;
 use ratio::Ratio;
 use tock_registers::{
     interfaces::{ReadWriteable, Readable, Writeable},
@@ -313,19 +313,26 @@ fn cfg_index(addr: PciAddress) -> usize {
 
 impl BCM2711 {
     unsafe fn do_setup(mmio_base: usize) {
+        // debug!(
+        //     "PCIe 7link start @0x{:X}... value {:X}",
+        //     mmio_base,
+        //     *(mmio_base as *mut u32)
+        // );
+
         debug!(
-            "PCIe 7link start @0x{:X}... value {:X}",
+            "PCIe 7link start @0x{:X}...",
             mmio_base,
-            *(mmio_base as *mut u32)
         );
 
         let regs = &mut *(mmio_base as *mut BCM2711PCIeHostBridgeRegs);
+        debug!("\nreaded reg!");
 
         /*
          * Reset the bridge, assert the fundamental reset. Note for some SoCs,
          * e.g. BCM7278, the fundamental reset should not be asserted here.
          * This will need to be changed when support for other SoCs is added.
          */
+        debug!("init!");
         regs.rgr1_sw_init.modify(
             RGR1_SW_INIT_1::RGR1_SW_INTI_1_INIT::SET + RGR1_SW_INIT_1::RGR1_SW_INTI_1_PERST::SET,
         );
@@ -531,7 +538,15 @@ static mut CNTPCT_TO_NANOS_RATIO: Ratio = Ratio::zero();
 static mut NANOS_TO_CNTPCT_RATIO: Ratio = Ratio::zero();
 /// Early stage initialization: stores the timer frequency.
 fn init_early() {
-    let freq = CNTFRQ_EL0.get();
+    let freq = 
+    {   
+        #[cfg(platform="aarch64")]
+        {
+            use aarch64_cpu::registers::*;
+            return CNTFRQ_EL0.get();
+        }
+        10_000_000
+    };
     unsafe {
         CNTPCT_TO_NANOS_RATIO = Ratio::new(NANOS_PER_SEC as u32, freq as u32);
         NANOS_TO_CNTPCT_RATIO = CNTPCT_TO_NANOS_RATIO.inverse();
@@ -539,7 +554,13 @@ fn init_early() {
 }
 
 pub fn current_ticks() -> u64 {
-    CNTPCT_EL0.get()
+
+        #[cfg(arch="aarch64")]
+        {
+            use aarch64_cpu::registers::*;
+            return CNTPCT_EL0.get()
+        }
+        0
 }
 /// Converts hardware ticks to nanoseconds.
 #[inline]

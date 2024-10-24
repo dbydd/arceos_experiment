@@ -1,6 +1,6 @@
 use alloc::{boxed::Box, collections::binary_heap::Iter, sync::Arc, vec::Vec};
 use data_structures::host_controllers::{xhci::XHCI, Controller, ControllerArc};
-use log::trace;
+use log::{debug, trace};
 use spinlock::SpinNoIrq;
 use xhci::ring::trb::event;
 
@@ -53,6 +53,7 @@ where
         let controller = Arc::new(SpinNoIrq::new({
             let xhciregisters: Box<(dyn Controller<O> + 'static)> = {
                 if cfg!(feature = "xhci") {
+                    debug!("new xhci device host!");
                     Box::new(XHCI::new(config.clone()))
                 } else {
                     panic!("no host controller defined")

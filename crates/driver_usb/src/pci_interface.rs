@@ -1,3 +1,6 @@
+use core::usize;
+
+use axhal::mem::phys_to_virt;
 use bit_field::BitField;
 use driver_common::BaseDriverOps;
 use log::debug;
@@ -5,7 +8,7 @@ use memory_addr::VirtAddr;
 
 use crate::{
     abstractions::{HALAbstractions, OSAbstractions, PlatformAbstractions},
-    USBSystem,
+    USBSystem, USBSystemConfig,
 };
 
 pub type XHCIPCIDriver<'a> = USBSystem<'a, PlatAbstraction>;
@@ -29,6 +32,22 @@ impl HALAbstractions for PlatAbstraction {
     fn force_sync_cache() {
         todo!()
     }
+}
+
+pub fn create_xhci_from_pci<'a>(
+    phys_address: usize,
+    irq_num: usize,
+    irq_priority: usize,
+) -> Option<XHCIPCIDriver<'a>> {
+    let phys_to_virt = phys_to_virt(phys_address.into());
+    debug!("create xhci! addr:{:x}", phys_to_virt.as_usize());
+    Some(XHCIPCIDriver::new(USBSystemConfig::new(
+        phys_to_virt.as_usize(),
+        irq_num as _,
+        irq_priority as _,
+        4096,
+        PlatAbstraction {},
+    )))
 }
 
 #[inline]

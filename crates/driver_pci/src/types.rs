@@ -166,6 +166,7 @@ impl PciHeader {
             reg3.read(RC_CFG_REGS3::INTERFACE) as u8,
         );
     }
+
     pub fn set_command(&self, command: impl IntoIterator<Item = ConfigCommand>) {
         let cmd = command
             .into_iter()
@@ -235,10 +236,9 @@ impl ConifgPciPciBridge {
         self.regs().cache_line_size.set(size);
     }
 
-    pub fn set_control(&self, ctl: u8){
+    pub fn set_control(&self, ctl: u8) {
         self.regs().control.set(ctl);
     }
-
 }
 
 pub struct ConifgEndpoint {
@@ -412,4 +412,3 @@ pub enum ConfigKind {
     Endpoint { inner: ConifgEndpoint },
     PciPciBridge { inner: ConifgPciPciBridge },
 }
-

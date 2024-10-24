@@ -40,6 +40,7 @@ default = ["bus-mmio"]
 log = "0.4"
 cfg-if = "1.0"
 driver_common = { path = "../../crates/driver_common" }
+axdtb={path="../../crates/axdtb"}
 driver_block = { path = "../../crates/driver_block", optional = true }
 driver_net = { path = "../../crates/driver_net", optional = true }
 driver_display = { path = "../../crates/driver_display", optional = true }

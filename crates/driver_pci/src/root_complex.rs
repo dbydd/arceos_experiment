@@ -3,6 +3,7 @@ use crate::types::*;
 use crate::Access;
 use crate::PciAddress;
 use alloc::vec::Vec;
+use bit_field::BitField;
 use core::fmt;
 use core::fmt::{Display, Formatter};
 use core::marker::PhantomData;
@@ -60,6 +61,14 @@ impl<A: Access> PciRootComplex<A> {
         let cfg_addr = A::map_conf(self.mmio_base, bdf).unwrap();
         let mut ep = ConifgEndpoint::new(cfg_addr);
         ep.bar(slot)
+    }
+
+    pub fn interrupt_pin_info(&self, bdf: PciAddress) -> (u8, u8) {
+        let cfg_addr = A::map_conf(self.mmio_base, bdf).unwrap();
+        let offset = cfg_addr + 0x3c;
+        let readed = unsafe { (offset as *const u32).read_volatile() };
+
+        (readed.get_bits(8..16) as _, readed.get_bits(0..8) as _)
     }
 
     fn read<T>(&self, bdf: PciAddress, offset: usize) -> T {
