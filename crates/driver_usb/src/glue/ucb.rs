@@ -4,7 +4,7 @@ use xhci::ring::trb::event::CompletionCode;
 
 use crate::abstractions::PlatformAbstractions;
 
-///USB Complete Block
+///USB Complete Block:
 pub struct UCB<O>
 where
     O: PlatformAbstractions,
