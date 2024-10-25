@@ -16,6 +16,7 @@ use xhci::context::Input64Byte;
 pub use xhci::context::{Device, Device64Byte, DeviceHandler};
 const NUM_EPS: usize = 32;
 
+///Device Context and XHCI Data structs, Refer Xhci spec
 pub struct DeviceContextList<O>
 //SHOULD We Rearrange these code,and shatter these array into single device?
 where

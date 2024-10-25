@@ -43,8 +43,7 @@ use crate::{
             USBStandardDescriptorTypes,
         },
         operation::{Configuration, Debugop, ExtraStep},
-        trasnfer::{
-            self,
+        transfer::{
             control::{
                 bRequest, bmRequestType, ControlTransfer, DataTransferType, Recipient,
                 StandardbRequest,
@@ -1068,8 +1067,8 @@ where
         let setup = *transfer::SetupStage::default()
             .set_request_type(urb_req.request_type.into())
             .set_request(match urb_req.request {
-                trasnfer::control::bRequest::Generic(generic) => generic as u8,
-                trasnfer::control::bRequest::DriverSpec(spec) => spec,
+                transfer::control::bRequest::Generic(generic) => generic as u8,
+                transfer::control::bRequest::DriverSpec(spec) => spec,
             })
             .set_value(urb_req.value)
             .set_index(urb_req.index)
@@ -1326,7 +1325,7 @@ where
     fn interrupt_transfer(
         &mut self,
         dev_slot_id: usize,
-        urb_req: trasnfer::interrupt::InterruptTransfer,
+        urb_req: crate::usb::transfer::interrupt::InterruptTransfer,
     ) -> crate::err::Result<UCB<O>> {
         let (addr, len) = urb_req.buffer_addr_len;
         let enqued_transfer = self
@@ -1378,7 +1377,7 @@ where
     fn isoch_transfer(
         &mut self,
         dev_slot_id: usize,
-        urb_req: trasnfer::isoch::IsochTransfer,
+        urb_req: crate::usb::transfer::isoch::IsochTransfer,
     ) -> crate::err::Result<UCB<O>> {
         
         let urb_max_packet_count = urb_req.max_packet;

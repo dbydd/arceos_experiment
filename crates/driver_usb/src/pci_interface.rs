@@ -34,6 +34,7 @@ impl HALAbstractions for PlatAbstraction {
     }
 }
 
+/// create a USB system from PCI device
 pub fn create_xhci_from_pci<'a>(
     phys_address: usize,
     irq_num: usize,
@@ -50,6 +51,9 @@ pub fn create_xhci_from_pci<'a>(
     )))
 }
 
+
+/// Filter xhci device from pci descriptors
+/// return true if this is a xhci device
 #[inline]
 pub fn filter_xhci(class_id: u8, subclass_id: u8, prog_if: u8) -> bool {
     debug!("filter:class-{class_id},sub-{subclass_id},progif-{prog_if}");

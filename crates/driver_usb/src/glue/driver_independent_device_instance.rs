@@ -8,7 +8,8 @@ use crate::{
     host::data_structures::{host_controllers::ControllerArc, MightBeInited},
     usb::descriptors::topological_desc::TopologicalUSBDescriptorRoot,
 };
-
+///This Structure would been hold Host Layer. Since Host Layer need to identify each Device that
+///attached, and might had multiple controller support in future, here we go!
 #[derive(Clone)]
 pub struct DriverIndependentDeviceInstance<O>
 where

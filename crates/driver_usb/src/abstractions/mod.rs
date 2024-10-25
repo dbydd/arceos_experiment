@@ -2,14 +2,6 @@ pub mod dma;
 
 use core::{alloc::Allocator, fmt::Debug};
 
-// pub trait PlatformAbstractions: Clone + Send + Sync + Sized {
-//     type VirtAddr;
-//     const PAGE_SIZE: usize;
-//     type DMA: Allocator + Send + Sync + Clone;
-//     fn dma_alloc(&self) -> Self::DMA;
-//     fn force_sync_cache();
-// }
-
 pub trait PlatformAbstractions: OSAbstractions + HALAbstractions {}
 
 impl<A> PlatformAbstractions for A where A: OSAbstractions + HALAbstractions {}

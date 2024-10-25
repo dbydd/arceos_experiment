@@ -15,7 +15,7 @@ use crate::{
     glue::{driver_independent_device_instance::DriverIndependentDeviceInstance, ucb::UCB},
     usb::{
         operation::{Configuration, Debugop, ExtraStep},
-        trasnfer::{control::ControlTransfer, interrupt::InterruptTransfer, isoch::IsochTransfer},
+        transfer::{control::ControlTransfer, interrupt::InterruptTransfer, isoch::IsochTransfer},
     },
     USBSystemConfig,
 };

@@ -2,6 +2,7 @@ use alloc::string::String;
 use core::fmt::{write, Display};
 use xhci::ring::trb::event::CompletionCode;
 
+/// USB System Related Errors
 #[derive(Debug)]
 pub enum Error {
     Unknown(String),

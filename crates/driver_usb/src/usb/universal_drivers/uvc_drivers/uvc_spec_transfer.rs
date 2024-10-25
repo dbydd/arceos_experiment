@@ -4,7 +4,7 @@ use core::alloc::Allocator;
 use core::ptr;
 
 use crate::abstractions::dma::DMA;
-use crate::usb::trasnfer::control::bRequest;
+use crate::usb::transfer::control::bRequest;
 
 #[allow(non_camel_case_types)]
 #[repr(u8)]

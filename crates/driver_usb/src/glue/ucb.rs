@@ -3,6 +3,8 @@ use core::marker::PhantomData;
 use xhci::ring::trb::event::CompletionCode;
 
 use crate::abstractions::PlatformAbstractions;
+
+///USB Complete Block
 pub struct UCB<O>
 where
     O: PlatformAbstractions,

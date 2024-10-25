@@ -11,6 +11,8 @@ use alloc::vec::Vec;
 use axalloc::global_no_cache_allocator;
 use log::debug;
 
+///DMA: it used in multiple situation. Sometimes we need A bunch of Data Transfer, Sometimes we
+///need nocache memory write operations. So we designed this struct.
 pub struct DMA<T, A>
 where
     T: ?Sized,

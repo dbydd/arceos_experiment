@@ -22,6 +22,7 @@ register_structs! {
     }
 }
 
+///yet another Ring buffer
 pub struct EventRing<O>
 where
     O: OSAbstractions,

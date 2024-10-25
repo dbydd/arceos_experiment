@@ -23,6 +23,7 @@ use xhci::ring::trb::Link;
 const TRB_LEN: usize = 4;
 pub type TrbData = [u32; TRB_LEN];
 
+///Util:Ring buffer
 pub struct Ring<O: OSAbstractions> {
     link: bool,
     pub trbs: DMA<[TrbData], O::DMA>,

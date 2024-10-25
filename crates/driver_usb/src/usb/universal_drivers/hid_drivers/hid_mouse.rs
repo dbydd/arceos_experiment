@@ -17,10 +17,10 @@ use crate::usb::descriptors::topological_desc::{
 };
 use crate::usb::descriptors::USBStandardDescriptorTypes;
 use crate::usb::operation::{Debugop, ExtraStep};
-use crate::usb::trasnfer::control::{
+use crate::usb::transfer::control::{
     bmRequestType, ControlTransfer, DataTransferType, Recipient, StandardbRequest,
 };
-use crate::usb::trasnfer::interrupt::InterruptTransfer;
+use crate::usb::transfer::interrupt::InterruptTransfer;
 use crate::usb::universal_drivers::BasicSendReceiveStateMachine;
 use crate::usb::urb::{RequestedOperation, URB};
 use crate::USBSystemConfig;

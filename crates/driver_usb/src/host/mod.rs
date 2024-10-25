@@ -8,10 +8,11 @@ use crate::{
     abstractions::PlatformAbstractions,
     err,
     glue::{driver_independent_device_instance::DriverIndependentDeviceInstance, ucb::UCB},
-    usb::{self, operation::Configuration, trasnfer::control::ControlTransfer, urb::URB},
+    usb::{self, operation::Configuration, transfer::control::ControlTransfer, urb::URB},
     USBSystemConfig,
 };
 
+/// Abstractions of Host Controller Operation Models
 pub mod data_structures;
 
 impl<O> USBSystemConfig<O>
@@ -36,6 +37,8 @@ where
     }
 }
 
+
+///USB HOST Controller Layer Instance
 #[derive(Clone)]
 pub struct USBHostSystem<O>
 where
@@ -49,6 +52,7 @@ impl<O> USBHostSystem<O>
 where
     O: PlatformAbstractions + 'static,
 {
+    /// Create a new USB Host Controller Layer Instance
     pub fn new(config: Arc<SpinNoIrq<USBSystemConfig<O>>>) -> crate::err::Result<Self> {
         let controller = Arc::new(SpinNoIrq::new({
             let xhciregisters: Box<(dyn Controller<O> + 'static)> = {
@@ -64,11 +68,13 @@ where
         Ok(Self { config, controller })
     }
 
+    ///initialze host controller hardware and data structs
     pub fn init(&self) {
         self.controller.lock().init();
         trace!("controller init complete");
     }
 
+    /// probe for devices that attached, and do basic initialize.
     pub fn probe<F>(&self, consumer: F)
     where
         F: FnMut(DriverIndependentDeviceInstance<O>),
@@ -103,6 +109,7 @@ where
             .configure_device(dev_slot_id, urb_req, dev)
     }
 
+    ///Receive a URB request and return a UCB. Once a time
     pub fn urb_request(
         &mut self,
         request: URB<O>,
@@ -140,6 +147,7 @@ where
         }
     }
 
+    ///tocK: execute all URB requests
     pub fn tock(
         &mut self,
         todo_list_list: Vec<Vec<URB<O>>>,

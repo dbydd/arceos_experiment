@@ -1,4 +1,3 @@
-//
 use core::ptr;
 
 use alloc::{collections, vec, vec::Vec};

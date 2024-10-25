@@ -30,7 +30,7 @@ use usb::{
         topological_desc::TopologicalUSBDescriptorRoot, USBStandardDescriptorTypes,
     },
     operation,
-    trasnfer::control::{bmRequestType, ControlTransfer, DataTransferType, StandardbRequest},
+    transfer::control::{bmRequestType, ControlTransfer, DataTransferType, StandardbRequest},
     urb::{RequestedOperation, URB},
     USBDriverSystem,
 };
@@ -38,32 +38,86 @@ use xhci::ring::trb::transfer::{Direction, TransferType};
 
 extern crate alloc;
 
+/// PlatformAbstractions
 pub mod abstractions;
+
+///USB System Related Errors
 pub mod err;
+
+///Some glue code to connect these layers.
 pub mod glue;
+
+///Host Controller Layer
 pub mod host;
+///USB Layer
 pub mod usb;
 
 cfg_if! {
  if #[cfg(feature = "pci")]{
+        /// pci interface, only available when feature "pci" is enabled. XHCI host controller is designed to attach on PCI BUS, thus we provide some abstraction to make it easier to use.
         pub mod pci_interface;
         pub use pci_interface::*;
         pub use pci_interface::XHCIPCIDriver;
     }
 }
-
+/// The Configuration of the USB system.
+/// * base_addr: The base address of the USB controller registers.
+/// * irq_num: The IRQ number of the USB controller. *Note*: we recomment use polling instead of IRQ. Interrupt would cause performance issue some times.
+/// * irq_priority: The IRQ priority of the USB controller.
+/// * transfer_ring_size: The Size of the transfer ring, which means how *long* is the ring buffer, in xhci we use it in both CommandRing/EventRing/TransferRing, The buffer *Must* not Cross Memory Page
+/// * os: The PlatformAbstraction, refer[`PlatformAbstractions``].
 #[derive(Clone, Debug)]
 pub struct USBSystemConfig<O>
 where
     O: PlatformAbstractions,
 {
-    pub(crate) base_addr: O::VirtAddr,
-    pub(crate) irq_num: u32,
-    pub(crate) irq_priority: u32,
-    pub(crate) transfer_ring_size: usize,
-    pub(crate) os: O,
+    pub(crate) base_addr: O::VirtAddr, 
+    pub(crate) irq_num: u32, 
+    pub(crate) irq_priority: u32, 
+    pub(crate) transfer_ring_size: usize, 
+    pub(crate) os: O, 
 }
 
+/// The USB System.
+/// 
+/// The USB System Contains 2 parts:
+/// * Host Driver Layer: The Host Controller Driver, which is the driver of the USB controllers.
+/// * USB driver layer: USB Driver systems. which contains a bunch of implemented USB Drivers, and provide interface to be invoked from outside to register new driver. And execute these Drivers!
+/// 
+/// Usage:
+/// ```rust
+/// #[derive(Clone)]
+/// struct PlatformAbstraction;
+/// 
+/// impl driver_usb::abstractions::OSAbstractions for PlatformAbstraction {
+///     type VirtAddr = VirtAddr;
+///     type DMA = GlobalNoCacheAllocator;
+/// 
+///     const PAGE_SIZE: usize = PageSize::Size4K as usize;
+/// 
+///     fn dma_alloc(&self) -> Self::DMA {
+///         axalloc::global_no_cache_allocator()
+///     }
+/// }
+/// 
+/// impl driver_usb::abstractions::HALAbstractions for PlatformAbstraction {
+///     fn force_sync_cache() {}
+/// }
+/// 
+/// //...
+///     let mut usbsystem = driver_usb::USBSystem::new({
+///        USBSystemConfig::new(
+///            0xffff_0000_31a0_8000,
+///            48,
+///            0,
+///            PageSize::Size4K.into(),
+///            PlatformAbstraction,
+///        )
+///    })
+///    .init()
+///    .init_probe()
+///    .drive_all();
+/// ```
 pub struct USBSystem<'a, O>
 where
     O: PlatformAbstractions,
@@ -79,6 +133,7 @@ impl<'a, O> USBSystem<'a, O>
 where
     O: PlatformAbstractions + 'static,
 {
+    /// Creates a new USB system
     pub fn new(config: USBSystemConfig<O>) -> Self {
         let config = Arc::new(SpinNoIrq::new(config));
         Self {
@@ -90,6 +145,11 @@ where
         }
     }
 
+    /// Initialize host and usb driver systems!
+    /// 
+    /// This is required before any other operations.
+    /// 
+    /// it Perform initialze operations of host controller devices and register all implemented USB drivers
     pub fn init(&mut self) -> &mut Self {
         trace!("initializing!");
         self.host_driver_layer.init();
@@ -98,6 +158,9 @@ where
         self
     }
 
+    /// Initialze Probe, Probe for devices that attached
+    /// 
+    /// If found device can be drived, then create device driver instance(basiclly a State Machine)
     pub fn init_probe(&mut self) -> &mut Self {
         // async { //todo:async it!
         {
@@ -127,11 +190,10 @@ where
         self
     }
 
-    pub fn driver_active(&mut self) -> &mut Self {
-        self
-    }
-
-    pub fn drive_all(&mut self) ->&mut  Self {
+    /// execute all device driver instance in a loop. each loop had 2 phase
+    /// Tick: Gather Usb Request Block(URB) from all device driver instances!
+    /// Tock: Execute all URBs, and return USB Complete Block(UCB) to all device driver instances
+    pub fn drive_all(&mut self) -> &mut Self {
         //TODO: Drive All
 
         loop {
@@ -146,10 +208,21 @@ where
         self
     }
 
+    /// Drop a device driver instance from slot id
+    /// 
+    /// * WIP
     pub fn drop_device(&mut self, mut driver_independent_device_slot_id: usize) {
         //do something
     }
 
+    /// Create A device driver instance from [`DriverIndependentDeviceInstance`]
+    /// 
+    /// when this function been executed, the Related Structures in HOST Layer *Must* Had been initialized!
+    /// 
+    /// steps:
+    /// 1. Gather All Device Descriptors
+    /// 2. Rebuild Descriper Topology
+    /// 3. Try to Initialize Device Driver Instance if had suitable driver for this device
     pub fn new_device(&mut self, mut driver: DriverIndependentDeviceInstance<O>) {
         'label: {
             if let MightBeInited::Uninit = *driver.descriptors {
@@ -166,7 +239,7 @@ where
                         request_type: bmRequestType::new(
                             Direction::In,
                             DataTransferType::Standard,
-                            usb::trasnfer::control::Recipient::Device,
+                            usb::transfer::control::Recipient::Device,
                         ),
                         request: StandardbRequest::GetDescriptor.into(),
                         index: 0,
@@ -198,7 +271,7 @@ where
                                         request_type: bmRequestType::new(
                                             Direction::In,
                                             DataTransferType::Standard,
-                                            usb::trasnfer::control::Recipient::Device,
+                                            usb::transfer::control::Recipient::Device,
                                         ),
                                         request: StandardbRequest::GetDescriptor.into(),
                                         index: 0,
@@ -257,6 +330,3 @@ where
         //do something
     }
 }
-
-// #[cfg(feature = "arceos")]
-// pub mod ax;

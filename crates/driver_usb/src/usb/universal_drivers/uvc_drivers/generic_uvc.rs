@@ -31,7 +31,7 @@ use crate::{
         },
         drivers::driverapi::{USBSystemDriverModule, USBSystemDriverModuleInstance},
         operation::{Configuration, Debugop, ExtraStep},
-        trasnfer::{
+        transfer::{
             control::{
                 bmRequestType, ControlTransfer, DataTransferType, Recipient, StandardbRequest,
             },
@@ -366,7 +366,7 @@ where
                         DataTransferType::Class,
                         Recipient::Interface,
                     ),
-                    request: crate::usb::trasnfer::control::bRequest::DriverSpec(
+                    request: crate::usb::transfer::control::bRequest::DriverSpec(
                         UVCSpecBRequest::SET_CUR as _,
                     ),
                     index: 1,
@@ -484,7 +484,7 @@ where
                                 DataTransferType::Class,
                                 Recipient::Interface,
                             ),
-                            request: crate::usb::trasnfer::control::bRequest::DriverSpec(
+                            request: crate::usb::transfer::control::bRequest::DriverSpec(
                                 UVCSpecBRequest::SET_CUR as _,
                             ),
                             index: 1,
@@ -527,7 +527,7 @@ where
                                 DataTransferType::Class,
                                 Recipient::Interface,
                             ),
-                            request: crate::usb::trasnfer::control::bRequest::DriverSpec(
+                            request: crate::usb::transfer::control::bRequest::DriverSpec(
                                 UVCSpecBRequest::SET_CUR as _,
                             ),
                             index: 1,
