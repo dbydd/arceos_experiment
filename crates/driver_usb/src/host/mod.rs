@@ -121,10 +121,11 @@ where
         trace!("tock! check deadlock!");
         todo_list_list.iter().for_each(|list| {
             list.iter().for_each(|todo| {
-                debug!("tock! req: {:#?}",todo.operation);
+                //debug!("tock! req: {:#?}", todo.operation);
                 if let Ok(ok) = self.urb_request(todo.clone())
                     && let Some(sender) = &todo.sender
                 {
+                    //debug!("send back!");
                     sender.lock().receive_complete_event(ok);
                 };
             })

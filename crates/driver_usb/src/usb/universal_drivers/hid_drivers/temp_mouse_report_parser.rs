@@ -20,6 +20,6 @@ pub fn parse(buf: &Vec<u8>) -> USBSystemEvent {
         middle,
         wheel: wheel as _,
     };
-    trace!("decoded:{:#?}", mouse_event);
+    debug!("decoded:{:#?}", mouse_event);
     USBSystemEvent::MouseEvent(mouse_event)
 }
