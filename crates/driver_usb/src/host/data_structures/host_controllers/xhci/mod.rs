@@ -43,11 +43,8 @@ use crate::{
             USBStandardDescriptorTypes,
         },
         operation::{Configuration, Debugop, ExtraStep},
-        transfer::{
-            control::{
-                bRequest, bmRequestType, ControlTransfer, DataTransferType, Recipient,
-                StandardbRequest,
-            },
+        transfer::control::{
+            bRequest, bmRequestType, ControlTransfer, DataTransferType, Recipient, StandardbRequest,
         },
         urb,
     },
@@ -1067,8 +1064,8 @@ where
         let setup = *transfer::SetupStage::default()
             .set_request_type(urb_req.request_type.into())
             .set_request(match urb_req.request {
-                transfer::control::bRequest::Generic(generic) => generic as u8,
-                transfer::control::bRequest::DriverSpec(spec) => spec,
+                bRequest::Generic(generic) => generic as u8,
+                bRequest::DriverSpec(spec) => spec,
             })
             .set_value(urb_req.value)
             .set_index(urb_req.index)
@@ -1379,7 +1376,6 @@ where
         dev_slot_id: usize,
         urb_req: crate::usb::transfer::isoch::IsochTransfer,
     ) -> crate::err::Result<UCB<O>> {
-        
         let urb_max_packet_count = urb_req.max_packet;
         let (buffer_addr, total_len) = urb_req.buffer_addr_len;
         let isoch_id = urb_req.endpoint_id;

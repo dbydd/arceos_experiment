@@ -1,1 +1,1 @@
-make A=apps/cli PLATFORM=aarch64-qemu-virt LOG=debug XHCI=y QEMU_LOG=y QEMU_CONSOLE=y run
+qemu-system-aarch64 -m 2G -smp 1 -cpu cortex-a72 -machine virt,highmem=off -kernel apps/cli/cli_aarch64-qemu-virt.bin -device nec-usb-xhci,id=xhci -device usb-mouse,bus=xhci.0 -nographic -D qemu.log -d in_asm,int,mmu,pcall,cpu_reset,guest_errors -monitor unix:/tmp/qemu-monitor-socket,server,nowait

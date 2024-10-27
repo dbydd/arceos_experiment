@@ -32,6 +32,8 @@ mod trap;
 #[cfg(feature = "smp")]
 mod mp;
 
+use axhal::irq::register_handler;
+
 #[cfg(feature = "smp")]
 pub use self::mp::rust_main_secondary;
 
