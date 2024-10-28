@@ -74,7 +74,7 @@ pub fn dump_dtb() {
 }
 
 pub fn find_dtb_node(compatible_name: &str) -> Option<DTBNode> {
-    walk_dtb_node(compatible_name, unsafe { DTB.as_mut().unwrap() })
+    unsafe { DTB.as_mut().map(|node|walk_dtb_node(compatible_name, node).unwrap()) }
 }
 
 fn walk_dtb_node(compatible_name: &str, dtb: &mut dtb_walker::Dtb) -> Option<DTBNode> {

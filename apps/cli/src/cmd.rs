@@ -49,7 +49,7 @@ const CMD_TABLE: &[(&str, CmdHandler)] = &[
 // }
 
 fn do_init_usb(_args:&str){
-    Drivers.lock().xhci.iter_mut().for_each(|controller|{controller.init();});
+    Drivers.lock().xhci.iter_mut().for_each(|controller|{controller.init().init_probe();});
 }
 
 fn do_run_usb(_args:&str){

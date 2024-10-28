@@ -2,10 +2,11 @@
 
 #![allow(unused_imports)]
 
-use core::any::Any;
+use core::{any::Any, time::Duration};
 
 use crate::AxDeviceEnum;
 use axalloc::{global_allocator, global_no_cache_allocator};
+use axhal::time::busy_wait;
 use cfg_if::cfg_if;
 use driver_common::DeviceType;
 use driver_pci::types::ConfigCommand;
@@ -114,22 +115,30 @@ cfg_if::cfg_if! {
                    return match root.bar_info(bdf,0).unwrap() {
                        driver_pci::types::Bar::Memory32 { address, size, prefetchable } => {
                         config.header.set_command([
+                            ConfigCommand::IoSpaceEnable,
                             ConfigCommand::MemorySpaceEnable,
                             ConfigCommand::BusMasterEnable,
-                            ConfigCommand::ParityErrorResponse,
-                            ConfigCommand::SERREnable,
                         ]);
-                           let (interrupt_pin,interrupt_line) = root.interrupt_pin_info(bdf);
+
+
+
+                        busy_wait(Duration::from_millis(100));
+                           let (interrupt_pin,mut interrupt_line) = root.interrupt_pin_line(bdf);
+                            if interrupt_line == 0xff{
+                                root.set_interrupt_pin_line(bdf, interrupt_pin, 9);
+                                interrupt_line = 9;
+                            }
+
                            create_xhci_from_pci(address as _, interrupt_line as _, 1)
                        },
                        driver_pci::types::Bar::Memory64 { address, size, prefetchable } => {
                         config.header.set_command([
+                            ConfigCommand::IoSpaceEnable,
                             ConfigCommand::MemorySpaceEnable,
                             ConfigCommand::BusMasterEnable,
-                            ConfigCommand::ParityErrorResponse,
-                            ConfigCommand::SERREnable,
                         ]);
-                           let (interrupt_pin,interrupt_line) = root.interrupt_pin_info(bdf);
+                        busy_wait(Duration::from_millis(100));
+                           let (interrupt_pin,interrupt_line) = root.interrupt_pin_line(bdf);
                            create_xhci_from_pci(address as _, interrupt_line as _, 1)
                        },
                        driver_pci::types::Bar::Io { port } => {

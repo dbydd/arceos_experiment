@@ -63,12 +63,23 @@ impl<A: Access> PciRootComplex<A> {
         ep.bar(slot)
     }
 
-    pub fn interrupt_pin_info(&self, bdf: PciAddress) -> (u8, u8) {
+    pub fn interrupt_pin_line(&self, bdf: PciAddress) -> (u8, u8) {
         let cfg_addr = A::map_conf(self.mmio_base, bdf).unwrap();
         let offset = cfg_addr + 0x3c;
         let readed = unsafe { (offset as *const u32).read_volatile() };
 
         (readed.get_bits(8..16) as _, readed.get_bits(0..8) as _)
+    }
+
+    pub fn set_interrupt_pin_line(&self, bdf: PciAddress,pin:u8,line:u8) {
+        let cfg_addr = A::map_conf(self.mmio_base, bdf).unwrap();
+        let offset = cfg_addr + 0x3c;
+        let mut readed = unsafe { (offset as *const u32).read_volatile() };
+
+        readed.set_bits(8..16,pin as _);
+        readed.set_bits(0..8,line as _);
+
+        unsafe { (offset as *mut u32).write_volatile(readed); };
     }
 
     fn read<T>(&self, bdf: PciAddress, offset: usize) -> T {

@@ -214,6 +214,17 @@ where
         self
     }
 
+    fn disable_ir(&mut self) -> &mut Self {
+        debug!("{TAG} Disable interrupts");
+        let regs = &mut self.regs;
+        regs.operational.usbcmd.update_volatile(|r|{
+            r.clear_interrupter_enable();
+        });
+
+        regs.interrupter_register_set.interrupter_mut(0).iman.update_volatile(|r|{r.clear_interrupt_enable();});
+        self
+    }
+
     fn init_ir(&mut self) -> &mut Self {
         debug!("{TAG} Disable interrupts");
         let regs = &mut self.regs;
@@ -946,8 +957,8 @@ where
                 RegistersExtList::new(mmio_base, regs.capability.hccparams1.read(), MemMapper);
 
             // TODO: pcie 未配置，读不出来
-            // let version = self.core_mut().regs.capability.hciversion.read_volatile();
-            // info!("xhci version: {:x}", version.get());
+            let version = regs.capability.hciversion.read_volatile();
+            info!("xhci version: {:x}", version.get());
             let hcsp1 = regs.capability.hcsparams1.read_volatile();
             let max_slots = hcsp1.number_of_device_slots();
             let max_ports = hcsp1.number_of_ports();
@@ -991,8 +1002,9 @@ where
             .set_cmd_ring()
             .init_ir()
             .setup_scratchpads()
+            .disable_ir()
             .start()
-            // .test_cmd()
+            .test_cmd()
             .reset_ports();
     }
 

@@ -51,7 +51,6 @@ pub fn create_xhci_from_pci<'a>(
     )))
 }
 
-
 /// Filter xhci device from pci descriptors
 /// return true if this is a xhci device
 #[inline]

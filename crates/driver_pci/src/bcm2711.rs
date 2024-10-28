@@ -1,5 +1,6 @@
 use crate::types::{ConfigCommand, ConifgPciPciBridge};
 use crate::{Access, PciAddress};
+use axhal::time::busy_wait;
 // use aarch64_cpu::registers::*;
 use ratio::Ratio;
 use tock_registers::{
@@ -319,10 +320,7 @@ impl BCM2711 {
         //     *(mmio_base as *mut u32)
         // );
 
-        debug!(
-            "PCIe 7link start @0x{:X}...",
-            mmio_base,
-        );
+        debug!("PCIe 7link start @0x{:X}...", mmio_base,);
 
         let regs = &mut *(mmio_base as *mut BCM2711PCIeHostBridgeRegs);
         debug!("\nreaded reg!");
@@ -343,6 +341,8 @@ impl BCM2711 {
          * from looking like a glitch.
          */
         busy_wait(Duration::from_micros(100));
+
+        debug!("100 ms passed!");
 
         /* Take the bridge out of reset */
         regs.rgr1_sw_init
@@ -538,9 +538,8 @@ static mut CNTPCT_TO_NANOS_RATIO: Ratio = Ratio::zero();
 static mut NANOS_TO_CNTPCT_RATIO: Ratio = Ratio::zero();
 /// Early stage initialization: stores the timer frequency.
 fn init_early() {
-    let freq = 
-    {   
-        #[cfg(platform="aarch64")]
+    let freq = {
+        #[cfg(platform = "aarch64")]
         {
             use aarch64_cpu::registers::*;
             return CNTFRQ_EL0.get();
@@ -550,47 +549,5 @@ fn init_early() {
     unsafe {
         CNTPCT_TO_NANOS_RATIO = Ratio::new(NANOS_PER_SEC as u32, freq as u32);
         NANOS_TO_CNTPCT_RATIO = CNTPCT_TO_NANOS_RATIO.inverse();
-    }
-}
-
-pub fn current_ticks() -> u64 {
-
-        #[cfg(arch="aarch64")]
-        {
-            use aarch64_cpu::registers::*;
-            return CNTPCT_EL0.get()
-        }
-        0
-}
-/// Converts hardware ticks to nanoseconds.
-#[inline]
-pub fn ticks_to_nanos(ticks: u64) -> u64 {
-    unsafe { CNTPCT_TO_NANOS_RATIO.mul_trunc(ticks) }
-}
-
-/// Converts nanoseconds to hardware ticks.
-#[inline]
-pub fn nanos_to_ticks(nanos: u64) -> u64 {
-    unsafe { NANOS_TO_CNTPCT_RATIO.mul_trunc(nanos) }
-}
-
-/// Returns the current clock time in nanoseconds.
-pub fn current_time_nanos() -> u64 {
-    ticks_to_nanos(current_ticks())
-}
-
-pub fn current_time() -> Duration {
-    Duration::from_nanos(current_time_nanos())
-}
-
-/// Busy waiting for the given duration.
-pub fn busy_wait(dur: Duration) {
-    busy_wait_until(current_time() + dur);
-}
-
-/// Busy waiting until reaching the given deadline.
-pub fn busy_wait_until(deadline: Duration) {
-    while current_time() < deadline {
-        core::hint::spin_loop();
     }
 }

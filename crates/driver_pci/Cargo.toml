@@ -20,6 +20,7 @@ ratio = { path = "../../crates/ratio" }
 pci_types = "0.6"
 tock-registers="0.8"
 bit_field = "0.10"
+axhal = {path = "../../modules/axhal"}
 
 [target.'cfg(target_arch = "aarch64")'.dependencies]
 aarch64-cpu = "9.4"
