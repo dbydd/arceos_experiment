@@ -1,4 +1,7 @@
-use std::{io::{self}, sync::Mutex};
+use std::{
+    io::{self},
+    sync::Mutex,
+};
 
 use axdriver::AllDevices;
 // use driver_usb::host::{xhci::MemoryMapper, USBHost, USBHostConfig, Xhci};
@@ -16,7 +19,7 @@ macro_rules! print_err {
     };
 }
 
-static Drivers:LazyInit<Mutex<AllDevices>> = LazyInit::new();
+static Drivers: LazyInit<Mutex<AllDevices>> = LazyInit::new();
 
 type CmdHandler = fn(&str);
 
@@ -30,30 +33,13 @@ const CMD_TABLE: &[(&str, CmdHandler)] = &[
     ("dump_dtb", dump_dtb),
     ("test", test),
     ("test_pci", do_test_pci),
-    ("init_usb",do_init_usb),
-    ("test_usb",do_run_usb)
+    ("test_usb", do_run_usb),
 ];
 
-
-
-// fn test_xhci(_args: &str) {
-//     // driver_usb::try_init(0x31a08000 as usize);
-//     // unsafe { xhci::Registers::new(0xffff_0000_31a0_8000 as usize, MemoryMapper {}) };
-
-//     let phytium_cfg_id_0 = (0xffff_0000_31a0_8000, 48, 0);
-
-//     let config = USBHostConfig::new(
-//         phytium_cfg_id_0.0, phytium_cfg_id_0.1, phytium_cfg_id_0.2);
-//     let usb = USBHost::<Xhci>::new(config).unwrap();
-
-// }
-
-fn do_init_usb(_args:&str){
-    Drivers.lock().xhci.iter_mut().for_each(|controller|{controller.init().init_probe();});
-}
-
-fn do_run_usb(_args:&str){
-    Drivers.lock().xhci.iter_mut().for_each(|controller|{controller.drive_all();});
+fn do_run_usb(_args: &str) {
+    Drivers.lock().xhci.iter_mut().for_each(|controller| {
+        controller.init().init_probe().drive_all();
+    });
 }
 
 fn do_uname(_args: &str) {
@@ -194,7 +180,7 @@ fn split_whitespace(str: &str) -> (&str, &str) {
 
 fn dump_dtb(str: &str) {
     // axdtb::dump_dtb();
-    println!("{:#?}",axdtb::find_dtb_node("pci-host-ecam-generic"));
+    println!("{:#?}", axdtb::find_dtb_node("pci-host-ecam-generic"));
 }
 
 fn test(_str: &str) {

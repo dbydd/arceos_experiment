@@ -217,11 +217,16 @@ where
     fn disable_ir(&mut self) -> &mut Self {
         debug!("{TAG} Disable interrupts");
         let regs = &mut self.regs;
-        regs.operational.usbcmd.update_volatile(|r|{
+        regs.operational.usbcmd.update_volatile(|r| {
             r.clear_interrupter_enable();
         });
 
-        regs.interrupter_register_set.interrupter_mut(0).iman.update_volatile(|r|{r.clear_interrupt_enable();});
+        regs.interrupter_register_set
+            .interrupter_mut(0)
+            .iman
+            .update_volatile(|r| {
+                r.clear_interrupt_enable();
+            });
         self
     }
 
@@ -1004,7 +1009,7 @@ where
             .setup_scratchpads()
             .disable_ir()
             .start()
-            .test_cmd()
+            //.test_cmd()
             .reset_ports();
     }
 
@@ -1028,6 +1033,8 @@ where
                 if !portsc.port_enabled_disabled() {
                     continue;
                 }
+
+                debug!("continue!");
 
                 port_id_list.push(i);
             }
