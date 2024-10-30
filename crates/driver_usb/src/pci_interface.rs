@@ -1,6 +1,7 @@
 use core::usize;
 
-use axhal::mem::phys_to_virt;
+use axalloc::global_no_cache_allocator;
+use axhal::mem::{phys_to_virt, virt_to_phys};
 use bit_field::BitField;
 use driver_common::BaseDriverOps;
 use log::debug;
@@ -19,12 +20,20 @@ pub struct PlatAbstraction;
 impl OSAbstractions for PlatAbstraction {
     type VirtAddr = VirtAddr;
 
-    type DMA = alloc::alloc::Global; //todo: fix nocache allocator!
+    type DMA = axalloc::GlobalNoCacheAllocator; //todo: fix nocache allocator!
 
     const PAGE_SIZE: usize = 4096;
 
     fn dma_alloc(&self) -> Self::DMA {
-        alloc::alloc::Global
+        global_no_cache_allocator()
+    }
+
+    fn map_virt_to_phys(vaddr: Self::VirtAddr) -> usize {
+        virt_to_phys(vaddr).as_usize()
+    }
+
+    fn map_phys_to_virt(paddr: usize) -> Self::VirtAddr {
+        phys_to_virt(paddr.into())
     }
 }
 

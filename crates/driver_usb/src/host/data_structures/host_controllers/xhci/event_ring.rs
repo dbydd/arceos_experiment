@@ -82,8 +82,11 @@ where
     pub fn erdp(&self) -> u64 {
         self.ring.register() & 0xFFFF_FFFF_FFFF_FFF0
     }
+
+    ///there is still a lot of device didn't support iommu/DMA Page, so we just return phys
+    ///address!
     pub fn erstba(&self) -> u64 {
         let ptr = &self.ste[0];
-        ptr as *const EventRingSte as usize as u64
+        O::map_virt_to_phys((ptr as *const EventRingSte as usize).into()) as u64
     }
 }

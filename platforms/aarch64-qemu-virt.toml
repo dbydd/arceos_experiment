@@ -196,5 +196,5 @@ gicd-paddr = "0x0800_0000"
 # PSCI
 psci-method = "hvc"
 
-nocache-memory-size = "0x100_0000"
+nocache-memory-size = "0x1000_0000"
 

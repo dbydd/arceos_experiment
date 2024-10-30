@@ -262,22 +262,26 @@ fn init_allocator() {
 }
 #[cfg(feature = "alloc")]
 fn init_allocator_no_cache() {
-    use axhal::mem::memory_regions;
+    use axhal::mem::{memory_regions, phys_to_virt, MemRegionFlags};
 
     info!("Initialize global no cache memory allocator...");
 
     {
         let mut nocache_init: (usize, usize) = (0, 0);
 
-        for r in memory_regions() {
-            if r.name == "nocache memory" {
-                nocache_init = (r.paddr.as_usize(), r.size);
-                break;
-            }
-        }
+        // for r in memory_regions() {
+        //     if r.name == "nocache memory" {
+        //         nocache_init = (r.paddr.as_usize(), r.size);
+        //         break;
+        //     }
+        // }
 
-        debug!(" Actual Initialize global no cache memory allocator...");
-        axalloc::global_nocache_init(nocache_init);
+        // debug!(" Actual Initialize global no cache memory allocator...");
+        // axalloc::global_nocache_init(nocache_init);
+
+        memory_regions().find(|a|a.name == "nocache memory").inspect(|region|{
+            axalloc::global_nocache_init((phys_to_virt(region.paddr).as_usize(), region.size));
+        });
     }
 }
 #[cfg(feature = "paging")]
