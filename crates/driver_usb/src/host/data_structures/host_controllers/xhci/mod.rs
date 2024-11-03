@@ -168,7 +168,7 @@ where
     }
 
     fn set_dcbaap(&mut self) -> &mut Self {
-        let dcbaap = self.dev_ctx.dcbaap();
+        let dcbaap = O::map_virt_to_phys(self.dev_ctx.dcbaap().into());
         debug!("{TAG} Writing DCBAAP: {:X}", dcbaap);
         self.regs.operational.dcbaap.update_volatile(|r| {
             r.set(dcbaap as u64);
@@ -350,7 +350,7 @@ where
             let scratchpad_buf_arr =
                 ScratchpadBufferArray::new(buf_count, self.config.lock().os.clone());
 
-            self.dev_ctx.dcbaa[0] = scratchpad_buf_arr.register() as u64;
+            self.dev_ctx.dcbaa[0] = scratchpad_buf_arr.register();
 
             debug!(
                 "{TAG} Setting up {} scratchpads, at {:#0x}",
@@ -766,7 +766,7 @@ where
                         // }
                     });
 
-                let input_addr = {
+                let input_addr = O::map_virt_to_phys({
                     let input = self.dev_ctx.device_input_context_list[device_slot_id].deref_mut();
                     let control_mut = input.control_mut();
                     control_mut.set_add_context_flag(0);
@@ -776,8 +776,8 @@ where
                     control_mut.set_alternate_setting(0); //always exist
                     trace!("device context state:{:#?}", input);
                     //TODO: 这玩意根本没修改
-                    (input as *const Input<16>).addr() as u64
-                };
+                    (input as *const Input<16>).addr()
+                }.into()) as u64;
 
                 let command_completion = self
                     .post_cmd(command::Allowed::ConfigureEndpoint(
@@ -802,7 +802,7 @@ where
             }
             TopologicalUSBDescriptorFunction::Interface(interfaces) => {
                 let (interface0, attributes, endpoints) = interfaces.first().unwrap();
-                let input_addr = {
+                let input_addr = O::map_virt_to_phys({
                     {
                         let input =
                             self.dev_ctx.device_input_context_list[device_slot_id].deref_mut();
@@ -843,8 +843,8 @@ where
                     }
 
                     let input = self.dev_ctx.device_input_context_list[device_slot_id].deref_mut();
-                    (input as *const Input<16>).addr() as u64
-                };
+                    (input as *const Input<16>).addr().into()
+                }) as u64;
 
                 let command_completion = self
                     .post_cmd(command::Allowed::ConfigureEndpoint(
@@ -1007,9 +1007,9 @@ where
             .set_cmd_ring()
             .init_ir()
             .setup_scratchpads()
-            .disable_ir()
+            // .disable_ir()
             .start()
-            //.test_cmd()
+            .test_cmd()
             .reset_ports();
     }
 
@@ -1224,7 +1224,7 @@ where
 
         let transfer_ring_0_addr = self.ep_ring_mut(slot_id, dci).register();
         let ring_cycle_bit = self.ep_ring_mut(slot_id, dci).cycle;
-        let context_addr = {
+        let context_addr = O::map_virt_to_phys({
             let context_mut = self
                 .dev_ctx
                 .device_input_context_list
@@ -1268,8 +1268,8 @@ where
             endpoint_0.set_mult(0);
             endpoint_0.set_error_count(3);
 
-            (context_mut as *const Input<16>).addr() as u64
-        };
+            (context_mut as *const Input<16>).addr().into()
+        }) as u64;
 
         fence(Ordering::Release);
 
@@ -1317,7 +1317,7 @@ where
     }
 
     fn set_ep0_packet_size(&mut self, dev_slot_id: usize, max_packet_size: u16) {
-        let addr = {
+        let addr = O::map_virt_to_phys({
             let input = self.dev_ctx.device_input_context_list[dev_slot_id as usize].deref_mut();
             input
                 .device_mut()
@@ -1328,8 +1328,8 @@ where
                 "CMD: evaluating context for set endpoint0 packet size {}",
                 max_packet_size
             );
-            (input as *mut Input<16>).addr() as u64
-        };
+            (input as *mut Input<16>).addr().into()
+        }) as u64;
         self.post_cmd(command::Allowed::EvaluateContext(
             *command::EvaluateContext::default()
                 .set_slot_id(dev_slot_id as _)

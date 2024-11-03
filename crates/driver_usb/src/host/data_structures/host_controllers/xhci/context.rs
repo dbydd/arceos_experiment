@@ -144,7 +144,7 @@ where
 
         Self { entries, pages }
     }
-    pub fn register(&self) -> usize {
-        self.entries.addr()
+    pub fn register(&self) -> u64 {
+        O::map_virt_to_phys(self.entries.addr().into()) as u64
     }
 }

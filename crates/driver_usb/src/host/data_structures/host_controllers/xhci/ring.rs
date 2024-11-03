@@ -51,7 +51,7 @@ impl<O: OSAbstractions> Ring<O> {
     }
 
     pub fn register(&self) -> u64 {
-        self.get_trb().as_ptr() as usize as u64
+        O::map_virt_to_phys((self.get_trb().as_ptr() as usize).into()) as u64
     }
 
     pub fn reset(&mut self) -> &mut Self {
