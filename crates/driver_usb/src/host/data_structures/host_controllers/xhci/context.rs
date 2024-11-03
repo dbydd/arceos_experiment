@@ -19,6 +19,7 @@ const NUM_EPS: usize = 32;
 ///Device Context and XHCI Data structs, Refer Xhci spec
 pub struct DeviceContextList<O>
 //SHOULD We Rearrange these code,and shatter these array into single device?
+//No, and we should spec it's bits, 32/64
 where
     O: PlatformAbstractions,
 {
@@ -33,7 +34,7 @@ impl<O> DeviceContextList<O>
 where
     O: PlatformAbstractions,
 {
-    pub fn new(max_slots: u8, config: Arc<SpinNoIrq<USBSystemConfig<O>>>) -> Self {
+    pub fn new(max_slots: u8, config: Arc<SpinNoIrq<USBSystemConfig<O>>>, ctx_size:bool) -> Self {
         let os = config.lock().os.clone();
         let a = os.dma_alloc();
 

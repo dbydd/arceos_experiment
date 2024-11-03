@@ -976,7 +976,7 @@ where
                 max_slots, max_ports, max_irqs, page_size,if ctxsize then 64 else 32
             );
 
-            let dev_ctx = DeviceContextList::new(max_slots, config.clone());
+            let dev_ctx = DeviceContextList::new(max_slots, config.clone(),ctxsize);
 
             // Create the command ring with 4096 / 16 (TRB size) entries, so that it uses all of the
             // DMA allocation (which is at least a 4k page).
