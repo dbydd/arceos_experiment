@@ -40,8 +40,7 @@ impl OSAbstractions for PlatAbstraction {
 impl HALAbstractions for PlatAbstraction {
     fn force_sync_cache() {
         use core::arch::asm;
-            unsafe{
-            }
+        unsafe {}
     }
 }
 

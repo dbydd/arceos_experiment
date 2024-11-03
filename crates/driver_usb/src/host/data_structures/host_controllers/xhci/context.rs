@@ -14,7 +14,7 @@ use core::{mem, num};
 use log::debug;
 use spinlock::SpinNoIrq;
 use xhci::context::{Device32Byte, Input32Byte, Input64Byte, InputHandler};
-pub use xhci::context::{ Device64Byte, DeviceHandler};
+pub use xhci::context::{Device64Byte, DeviceHandler};
 const NUM_EPS: usize = 32;
 
 ///Device Context and XHCI Data structs, Refer Xhci spec
@@ -31,21 +31,30 @@ where
     pub transfer_rings: Vec<Vec<Ring<O>>>,
 }
 
-pub enum Input<O> where O:PlatformAbstractions {
+pub enum Input<O>
+where
+    O: PlatformAbstractions,
+{
     B64(DMA<Input64Byte, O::DMA>),
     B32(DMA<Input32Byte, O::DMA>),
 }
 
-pub enum Device<O> where O:PlatformAbstractions {
-    B64(DMA<Device64Byte,O::DMA>),
-    B32(DMA<Device32Byte,O::DMA>),
+pub enum Device<O>
+where
+    O: PlatformAbstractions,
+{
+    B64(DMA<Device64Byte, O::DMA>),
+    B32(DMA<Device32Byte, O::DMA>),
 }
 
-impl<O> Device<O> where O:PlatformAbstractions{
-    pub fn new(ctx_size:bool,a:O::DMA) -> Self {
+impl<O> Device<O>
+where
+    O: PlatformAbstractions,
+{
+    pub fn new(ctx_size: bool, a: O::DMA) -> Self {
         if ctx_size {
             Self::B64(DMA::new(Device64Byte::new_64byte(), 4096, a).fill_zero())
-        }else {
+        } else {
             Self::B32(DMA::new(Device32Byte::new_32byte(), 4096, a).fill_zero())
         }
     }
@@ -57,7 +66,7 @@ impl<O> Device<O> where O:PlatformAbstractions{
         }
     }
 
-    pub fn addr(&self)->usize{
+    pub fn addr(&self) -> usize {
         match self {
             Device::B64(dma) => dma.addr(),
             Device::B32(dma) => dma.addr(),
@@ -65,11 +74,14 @@ impl<O> Device<O> where O:PlatformAbstractions{
     }
 }
 
-impl<O> Input<O> where O:PlatformAbstractions{
-    pub fn new(ctx_size:bool,a:O::DMA) -> Self {
+impl<O> Input<O>
+where
+    O: PlatformAbstractions,
+{
+    pub fn new(ctx_size: bool, a: O::DMA) -> Self {
         if ctx_size {
             Self::B64(DMA::new(Input64Byte::new_64byte(), 4096, a.clone()).fill_zero())
-        }else {
+        } else {
             Self::B32(DMA::new(Input32Byte::new_32byte(), 4096, a.clone()).fill_zero())
         }
     }
@@ -81,28 +93,27 @@ impl<O> Input<O> where O:PlatformAbstractions{
         }
     }
 
-    pub fn addr(&self)->usize{
+    pub fn addr(&self) -> usize {
         match self {
             Input::B64(dma) => dma.addr(),
             Input::B32(dma) => dma.addr(),
         }
     }
 
-    pub fn copy_from_output(&mut self,output:&Device<O>){
-        match (self,output) {
+    pub fn copy_from_output(&mut self, output: &Device<O>) {
+        match (self, output) {
             (Input::B64(i), Device::B64(o)) => (&mut **i).copy_from_output(&**o),
             (Input::B32(i), Device::B32(o)) => (&mut **i).copy_from_output(&**o),
-            _=>panic!("it wont happen")
+            _ => panic!("it wont happen"),
         }
     }
 }
-
 
 impl<O> DeviceContextList<O>
 where
     O: PlatformAbstractions,
 {
-    pub fn new(max_slots: u8, config: Arc<SpinNoIrq<USBSystemConfig<O>>>, ctx_size:bool) -> Self {
+    pub fn new(max_slots: u8, config: Arc<SpinNoIrq<USBSystemConfig<O>>>, ctx_size: bool) -> Self {
         let os = config.lock().os.clone();
         let a = os.dma_alloc();
 
@@ -207,7 +218,7 @@ where
 
                 assert_eq!(dma.addr() % page_size, 0);
                 let map_virt_to_phys = O::map_virt_to_phys(dma.addr().into());
-                debug!("mapped output ctx addr:{:x}",map_virt_to_phys);
+                debug!("mapped output ctx addr:{:x}", map_virt_to_phys);
                 entry.set_addr(map_virt_to_phys as u64);
                 dma
             })

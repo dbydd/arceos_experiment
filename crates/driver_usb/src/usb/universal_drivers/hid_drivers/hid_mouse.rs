@@ -247,7 +247,7 @@ where
                         0,
                     )
                     .bits(),
-                    data: Some({ O::map_addr_len_tuple(buf.lock().addr_len_tuple() )}),
+                    data: Some({ O::map_addr_len_tuple(buf.lock().addr_len_tuple()) }),
                     report: false,
                 }),
             ));

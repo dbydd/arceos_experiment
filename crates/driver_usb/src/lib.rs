@@ -71,39 +71,39 @@ pub struct USBSystemConfig<O>
 where
     O: PlatformAbstractions,
 {
-    pub(crate) base_addr: O::VirtAddr, 
-    pub(crate) irq_num: u32, 
-    pub(crate) irq_priority: u32, 
-    pub(crate) transfer_ring_size: usize, 
-    pub(crate) os: O, 
+    pub(crate) base_addr: O::VirtAddr,
+    pub(crate) irq_num: u32,
+    pub(crate) irq_priority: u32,
+    pub(crate) transfer_ring_size: usize,
+    pub(crate) os: O,
 }
 
 /// The USB System.
-/// 
+///
 /// The USB System Contains 2 parts:
 /// * Host Driver Layer: The Host Controller Driver, which is the driver of the USB controllers.
 /// * USB driver layer: USB Driver systems. which contains a bunch of implemented USB Drivers, and provide interface to be invoked from outside to register new driver. And execute these Drivers!
-/// 
+///
 /// Usage:
 /// ```rust
 /// #[derive(Clone)]
 /// struct PlatformAbstraction;
-/// 
+///
 /// impl driver_usb::abstractions::OSAbstractions for PlatformAbstraction {
 ///     type VirtAddr = VirtAddr;
 ///     type DMA = GlobalNoCacheAllocator;
-/// 
+///
 ///     const PAGE_SIZE: usize = PageSize::Size4K as usize;
-/// 
+///
 ///     fn dma_alloc(&self) -> Self::DMA {
 ///         axalloc::global_no_cache_allocator()
 ///     }
 /// }
-/// 
+///
 /// impl driver_usb::abstractions::HALAbstractions for PlatformAbstraction {
 ///     fn force_sync_cache() {}
 /// }
-/// 
+///
 /// //...
 ///     let mut usbsystem = driver_usb::USBSystem::new({
 ///        USBSystemConfig::new(
@@ -146,9 +146,9 @@ where
     }
 
     /// Initialize host and usb driver systems!
-    /// 
+    ///
     /// This is required before any other operations.
-    /// 
+    ///
     /// it Perform initialze operations of host controller devices and register all implemented USB drivers
     pub fn init(&mut self) -> &mut Self {
         trace!("initializing!");
@@ -159,7 +159,7 @@ where
     }
 
     /// Initialze Probe, Probe for devices that attached
-    /// 
+    ///
     /// If found device can be drived, then create device driver instance(basiclly a State Machine)
     pub fn init_probe(&mut self) -> &mut Self {
         // async { //todo:async it!
@@ -209,16 +209,16 @@ where
     }
 
     /// Drop a device driver instance from slot id
-    /// 
+    ///
     /// * WIP
     pub fn drop_device(&mut self, mut driver_independent_device_slot_id: usize) {
         //do something
     }
 
     /// Create A device driver instance from [`DriverIndependentDeviceInstance`]
-    /// 
+    ///
     /// when this function been executed, the Related Structures in HOST Layer *Must* Had been initialized!
-    /// 
+    ///
     /// steps:
     /// 1. Gather All Device Descriptors
     /// 2. Rebuild Descriper Topology

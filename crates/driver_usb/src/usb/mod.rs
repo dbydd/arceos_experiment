@@ -12,14 +12,14 @@ use crate::{
 use self::drivers::DriverContainers;
 /// This module contains a bunch of code that uses as usb device descriptor decoder, just treat it as black box, you wouldn't want to unserstand its code...
 pub mod descriptors;
-/// this module contains usb transfers operations, just refer usb spec for more details
-pub mod transfer;
-///USB Request Block/USB Complete Block and related structures
-pub mod urb;
 /// This module contains the USB driver system, which is responsible for managing USB drivers and drived devices.
 pub mod drivers;
 /// Content in this module would be used in URB, which is responsible for managing USB devices.
 pub mod operation;
+/// this module contains usb transfers operations, just refer usb spec for more details
+pub mod transfer;
+///USB Request Block/USB Complete Block and related structures
+pub mod urb;
 
 /// This module contains Regular USB drivers, use them as you want, and we always welcome pr.
 #[cfg(feature = "packed_drivers")]

@@ -56,13 +56,13 @@ where
 #[derive(Debug, Clone)]
 pub enum RequestedOperation<'a> {
     ///Some ExtraSteps. eg. Fill Noop into transfer queue to flip cycle state
-    ExtraStep(ExtraStep), 
+    ExtraStep(ExtraStep),
     /// Control Transfer: 1 of 4 types of transfer in usb
     Control(ControlTransfer),
     /// Bulk Transfer: 1 of 4 types of transfer in usb, basiclly Completely same as Inerrupt Transfer , useage of transaction that is not very strict about latency, and had huge data size
     Bulk,
     ///Interrupt Transfer: 1 of 4 types of transfer in usb, use if you want to transfer data with low latency, but not frequently
-    Interrupt(InterruptTransfer), 
+    Interrupt(InterruptTransfer),
     /// Isoch Transfer: 1 of 4 types of transfer in usb, use if you want to transfer data with low latency, and frequently with a lot of data
     Isoch(IsochTransfer),
     ///Device Instanse Related Operations.

@@ -978,15 +978,11 @@ name = "driver_usb"
 version = "0.1.0"
 dependencies = [
  "axalloc",
- "axconfig",
  "axhal",
- "axtask",
  "bit_field",
- "byteorder",
  "cfg-if",
  "const-enum",
  "driver_common",
- "driver_pci",
  "log",
  "memory_addr",
  "num-derive 0.4.2",

@@ -37,7 +37,6 @@ where
     }
 }
 
-
 ///USB HOST Controller Layer Instance
 #[derive(Clone)]
 pub struct USBHostSystem<O>

@@ -332,7 +332,6 @@ where
 {
     fn prepare_for_drive(&mut self) -> Option<Vec<crate::usb::urb::URB<'a, O>>> {
         // todo!();
-        
 
         let mut todo_list = Vec::new();
 

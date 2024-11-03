@@ -477,7 +477,7 @@ where
         loop {
             // sleep(Duration::from_millis(2));
             if let Some((event, cycle)) = self.event.next() {
-                debug!("got event:{:?} cycle:{:?}",event,cycle);
+                debug!("got event:{:?} cycle:{:?}", event, cycle);
                 self.update_erdp();
 
                 match event {
@@ -736,8 +736,7 @@ where
                     .filter(|(i, _, _)| i.interface_number == 0)
                     .for_each(|(_, _, endpoints)| {
                         {
-                            let input =
-                                &mut self.dev_ctx.device_input_context_list[device_slot_id];
+                            let input = &mut self.dev_ctx.device_input_context_list[device_slot_id];
 
                             let entries = endpoints
                                 .iter()
@@ -755,7 +754,8 @@ where
                                 .max(input.access().device().slot().context_entries() as u32);
 
                             input
-                                .access().device_mut()
+                                .access()
+                                .device_mut()
                                 .slot_mut()
                                 .set_context_entries(entries as u8);
                         }
@@ -770,19 +770,22 @@ where
                         // }
                     });
 
-                let input_addr = O::map_virt_to_phys({
-                    let input = &mut self.dev_ctx.device_input_context_list[device_slot_id];
-                    let control_mut = input.access().control_mut();
-                    control_mut.set_add_context_flag(0);
-                    control_mut.set_configuration_value(0);
+                let input_addr = O::map_virt_to_phys(
+                    {
+                        let input = &mut self.dev_ctx.device_input_context_list[device_slot_id];
+                        let control_mut = input.access().control_mut();
+                        control_mut.set_add_context_flag(0);
+                        control_mut.set_configuration_value(0);
 
-                    control_mut.set_interface_number(0); //
-                    control_mut.set_alternate_setting(0); //always exist
-                    // trace!("device context state:{:#?}", input);
-                    //TODO: 这玩意根本没修改
-                    // (input as *const Input<16>).addr()
-                    input.addr()
-                }.into()) as u64;
+                        control_mut.set_interface_number(0); //
+                        control_mut.set_alternate_setting(0); //always exist
+                                                              // trace!("device context state:{:#?}", input);
+                                                              //TODO: 这玩意根本没修改
+                                                              // (input as *const Input<16>).addr()
+                        input.addr()
+                    }
+                    .into(),
+                ) as u64;
 
                 let command_completion = self
                     .post_cmd(command::Allowed::ConfigureEndpoint(
@@ -809,8 +812,7 @@ where
                 let (interface0, attributes, endpoints) = interfaces.first().unwrap();
                 let input_addr = O::map_virt_to_phys({
                     let ret = {
-                        let input =
-                            &mut self.dev_ctx.device_input_context_list[device_slot_id];
+                        let input = &mut self.dev_ctx.device_input_context_list[device_slot_id];
                         {
                             let control_mut = input.access().control_mut();
                             control_mut.set_add_context_flag(0);
@@ -833,12 +835,14 @@ where
                             .max()
                             .unwrap_or(1);
 
-                        input.access()
+                        input
+                            .access()
                             .device_mut()
                             .slot_mut()
                             .set_context_entries(entries as u8);
                         input.addr()
-                    }.into();
+                    }
+                    .into();
 
                     // debug!("endpoints:{:#?}", interface.endpoints);
 
@@ -977,10 +981,14 @@ where
             let ctxsize = regs.capability.hccparams1.read_volatile().context_size();
             debug!(
                 "{TAG} Max_slots: {}, max_ports: {}, max_irqs: {}, page size: {}, ctx size: {}",
-                max_slots, max_ports, max_irqs, page_size,if ctxsize {64} else{ 32}
+                max_slots,
+                max_ports,
+                max_irqs,
+                page_size,
+                if ctxsize { 64 } else { 32 }
             );
 
-            let dev_ctx = DeviceContextList::new(max_slots, config.clone(),ctxsize);
+            let dev_ctx = DeviceContextList::new(max_slots, config.clone(), ctxsize);
 
             // Create the command ring with 4096 / 16 (TRB size) entries, so that it uses all of the
             // DMA allocation (which is at least a 4k page).
@@ -1257,7 +1265,7 @@ where
             slot_context.set_interrupter_target(0);
             slot_context.set_speed(port_speed);
 
-            debug!("device port: {:?}",slot_context.root_hub_port_number());
+            debug!("device port: {:?}", slot_context.root_hub_port_number());
 
             let endpoint_0 = context_mut.access().device_mut().endpoint_mut(dci as _);
             endpoint_0.set_endpoint_type(xhci::context::EndpointType::Control);
@@ -1325,9 +1333,9 @@ where
 
     fn set_ep0_packet_size(&mut self, dev_slot_id: usize, max_packet_size: u16) {
         let addr = O::map_virt_to_phys({
-        let input = &mut self.dev_ctx.device_input_context_list[dev_slot_id as usize];
+            let input = &mut self.dev_ctx.device_input_context_list[dev_slot_id as usize];
             input
-            .access()
+                .access()
                 .device_mut()
                 .endpoint_mut(1) //dci=1: endpoint 0
                 .set_max_packet_size(max_packet_size);
