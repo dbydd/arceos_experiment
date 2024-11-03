@@ -402,6 +402,7 @@ where
 
     fn event_busy_wait_cmd(&mut self, addr: u64) -> crate::err::Result<CommandCompletion> {
         debug!("Wait result");
+        O::force_sync_cache();
         loop {
             if let Some((event, cycle)) = self.event.next() {
                 match event {

@@ -80,9 +80,7 @@ where
     }
 
     pub fn erdp(&self) -> u64 {
-        let map_virt_to_phys = O::map_virt_to_phys((self.ring.register() as usize).into());
-        debug!("erdp:{:x}",map_virt_to_phys);
-        map_virt_to_phys as u64 & 0xFFFF_FFFF_FFFF_FFF0 //temporary bug, we need to fix up platforms issue about overrun!
+        self.ring.register() & 0xFFFF_FFFF_FFFF_FFF0 //temporary bug, we need to fix up platforms issue about overrun!
     }
 
     ///there is still a lot of device didn't support iommu/DMA Page, so we just return phys

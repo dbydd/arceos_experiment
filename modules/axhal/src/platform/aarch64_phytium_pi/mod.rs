@@ -98,3 +98,4 @@ pub fn platform_init_secondary() {
     super::aarch64_common::gic::init_secondary();
     super::aarch64_common::generic_timer::init_percpu();
 }
+
