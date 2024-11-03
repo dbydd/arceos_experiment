@@ -970,9 +970,10 @@ where
             let max_ports = hcsp1.number_of_ports();
             let max_irqs = hcsp1.number_of_interrupts();
             let page_size = regs.operational.pagesize.read_volatile().get();
+            let ctxsize = regs.capability.hccparams1.read_volatile().context_size();
             debug!(
-                "{TAG} Max_slots: {}, max_ports: {}, max_irqs: {}, page size: {}",
-                max_slots, max_ports, max_irqs, page_size
+                "{TAG} Max_slots: {}, max_ports: {}, max_irqs: {}, page size: {}, ctx size: { }",
+                max_slots, max_ports, max_irqs, page_size,if ctxsize then 64 else 32
             );
 
             let dev_ctx = DeviceContextList::new(max_slots, config.clone());
