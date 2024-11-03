@@ -42,7 +42,7 @@ where
         let mut in_context_list = Vec::with_capacity(max_slots as _);
         for i in 0..max_slots as usize {
             let out_context = DMA::new(Device::new_64byte(), 4096, a.clone()).fill_zero();
-            dcbaa[i] = out_context.addr() as u64;
+            dcbaa[i] = O::map_virt_to_phys(out_context.addr().into()) as u64;
             out_context_list.push(out_context);
             in_context_list.push(DMA::new(Input64Byte::new_64byte(), 4096, a.clone()).fill_zero());
         }
@@ -137,7 +137,9 @@ where
                 let dma = DMA::zeroed(page_size, align, os.dma_alloc());
 
                 assert_eq!(dma.addr() % page_size, 0);
-                entry.set_addr(dma.addr() as u64);
+                let map_virt_to_phys = O::map_virt_to_phys(dma.addr().into());
+                debug!("mapped output ctx addr:{:x}",map_virt_to_phys);
+                entry.set_addr(map_virt_to_phys as u64);
                 dma
             })
             .collect();

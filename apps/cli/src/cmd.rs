@@ -184,6 +184,6 @@ fn dump_dtb(str: &str) {
 }
 
 fn test(_str: &str) {
-    let phys_to_virt = 0x40_1000_0000usize as *const u8;
-    println!("read:0x{}", unsafe { *(phys_to_virt as *const u64) })
+    do_test_pci(_str);
+    do_run_usb(_str);
 }

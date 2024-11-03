@@ -386,7 +386,7 @@ where
 
         fence(Ordering::Release);
 
-        let r = self.event_busy_wait_cmd(addr as _)?;
+        let r = self.event_busy_wait_cmd(O::map_virt_to_phys(addr.into()) as _)?;
 
         /// update erdp
         self.regs
@@ -402,7 +402,6 @@ where
 
     fn event_busy_wait_cmd(&mut self, addr: u64) -> crate::err::Result<CommandCompletion> {
         debug!("Wait result");
-        O::force_sync_cache();
         loop {
             if let Some((event, cycle)) = self.event.next() {
                 match event {
@@ -477,6 +476,7 @@ where
         loop {
             // sleep(Duration::from_millis(2));
             if let Some((event, cycle)) = self.event.next() {
+                debug!("got event:{:?} cycle:{:?}",event,cycle);
                 self.update_erdp();
 
                 match event {
@@ -1252,6 +1252,8 @@ where
             slot_context.set_tt_think_time(0);
             slot_context.set_interrupter_target(0);
             slot_context.set_speed(port_speed);
+
+            debug!("device port: {:?}",slot_context.root_hub_port_number());
 
             let endpoint_0 = context_mut.device_mut().endpoint_mut(dci as _);
             endpoint_0.set_endpoint_type(xhci::context::EndpointType::Control);

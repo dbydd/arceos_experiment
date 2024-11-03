@@ -5,6 +5,7 @@ use crate::abstractions::dma::DMA;
 use crate::abstractions::OSAbstractions;
 use crate::err::*;
 use log::debug;
+use num_traits::Zero;
 use tock_registers::interfaces::Writeable;
 use tock_registers::register_structs;
 use tock_registers::registers::{ReadOnly, ReadWrite, WriteOnly};
