@@ -433,13 +433,14 @@ where
     }
 
     fn trace_dump_context(&self, slot_id: usize) {
-        let dev = &self.dev_ctx.device_out_context_list[slot_id];
-        trace!(
-            "slot {} {:?}",
-            slot_id,
-            DeviceHandler::slot(&**dev).slot_state()
-        );
-        trace!("device context state:{:#?}", &**dev)
+        // let dev = &mut self.dev_ctx.device_out_context_list[slot_id];
+        // trace!(
+        //     "slot {} {:?}",
+        //     slot_id,
+        //     &mut dev.access().slot().slot_state()
+        // );
+        // trace!("device context state:{:#?}", &**dev.)
+        warn!("fix this by impl debug fot these structures")
     }
 
     fn append_port_to_route_string(route_string: u32, port_id: usize) -> u32 {
@@ -555,12 +556,13 @@ where
                     .unwrap(),
             );
 
-            ctx_in.control_mut().clear_all_drop_flag();
-            ctx_in.control_mut().clear_all_nonep0_add_flag();
-            ctx_in.control_mut().set_add_context_flag(dci);
-            ctx_in.control_mut().set_drop_context_flag(dci);
+            ctx_in.access().control_mut().clear_all_drop_flag();
+            ctx_in.access().control_mut().clear_all_nonep0_add_flag();
+            ctx_in.access().control_mut().set_add_context_flag(dci);
+            ctx_in.access().control_mut().set_drop_context_flag(dci);
 
-            trace!("input context:{:#?}", **ctx_in);
+            // trace!("input context:{:#?}", ctx_in.);
+            warn!("fix input dump!");
 
             ctx_in.addr()
         };
@@ -610,7 +612,7 @@ where
                     .get(device_slot_id)
                     .unwrap(),
             );
-            ctx_in.device_mut().fill_endpoints_with_0()
+            ctx_in.access().device_mut().fill_endpoints_with_0()
         }
 
         // //TODO: Allocate StreamRings
@@ -622,8 +624,9 @@ where
             != self
                 .dev_ctx
                 .device_out_context_list
-                .get(device_slot_id)
+                .get_mut(device_slot_id)
                 .unwrap()
+                .access()
                 .endpoint(dci)
                 .endpoint_state()
         {
@@ -655,12 +658,12 @@ where
                 .device_input_context_list
                 .get_mut(device_slot_id)
                 .unwrap();
-            dev.control_mut().clear_all_nonep0_add_flag();
-            dev.control_mut().clear_all_drop_flag();
-            dev.control_mut().set_add_context_flag(dci);
-            dev.control_mut().set_drop_context_flag(dci);
+            dev.access().control_mut().clear_all_nonep0_add_flag();
+            dev.access().control_mut().clear_all_drop_flag();
+            dev.access().control_mut().set_add_context_flag(dci);
+            dev.access().control_mut().set_drop_context_flag(dci);
 
-            trace!("device input context state:{:#?}", &**dev);
+            // trace!("device input context state:{:#?}", &**dev);
 
             dev.addr()
         };
@@ -704,8 +707,8 @@ where
         device_slot_id: usize,
         configure: &TopologicalUSBDescriptorConfiguration,
     ) -> crate::err::Result<UCB<O>> {
-        let input = self.dev_ctx.device_input_context_list[device_slot_id].deref_mut();
-        input.control_mut().clear_add_context_flag(1);
+        let input = &mut self.dev_ctx.device_input_context_list[device_slot_id];
+        input.access().control_mut().clear_add_context_flag(1);
         /**
         A device can support multiple configurations. Within each configuration can be multiple
         interfaces, each possibly having alternate settings. These interfaces can pertain to different
@@ -734,7 +737,7 @@ where
                     .for_each(|(_, _, endpoints)| {
                         {
                             let input =
-                                self.dev_ctx.device_input_context_list[device_slot_id].deref_mut();
+                                &mut self.dev_ctx.device_input_context_list[device_slot_id];
 
                             let entries = endpoints
                                 .iter()
@@ -749,10 +752,10 @@ where
                                 .map(|endpoint| endpoint.doorbell_value_aka_dci())
                                 .max()
                                 .unwrap_or(1)
-                                .max(input.device().slot().context_entries() as u32);
+                                .max(input.access().device().slot().context_entries() as u32);
 
                             input
-                                .device_mut()
+                                .access().device_mut()
                                 .slot_mut()
                                 .set_context_entries(entries as u8);
                         }
@@ -768,16 +771,17 @@ where
                     });
 
                 let input_addr = O::map_virt_to_phys({
-                    let input = self.dev_ctx.device_input_context_list[device_slot_id].deref_mut();
-                    let control_mut = input.control_mut();
+                    let input = &mut self.dev_ctx.device_input_context_list[device_slot_id];
+                    let control_mut = input.access().control_mut();
                     control_mut.set_add_context_flag(0);
                     control_mut.set_configuration_value(0);
 
                     control_mut.set_interface_number(0); //
                     control_mut.set_alternate_setting(0); //always exist
-                    trace!("device context state:{:#?}", input);
+                    // trace!("device context state:{:#?}", input);
                     //TODO: 这玩意根本没修改
-                    (input as *const Input<16>).addr()
+                    // (input as *const Input<16>).addr()
+                    input.addr()
                 }.into()) as u64;
 
                 let command_completion = self
@@ -804,11 +808,11 @@ where
             TopologicalUSBDescriptorFunction::Interface(interfaces) => {
                 let (interface0, attributes, endpoints) = interfaces.first().unwrap();
                 let input_addr = O::map_virt_to_phys({
-                    {
+                    let ret = {
                         let input =
-                            self.dev_ctx.device_input_context_list[device_slot_id].deref_mut();
+                            &mut self.dev_ctx.device_input_context_list[device_slot_id];
                         {
-                            let control_mut = input.control_mut();
+                            let control_mut = input.access().control_mut();
                             control_mut.set_add_context_flag(0);
                             control_mut.set_configuration_value(configure.data.config_val());
 
@@ -829,11 +833,12 @@ where
                             .max()
                             .unwrap_or(1);
 
-                        input
+                        input.access()
                             .device_mut()
                             .slot_mut()
                             .set_context_entries(entries as u8);
-                    }
+                        input.addr()
+                    }.into();
 
                     // debug!("endpoints:{:#?}", interface.endpoints);
 
@@ -843,8 +848,7 @@ where
                         }
                     }
 
-                    let input = self.dev_ctx.device_input_context_list[device_slot_id].deref_mut();
-                    (input as *const Input<16>).addr().into()
+                    ret
                 }) as u64;
 
                 let command_completion = self
@@ -882,19 +886,19 @@ where
         let ep_ring_mut = self.ep_ring_mut(device_slot_id, dci as _);
         let ring_addr = ep_ring_mut.register();
 
-        let input = self.dev_ctx.device_input_context_list[device_slot_id].deref_mut();
-        let control_mut = input.control_mut();
+        let mut input = &mut self.dev_ctx.device_input_context_list[device_slot_id];
+        let control_mut = input.access().control_mut();
         debug!("init ep {} {:?}", dci, ep.endpoint_type());
         control_mut.set_add_context_flag(dci);
 
         {
-            let slot_mut = input.device_mut().slot_mut();
+            let slot_mut = input.access().device_mut().slot_mut();
             if slot_mut.context_entries() < ep.doorbell_value_aka_dci() as _ {
                 slot_mut.set_context_entries(ep.doorbell_value_aka_dci() as _);
             }
         }
 
-        let ep_mut = input.device_mut().endpoint_mut(dci);
+        let ep_mut = input.access().device_mut().endpoint_mut(dci);
         ep_mut.set_interval(ep.interval - 1);
         ep_mut.set_endpoint_type(ep.endpoint_type());
         ep_mut.set_tr_dequeue_pointer(ring_addr);
@@ -973,7 +977,7 @@ where
             let ctxsize = regs.capability.hccparams1.read_volatile().context_size();
             debug!(
                 "{TAG} Max_slots: {}, max_ports: {}, max_irqs: {}, page size: {}, ctx size: {}",
-                max_slots, max_ports, max_irqs, page_size,if ctxsize then 64 else 32
+                max_slots, max_ports, max_irqs, page_size,if ctxsize {64} else{ 32}
             );
 
             let dev_ctx = DeviceContextList::new(max_slots, config.clone(),ctxsize);
@@ -1231,20 +1235,19 @@ where
                 .dev_ctx
                 .device_input_context_list
                 .get_mut(slot_id)
-                .unwrap()
-                .deref_mut();
+                .unwrap();
 
-            let control_context = context_mut.control_mut();
+            let control_context = context_mut.access().control_mut();
             control_context.set_add_context_flag(0);
             control_context.set_add_context_flag(1);
             for i in 2..32 {
                 control_context.clear_drop_context_flag(i);
             }
 
-            let slot_context = context_mut.device_mut().slot_mut();
+            let slot_context = context_mut.access().device_mut().slot_mut();
             slot_context.clear_multi_tt();
             slot_context.clear_hub();
-            slot_context.set_route_string(Self::append_port_to_route_string(0, port_id)); // for now, not support more hub ,so hardcode as 0.//TODO: generate route string
+            slot_context.set_route_string(0); // for now, not support more hub ,so hardcode as 0.//TODO: generate route string
             slot_context.set_context_entries(1);
             slot_context.set_max_exit_latency(0);
             slot_context.set_root_hub_port_number(port_id as _); //todo: to use port number
@@ -1256,7 +1259,7 @@ where
 
             debug!("device port: {:?}",slot_context.root_hub_port_number());
 
-            let endpoint_0 = context_mut.device_mut().endpoint_mut(dci as _);
+            let endpoint_0 = context_mut.access().device_mut().endpoint_mut(dci as _);
             endpoint_0.set_endpoint_type(xhci::context::EndpointType::Control);
             endpoint_0.set_max_packet_size(max_packet_size);
             endpoint_0.set_max_burst_size(0);
@@ -1272,7 +1275,7 @@ where
             endpoint_0.set_mult(0);
             endpoint_0.set_error_count(3);
 
-            (context_mut as *const Input<16>).addr().into()
+            context_mut.addr().into()
         }) as u64;
 
         fence(Ordering::Release);
@@ -1322,8 +1325,9 @@ where
 
     fn set_ep0_packet_size(&mut self, dev_slot_id: usize, max_packet_size: u16) {
         let addr = O::map_virt_to_phys({
-            let input = self.dev_ctx.device_input_context_list[dev_slot_id as usize].deref_mut();
+        let input = &mut self.dev_ctx.device_input_context_list[dev_slot_id as usize];
             input
+            .access()
                 .device_mut()
                 .endpoint_mut(1) //dci=1: endpoint 0
                 .set_max_packet_size(max_packet_size);
@@ -1332,7 +1336,7 @@ where
                 "CMD: evaluating context for set endpoint0 packet size {}",
                 max_packet_size
             );
-            (input as *mut Input<16>).addr().into()
+            input.addr().into()
         }) as u64;
         self.post_cmd(command::Allowed::EvaluateContext(
             *command::EvaluateContext::default()
@@ -1410,8 +1414,9 @@ where
         let endpoint = self
             .dev_ctx
             .device_out_context_list
-            .get(dev_slot_id)
+            .get_mut(dev_slot_id)
             .unwrap()
+            .access()
             .endpoint(urb_req.endpoint_id);
         let max_packet_size = endpoint.max_packet_size() as usize;
         let max_burst_size = endpoint.max_burst_size();
@@ -1492,10 +1497,11 @@ where
     fn debug_op(&mut self, dev_slot_id: usize, debug_op: Debugop) -> crate::err::Result<UCB<O>> {
         match debug_op {
             Debugop::DumpDevice => {
-                debug!(
-                    "debug dump device:{:#?}",
-                    &*self.dev_ctx.device_out_context_list[dev_slot_id]
-                );
+                // debug!(
+                //     "debug dump device:{:#?}",
+                //     &*self.dev_ctx.device_out_context_list[dev_slot_id]
+                // );
+                warn!("fix this data dump!");
             }
             Debugop::DumpConfigAndInterface => {
                 // self.config.lock().os.dma_alloc().allocate(Layout::)
@@ -1513,7 +1519,7 @@ where
                         request: bRequest::Generic(StandardbRequest::GetConfiguration),
                         index: 0,
                         value: 0,
-                        data: Some(buffer.addr_len_tuple()),
+                        data: Some(O::map_addr_len_tuple(buffer.addr_len_tuple())),
                         report: false,
                     },
                 );

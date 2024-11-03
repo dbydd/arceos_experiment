@@ -13,8 +13,11 @@ pub trait OSAbstractions: Clone + Send + Sync + Sized {
     fn dma_alloc(&self) -> Self::DMA;
     fn map_virt_to_phys(vaddr: Self::VirtAddr) -> usize;
     fn map_phys_to_virt(paddr: usize) -> Self::VirtAddr;
-    // fn interrupt_handler();//ADD Interrupt feature?
+    fn map_addr_len_tuple((addr,len):(usize,usize)) ->(usize,usize) {
+        (Self::map_virt_to_phys(addr.into()),len)
+    }
 }
+    // fn interrupt_handler();//ADD Interrupt feature?
 pub trait HALAbstractions: Clone + Send + Sync + Sized {
     fn force_sync_cache();
 }

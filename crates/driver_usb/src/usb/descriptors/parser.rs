@@ -365,13 +365,13 @@ where
     }
 
     fn parse_any_descriptor(&mut self) -> Result<USBDescriptor, Error> {
-        trace!(
+        debug!(
             "parse any desc at current{}! type:{:?}",
             self.current,
             self.peek_std_desc_type()
         );
         let raw = self.cut_raw_descriptor()?;
-        trace!("from slice!");
+        debug!("from slice!");
         USBDescriptor::from_slice(&raw, self.metadata.clone())
     }
 

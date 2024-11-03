@@ -9,11 +9,12 @@ use alloc::sync::Arc;
 use alloc::{boxed::Box, vec::Vec};
 use alloc::{format, vec};
 use core::borrow::BorrowMut;
+use core::ops::DerefMut;
 use core::{mem, num};
 use log::debug;
 use spinlock::SpinNoIrq;
-use xhci::context::Input64Byte;
-pub use xhci::context::{Device, Device64Byte, DeviceHandler};
+use xhci::context::{Device32Byte, Input32Byte, Input64Byte, InputHandler};
+pub use xhci::context::{ Device64Byte, DeviceHandler};
 const NUM_EPS: usize = 32;
 
 ///Device Context and XHCI Data structs, Refer Xhci spec
@@ -25,10 +26,77 @@ where
 {
     config: Arc<SpinNoIrq<USBSystemConfig<O>>>,
     pub dcbaa: DMA<[u64; 256], O::DMA>,
-    pub device_out_context_list: Vec<DMA<Device64Byte, O::DMA>>,
-    pub device_input_context_list: Vec<DMA<Input64Byte, O::DMA>>,
+    pub device_out_context_list: Vec<Device<O>>,
+    pub device_input_context_list: Vec<Input<O>>,
     pub transfer_rings: Vec<Vec<Ring<O>>>,
 }
+
+pub enum Input<O> where O:PlatformAbstractions {
+    B64(DMA<Input64Byte, O::DMA>),
+    B32(DMA<Input32Byte, O::DMA>),
+}
+
+pub enum Device<O> where O:PlatformAbstractions {
+    B64(DMA<Device64Byte,O::DMA>),
+    B32(DMA<Device32Byte,O::DMA>),
+}
+
+impl<O> Device<O> where O:PlatformAbstractions{
+    pub fn new(ctx_size:bool,a:O::DMA) -> Self {
+        if ctx_size {
+            Self::B64(DMA::new(Device64Byte::new_64byte(), 4096, a).fill_zero())
+        }else {
+            Self::B32(DMA::new(Device32Byte::new_32byte(), 4096, a).fill_zero())
+        }
+    }
+
+    pub fn access(&mut self) -> &mut dyn DeviceHandler {
+        match self {
+            Device::B64(dma) => dma.deref_mut(),
+            Device::B32(dma) => dma.deref_mut(),
+        }
+    }
+
+    pub fn addr(&self)->usize{
+        match self {
+            Device::B64(dma) => dma.addr(),
+            Device::B32(dma) => dma.addr(),
+        }
+    }
+}
+
+impl<O> Input<O> where O:PlatformAbstractions{
+    pub fn new(ctx_size:bool,a:O::DMA) -> Self {
+        if ctx_size {
+            Self::B64(DMA::new(Input64Byte::new_64byte(), 4096, a.clone()).fill_zero())
+        }else {
+            Self::B32(DMA::new(Input32Byte::new_32byte(), 4096, a.clone()).fill_zero())
+        }
+    }
+
+    pub fn access(&mut self) -> &mut dyn InputHandler {
+        match self {
+            Input::B64(dma) => &mut **dma,
+            Input::B32(dma) => &mut **dma,
+        }
+    }
+
+    pub fn addr(&self)->usize{
+        match self {
+            Input::B64(dma) => dma.addr(),
+            Input::B32(dma) => dma.addr(),
+        }
+    }
+
+    pub fn copy_from_output(&mut self,output:&Device<O>){
+        match (self,output) {
+            (Input::B64(i), Device::B64(o)) => (&mut **i).copy_from_output(&**o),
+            (Input::B32(i), Device::B32(o)) => (&mut **i).copy_from_output(&**o),
+            _=>panic!("it wont happen")
+        }
+    }
+}
+
 
 impl<O> DeviceContextList<O>
 where
@@ -42,10 +110,10 @@ where
         let mut out_context_list = Vec::with_capacity(max_slots as _);
         let mut in_context_list = Vec::with_capacity(max_slots as _);
         for i in 0..max_slots as usize {
-            let out_context = DMA::new(Device::new_64byte(), 4096, a.clone()).fill_zero();
+            let out_context = Device::new(ctx_size, a.clone());
             dcbaa[i] = O::map_virt_to_phys(out_context.addr().into()) as u64;
             out_context_list.push(out_context);
-            in_context_list.push(DMA::new(Input64Byte::new_64byte(), 4096, a.clone()).fill_zero());
+            in_context_list.push(Input::new(ctx_size, a.clone()));
         }
         let mut transfer_rings = Vec::with_capacity(max_slots as _);
         for _ in 0..transfer_rings.capacity() {

@@ -248,7 +248,7 @@ where
                             0,
                         )
                         .bits(),
-                        data: Some(buffer_device.addr_len_tuple()),
+                        data: Some(O::map_addr_len_tuple(buffer_device.addr_len_tuple())),
                         report: false,
                     },
                 ) {
@@ -280,7 +280,7 @@ where
                                             index as _,
                                         )
                                         .bits(),
-                                        data: Some(buffer.addr_len_tuple()),
+                                        data: Some(O::map_addr_len_tuple(buffer.addr_len_tuple())),
                                         report: false,
                                     },
                                 )

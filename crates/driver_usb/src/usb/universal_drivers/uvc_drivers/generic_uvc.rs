@@ -550,7 +550,7 @@ where
                         buffer_addr_len: {
                             self.receiption_buffer
                                 .as_ref()
-                                .map(|b| b.lock().addr_len_tuple())
+                                .map(|b| O::map_addr_len_tuple(b.lock().addr_len_tuple()))
                                 .unwrap()
                         },
                         transfer_size_bytes: 614400,

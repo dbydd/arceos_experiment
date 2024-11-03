@@ -135,7 +135,7 @@ where
                         RequestedOperation::Interrupt(InterruptTransfer {
                             endpoint_id: self.interrupt_in_channels.last().unwrap().clone()
                                 as usize,
-                            buffer_addr_len: buffer.lock().addr_len_tuple(),
+                            buffer_addr_len: O::map_addr_len_tuple(buffer.lock().addr_len_tuple()),
                         }),
                     )]);
                 }
@@ -247,7 +247,7 @@ where
                         0,
                     )
                     .bits(),
-                    data: Some({ buf.lock().addr_len_tuple() }),
+                    data: Some({ O::map_addr_len_tuple(buf.lock().addr_len_tuple() )}),
                     report: false,
                 }),
             ));
