@@ -22,7 +22,7 @@ use alloc::{
 use cfg_if::cfg_if;
 use glue::driver_independent_device_instance::DriverIndependentDeviceInstance;
 use host::{data_structures::MightBeInited, USBHostSystem};
-use log::{error, trace};
+use log::{debug, error, trace};
 use spinlock::SpinNoIrq;
 use usb::{
     descriptors::{
@@ -297,7 +297,7 @@ where
                 };
             }
 
-            trace!("parsed descriptor:{:#?}", driver.descriptors);
+            debug!("parsed descriptor:{:#?}", driver.descriptors);
 
             if let MightBeInited::Inited(TopologicalUSBDescriptorRoot {
                 device: devices,

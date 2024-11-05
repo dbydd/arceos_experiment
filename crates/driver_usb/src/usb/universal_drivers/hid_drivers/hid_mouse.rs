@@ -3,7 +3,7 @@ use core::mem::MaybeUninit;
 use alloc::sync::Arc;
 use alloc::vec;
 use alloc::vec::Vec;
-use log::trace;
+use log::{debug, trace};
 use num_traits::FromPrimitive;
 use spinlock::SpinNoIrq;
 use xhci::context::EndpointType;
@@ -171,10 +171,9 @@ where
             RequestedOperation::Debug(Debugop::DumpDevice),
         ));
 
-        trace!(
+        debug!(
             "set interface for {},{}",
-            self.config_value,
-            self.interface_value
+            self.config_value, self.interface_value
         );
         todo_list.push(URB::new(
             self.device_slot_id,
@@ -207,23 +206,23 @@ where
             }),
         ));
 
-        if self.bootable > 0 {
-            todo_list.push(URB::new(
-                self.device_slot_id,
-                RequestedOperation::Control(ControlTransfer {
-                    request_type: bmRequestType::new(
-                        Direction::Out,
-                        DataTransferType::Class,
-                        Recipient::Interface,
-                    ),
-                    request: StandardbRequest::SetInterfaceDs.into(), //actually set protocol
-                    index: if self.bootable == 2 { 1 } else { 0 },
-                    value: self.interface_value as u16,
-                    data: None,
-                    report: false,
-                }),
-            ));
-        }
+        //if self.bootable > 0 {
+        //    todo_list.push(URB::new(
+        //        self.device_slot_id,
+        //        RequestedOperation::Control(ControlTransfer {
+        //            request_type: bmRequestType::new(
+        //                Direction::Out,
+        //                DataTransferType::Class,
+        //                Recipient::Interface,
+        //            ),
+        //            request: StandardbRequest::SetInterfaceDs.into(), //actually set protocol
+        //            index: if self.bootable == 2 { 1 } else { 0 },
+        //            value: self.interface_value as u16,
+        //            data: None,
+        //            report: false,
+        //        }),
+        //    ));
+        //}
 
         self.report_descriptor = Some(ReportDescState::<O>::Binary(SpinNoIrq::new(DMA::new(
             0u8,
