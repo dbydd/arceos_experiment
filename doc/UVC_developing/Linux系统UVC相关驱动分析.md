@@ -2,15 +2,11 @@
 
 #### V1.0
 
-
-
 ## 驱动分析
-
-
 
 ### UVC摄像头设备拓扑结构
 
-![image-20241224131523112](C:\Users\28057\AppData\Roaming\Typora\typora-user-images\image-20241224131523112.png)
+![1735052266999](images/Linux系统UVC相关驱动分析/1735052266999.png)
 
 #### IT（Input Terminal）UVC输入端点
 
@@ -64,8 +60,6 @@ SU单元用来控制图像数据采集源的切换和选择。
   - Analog Video Standard（模拟视频标准）
   - Analog Video Lock Status（模拟视频死锁状态）
 
-
-
 ### UVC相关代码目录
 
 ```
@@ -97,8 +91,6 @@ uvcvideo-objs  += uvc_entity.o
 endif
 obj-$(CONFIG_USB_VIDEO_CLASS) += uvcvideo.o
 ```
-
-
 
 ### 源码解析
 
@@ -191,8 +183,6 @@ struct uvc_driver uvc_driver = {
 ```
 
 其中uvc_probe为UVC摄像头设备初始化函数
-
-
 
 #### uvc_probe初始化函数解析
 
@@ -372,11 +362,11 @@ error:
 
      根据USB协议实现为：
 
-     ![image-20241224142513691](C:\Users\28057\AppData\Roaming\Typora\typora-user-images\image-20241224142513691.png)
+     ![1735052309280](images/Linux系统UVC相关驱动分析/1735052309280.png)
 
      其中：
 
-     ![USB协议](C:\Users\28057\Desktop\USB协议.png)
+     ![1735052380368](images/Linux系统UVC相关驱动分析/1735052380368.png)
 
      **struct usb_device USB设备**
 
@@ -392,33 +382,33 @@ error:
      	unsigned int		rx_lanes;
      	unsigned int		tx_lanes;
      	enum usb_ssp_rate	ssp_rate;
-     
+
      	struct usb_tt	*tt;
      	int		ttport;
-     
+
      	unsigned int toggle[2];
-     
+
      	struct usb_device *parent;
      	struct usb_bus *bus;
      	struct usb_host_endpoint ep0;
-     
+
      	struct device dev;
-     
+
      	struct usb_device_descriptor descriptor;
      	struct usb_host_bos *bos;
      	struct usb_host_config *config;
-     
+
      	struct usb_host_config *actconfig;
      	struct usb_host_endpoint *ep_in[16];
      	struct usb_host_endpoint *ep_out[16];
-     
+
      	char **rawdescriptors;
-     
+
      	unsigned short bus_mA;
      	u8 portnum;
      	u8 level;
      	u8 devaddr;
-     
+
      	unsigned can_submit:1;
      	unsigned persist_enabled:1;
      	unsigned reset_in_progress:1;
@@ -434,33 +424,33 @@ error:
      	unsigned usb3_lpm_u1_enabled:1;
      	unsigned usb3_lpm_u2_enabled:1;
      	int string_langid;
-     
+
      	/* static strings from the device */
      	char *product;
      	char *manufacturer;
      	char *serial;
-     
+
      	struct list_head filelist;
-     
+
      	int maxchild;
-     
+
      	u32 quirks;
      	atomic_t urbnum;
-     
+
      	unsigned long active_duration;
-     
+
      	unsigned long connect_time;
-     
+
      	unsigned do_remote_wakeup:1;
      	unsigned reset_resume:1;
      	unsigned port_is_suspended:1;
-     
+
      	int slot_id;
      	struct usb2_lpm_parameters l1_params;
      	struct usb3_lpm_parameters u1_params;
      	struct usb3_lpm_parameters u2_params;
      	unsigned lpm_disable_count;
-     
+
      	u16 hub_delay;
      	unsigned use_generic_driver:1;
      };
@@ -473,29 +463,29 @@ error:
      ```c
      struct usb_host_config {
      	struct usb_config_descriptor	desc;
-     
+
      	char *string;		/* iConfiguration string, if present */
-     
+
      	/* List of any Interface Association Descriptors in this
      	 * configuration. */
      	struct usb_interface_assoc_descriptor *intf_assoc[USB_MAXIADS];
-     
+
      	/* the interfaces associated with this configuration,
      	 * stored in no particular order */
      	struct usb_interface *interface[USB_MAXINTERFACES];
-     
+
      	/* Interface information available even when this is not the
      	 * active configuration */
      	struct usb_interface_cache *intf_cache[USB_MAXINTERFACES];
-     
+
      	unsigned char *extra;   /* Extra descriptors */
      	int extralen;
      };
-     
+
      /* USB2.0 and USB3.0 device BOS descriptor set */
      struct usb_host_bos {
      	struct usb_bos_descriptor	*desc;
-     
+
      	struct usb_ext_cap_descriptor	*ext_cap;
      	struct usb_ss_cap_descriptor	*ss_cap;
      	struct usb_ssp_cap_descriptor	*ssp_cap;
@@ -516,15 +506,15 @@ error:
      	/* array of alternate settings for this interface,
      	 * stored in no particular order */
      	struct usb_host_interface *altsetting;
-     
+
      	struct usb_host_interface *cur_altsetting;	/* the currently
      					 * active alternate setting */
      	unsigned num_altsetting;	/* number of alternate settings */
-     
+
      	/* If there is an interface association descriptor then it will list
      	 * the associated interfaces */
      	struct usb_interface_assoc_descriptor *intf_assoc;
-     
+
      	int minor;			/* minor number this interface is
      					 * bound to */
      	enum usb_interface_condition condition;		/* state of binding */
@@ -538,14 +528,14 @@ error:
      	unsigned authorized:1;		/* used for interface authorization */
      	enum usb_wireless_status wireless_status;
      	struct work_struct wireless_status_work;
-     
+
      	struct device dev;		/* interface specific device info */
      	struct device *usb_dev;
      	struct work_struct reset_ws;	/* for resets in atomic context */
      };
-     
+
      #define to_usb_interface(__dev)	container_of_const(__dev, struct usb_interface, dev)
-     
+
      static inline void *usb_get_intfdata(struct usb_interface *intf)
      {
      	return dev_get_drvdata(&intf->dev);
@@ -559,15 +549,15 @@ error:
      ```
      struct usb_host_interface {
      	struct usb_interface_descriptor	desc;
-     
+
      	int extralen;
      	unsigned char *extra;   /* Extra descriptors */
-     
+
      	/* array of desc.bNumEndpoints endpoints associated with this
      	 * interface setting.  these will be in no particular order.
      	 */
      	struct usb_host_endpoint *endpoint;
-     
+
      	char *string;		/* iInterface string, if present */
      };
      ```
@@ -582,48 +572,44 @@ error:
      	struct list_head		urb_list;
      	void				*hcpriv;
      	struct ep_device		*ep_dev;	/* For sysfs info */
-     
+
      	unsigned char *extra;   /* Extra descriptors */
      	int extralen;
      	int enabled;
      	int streams;
      };
      ```
-
    - 参数二：usb_device_id指针描述了该USB逻辑设备的基本信息
 
      ```C
      struct usb_device_id {
      	/* which fields to match against? */
      	__u16		match_flags;
-     
+
      	/* Used for product specific matches; range is inclusive */
      	__u16		idVendor;
      	__u16		idProduct;
      	__u16		bcdDevice_lo;
      	__u16		bcdDevice_hi;
-     
+
      	/* Used for device class matches */
      	__u8		bDeviceClass;
      	__u8		bDeviceSubClass;
      	__u8		bDeviceProtocol;
-     
+
      	/* Used for interface class matches */
      	__u8		bInterfaceClass;
      	__u8		bInterfaceSubClass;
      	__u8		bInterfaceProtocol;
-     
+
      	/* Used for vendor-specific interface matches */
      	__u8		bInterfaceNumber;
-     
+
      	/* not matched against */
      	kernel_ulong_t	driver_info
      		__attribute__((aligned(sizeof(kernel_ulong_t))));
      };
      ```
-
-     
-
 2. **主体分析：**
 
    在uvc_probe中，进行必要的信息验证后，就应该和Windows驱动调用IoCreateDevice创建本层的设备对象一样，UVC驱动申请本层设备驱动的设备对象结构体。
@@ -631,8 +617,6 @@ error:
    ```C
        struct uvc_device *dev;    ...    dev = kzalloc(sizeof(*dev), GFP_KERNEL);
    ```
-
-   
 
    对申请的结构体对象进行初始化，并保存该逻辑USB设备对象的相关信息。
 
@@ -643,7 +627,7 @@ error:
    	kref_init(&dev->ref);
    	atomic_set(&dev->nmappings, 0);
    	mutex_init(&dev->lock);
-   
+
    	dev->udev = usb_get_dev(udev);
    	dev->intf = usb_get_intf(intf);
    	dev->intfnum = intf->cur_altsetting->desc.bInterfaceNumber;
@@ -652,89 +636,71 @@ error:
    		    ? dev->info->quirks : uvc_quirks_param;
    ```
 
-   
-
    UVC规范定义的UVC设备，至少有一个视频控制接口和0个或者多个视频流接口（一般有一个视频接口）
 
    ```c
-   /* Parse the Video Class control descriptor. */    
+   /* Parse the Video Class control descriptor. */  
    if (uvc_parse_control(dev) < 0) {
    	uvc_trace(UVC_TRACE_PROBE, "Unable to parse UVC "
-   		"descriptors.\n");        
-   	goto error;    
+   		"descriptors.\n");  
+   	goto error;  
    	}
    ```
 
    使用uvc_parse_control解析该UVC设备的配置描述符，解析出需要的信息。
-
-   
 
    使用v4l2_device_register函数。
    第一个参数intf->dev是LINUX系统层的设备`struct device *dev`。
    第二个V4L2设备，由v4l2_device_register初始化，但其位于struct uvc_device结构体中。
 
    ```C
-   /* Register the V4L2 device. */    
-   if (v4l2_device_register(&intf->dev, &dev->vdev) < 0)        
+   /* Register the V4L2 device. */  
+   if (v4l2_device_register(&intf->dev, &dev->vdev) < 0)  
    	goto error;
    ```
-
-   
 
    初始化UVC控制接口中的各种Unit或者Terminal,比如UVC扩展单元，UVC相机终端单元，UVC处理单元等，这些支持的UVC特定类请求。
 
    ```C
-   /* Initialize controls. */    
-   if (uvc_ctrl_init_device(dev) < 0)        
+   /* Initialize controls. */  
+   if (uvc_ctrl_init_device(dev) < 0)  
    	goto error;
    ```
-
-   
 
    这一块没看，估计与视频流接口中UVC设备的格式，分辨率等相关。
 
    ```C
-   /* Scan the device for video chains. */    
-   if (uvc_scan_device(dev) < 0)       
-   	goto error;    
-   /* Register video device nodes. */    
-   if (uvc_register_chains(dev) < 0)       
+   /* Scan the device for video chains. */  
+   if (uvc_scan_device(dev) < 0)   
+   	goto error;  
+   /* Register video device nodes. */  
+   if (uvc_register_chains(dev) < 0)   
    	goto error;
    ```
-
-   
 
    将UVC对象保留在USBCore对象给的私有数据成员中。
 
    ```C
-   /* Save our data pointer in the interface data. */    
+   /* Save our data pointer in the interface data. */  
    usb_set_intfdata(intf, dev);
    ```
-
-   
 
    初始化中断状态。这应与UVC控制接口某些设备中有一些中断端点，用于向主机上报其错误状态。
 
    ```
-   /* Initialize the interrupt URB. */    
-   if ((ret = uvc_status_init(dev)) < 0) {        
-   	uvc_printk(KERN_INFO, "Unable to initialize the status "            
-   		"endpoint (%d), status interrupt will not be "            
+   /* Initialize the interrupt URB. */  
+   if ((ret = uvc_status_init(dev)) < 0) {  
+   	uvc_printk(KERN_INFO, "Unable to initialize the status "    
+   		"endpoint (%d), status interrupt will not be "    
    			"supported.\n", ret);
    	}
    ```
-
-   
 
    设备就绪-自动挂起
 
    ```
    usb_enable_autosuspend(udev);
    ```
-
-
-
-
 
 #### uvc_parse_standard_control解析拓扑结构描述符
 
@@ -989,10 +955,6 @@ static int uvc_parse_standard_control(struct uvc_device *dev,
 	return 0;
 }
 ```
-
-
-
-
 
 #### uvc_parse_streaming分析
 
@@ -1262,8 +1224,6 @@ error:
 }
 ```
 
-
-
 1.申请内存streaming = uvc_stream_new(dev, intf);并使用usb_interface相关信息初始化最基本的信息。
 2.根据头描述符填充相关的信息。头描述符的bDescriptorSubtype有2种，相关的一般为bDescriptorSubtype UVC_VS_INPUT_HEADER和UVC_VS_OUTPUT_HEADER，即输入头描述符输出头描述符。
 
@@ -1330,8 +1290,6 @@ Frame分为：
 #define UVC_VS_FRAME_FRAME_BASED            0x11
 ```
 
-
-
 #### LINUX&UVC相机打开时的带宽选择
 
 同步传输涉及UVC协商时的dwMaxPayloadTransferSize。
@@ -1371,10 +1329,6 @@ dwMaxPayloadTransferSize，根据其字段解释为“**指定设备在单个有
         bandwidth = max_t(u32, bandwidth, 1024);
         ctrl->dwMaxPayloadTransferSize = bandwidth;
 ```
-
-
-
-
 
 #### static int uvc_video_start_transfer进行传输
 
@@ -1501,8 +1455,6 @@ static int uvc_video_start_transfer(struct uvc_streaming *stream,
 }
 ```
 
-
-
 #### uvc_v4l2.c 实现UVC驱动向V4L2提供接口
 
 在 V4L2 中，ioctl 是一个用于设备控制的系统调用，用来发送各种命令给设备驱动程序。对于 UVC（USB Video Class）摄像头的驱动，在 uvc_v4l2.c 这个文件中。
@@ -1539,86 +1491,55 @@ const struct v4l2_ioctl_ops uvc_ioctl_ops = {
 其中：
 
 - vidioc_querycap: 用于查询设备的基本能力，如设备名称、驱动名称、支持的输入/输出格式等。无特殊条件。
-
 - vidioc_enum_fmt_vid_cap: 枚举视频捕获设备支持的视频格式。无特殊条件。
-
 - vidioc_g_fmt_vid_cap: 获取当前视频捕获设备的视频格式。无特殊条件。
-
 - vidioc_try_fmt_vid_cap: 尝试设置视频捕获设备的视频格式。无特殊条件。
-
 - vidioc_s_fmt_vid_cap: 设置视频捕获设备的视频格式。无特殊条件。
-
 - vidioc_reqbufs: 请求内存缓冲区用于视频数据。无特殊条件。
-
 - vidioc_querybuf: 查询内存缓冲区的信息。无特殊条件。
-
 - vidioc_qbuf: 将缓冲区放入队列。无特殊条件。
-
 - vidioc_dqbuf: 从队列中取出缓冲区。无特殊条件。
-
 - vidioc_streamon: 打开数据流。无特殊条件。
-
 - vidioc_streamoff: 关闭数据流。无特殊条件。
-
 - vidioc_enum_input: 枚举视频输入。无特殊条件。
-
 - vidioc_g_input: 获取当前视频输入。无特殊条件。
-
 - vidioc_s_input: 设置视频输入。无特殊条件。
-
 - vidioc_g_parm: 获取设备参数。无特殊条件。
-
 - vidioc_s_parm: 设置设备参数。无特殊条件。
-
 - vidioc_cropcap: 查询裁剪能力。无特殊条件。
-
 - vidioc_g_crop: 获取当前裁剪设置。无特殊条件。
-
 - vidioc_s_crop: 设置裁剪。无特殊条件。
-
 - vidioc_enum_framesizes: 枚举帧大小。无特殊条件。
-
 - vidioc_enum_frameintervals: 枚举帧间隔。无特殊条件。
-
 - vidioc_g_fmt_vid_overlay: 获取视频叠加格式。无特殊条件。
-
 - vidioc_try_fmt_vid_overlay: 尝试设置视频叠加格式。无特殊条件。
-
 - vidioc_s_fmt_vid_overlay: 设置视频叠加格式。无特殊条件。
-
-  
 
 ### 规划
 
 #### UVC摄像头设备实现流程计划
 
 1. UVC驱动初始化
-
-​	1.1 实现设备描述符解析（目前初期计划使用默认参数）
-
-
+	
+	1.1 实现设备描述符解析（目前初期计划使用默认参数）
 
 2. streaming传输代码实现
-
-   
 
 3. V4L2驱动接口实现
 
    3.1 V4L2驱动注册视频设备
 
-
-
 4. 编写应用层代码打开 /dev/video0 设备
 
-​	4.1 查询设备的基本能力，并打印驱动程序、设备名称等信息。
+	4.1 查询设备的基本能力，并打印驱动程序、设备名称等信息。
 
-​	4.2 设置视频格式为 640x480 分辨率，YUYV 格式，交错扫描。
+	4.2 设置视频格式为 640x480 分辨率，YUYV 格式，交错扫描。
 
-​	4.3 图像保存。
+	4.3 图像保存。
 
-​	4.4 解除缓冲区的映射。
+	4.4 解除缓冲区的映射。
 
-​	关闭设备。
+	关闭设备。
 
 demo：
 
