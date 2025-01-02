@@ -1,6 +1,9 @@
 pub mod dma;
+pub mod event;
 
 use core::{alloc::Allocator, fmt::Debug, usize};
+
+use event::USBSystemEvent;
 
 pub trait PlatformAbstractions: OSAbstractions + HALAbstractions {}
 
@@ -16,6 +19,7 @@ pub trait OSAbstractions: Clone + Send + Sync + Sized {
     fn map_addr_len_tuple((addr, len): (usize, usize)) -> (usize, usize) {
         (Self::map_virt_to_phys(addr.into()), len)
     }
+    fn send_event(&self, event: USBSystemEvent);
 }
 // fn interrupt_handler();//ADD Interrupt feature?
 pub trait HALAbstractions: Clone + Send + Sync + Sized {

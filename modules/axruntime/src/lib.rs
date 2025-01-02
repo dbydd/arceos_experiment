@@ -32,6 +32,7 @@ mod trap;
 #[cfg(feature = "smp")]
 mod mp;
 
+#[cfg(feature = "irq")]
 use axhal::irq::register_handler;
 
 #[cfg(feature = "smp")]
@@ -279,9 +280,11 @@ fn init_allocator_no_cache() {
         // debug!(" Actual Initialize global no cache memory allocator...");
         // axalloc::global_nocache_init(nocache_init);
 
-        memory_regions().find(|a|a.name == "nocache memory").inspect(|region|{
-            axalloc::global_nocache_init((phys_to_virt(region.paddr).as_usize(), region.size));
-        });
+        memory_regions()
+            .find(|a| a.name == "nocache memory")
+            .inspect(|region| {
+                axalloc::global_nocache_init((phys_to_virt(region.paddr).as_usize(), region.size));
+            });
     }
 }
 #[cfg(feature = "paging")]

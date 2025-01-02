@@ -18,10 +18,10 @@ use crate::usb::descriptors::topological_desc::{
 };
 use crate::usb::descriptors::USBStandardDescriptorTypes;
 use crate::usb::operation::ExtraStep;
-use crate::usb::trasnfer::control::{
-    bRequest, bmRequestType, ControlTransfer, DataTransferType, Recipient,
+use crate::usb::transfer::control::{
+    bRequest, bmRequestType, ControlTransfer, DataTransferType, Recipient, StandardbRequest,
 };
-use crate::usb::trasnfer::interrupt::InterruptTransfer;
+use crate::usb::transfer::interrupt::InterruptTransfer;
 use crate::usb::universal_drivers::hid_drivers::temp_mouse_report_parser;
 use crate::usb::urb::{RequestedOperation, URB};
 use crate::USBSystemConfig;
@@ -190,11 +190,11 @@ where
                     DataTransferType::Standard,
                     Recipient::Device,
                 ),
-                request: bRequest::SetConfiguration,
+                request: bRequest::Generic(StandardbRequest::SetConfiguration),
                 index: self.interface_value as u16,
                 value: self.config_value as u16,
                 data: None,
-                response: true,
+                report: true,
             }),
         ));
         todo_list.push(URB::new(
@@ -205,13 +205,13 @@ where
                     DataTransferType::Standard,
                     Recipient::Interface,
                 ),
-                request: bRequest::SetInterfaceSpec,
+                request: bRequest::Generic(StandardbRequest::SetInterfaceDs),
                 // index: self.interface_alternative_value as u16,
                 // value: self.interface_value as u16,
                 index: 0 as u16,
                 value: 0 as u16,
                 data: None,
-                response: true,
+                report: true,
             }),
         ));
 
@@ -248,7 +248,7 @@ where
                         DataTransferType::Standard,
                         Recipient::Interface,
                     ),
-                    request: bRequest::GetDescriptor,
+                    request: bRequest::Generic(StandardbRequest::GetDescriptor),
                     index: self.interface_alternative_value as u16,
                     value: crate::usb::descriptors::construct_control_transfer_type(
                         HIDDescriptorTypes::HIDReport as u8,
@@ -256,7 +256,7 @@ where
                     )
                     .bits(),
                     data: Some({ buf.lock().addr_len_tuple() }),
-                    response: false,
+                    report: false,
                 }),
             ));
         }
@@ -283,7 +283,7 @@ where
 {
     fn should_active(
         &self,
-        independent_dev: &DriverIndependentDeviceInstance<O>,
+        independent_dev: &mut DriverIndependentDeviceInstance<O>,
         config: Arc<SpinNoIrq<USBSystemConfig<O>>>,
     ) -> Option<Vec<Arc<SpinNoIrq<dyn USBSystemDriverModuleInstance<'a, O>>>>> {
         if let MightBeInited::Inited(inited) = &*independent_dev.descriptors {

@@ -95,10 +95,12 @@ impl<O: OSAbstractions> Ring<O> {
     pub fn enque_trb(&mut self, mut trb: TrbData) -> usize {
         self.trbs[self.i].copy_from_slice(&trb);
         let addr = self.trbs[self.i].as_ptr() as usize;
-        debug!(
-            "enqueued {} @{:#X}\n{:x}\n{:x}\n{:x}\n{:x}\n------------------------------------------------ current cycle:{}",
-            self.i, addr, trb[0], trb[1], trb[2], trb[3],self.cycle
-        );
+        if trb[0] != 0 {
+            debug!(
+                "enqueued {} @{:#X}\n{:x}\n{:x}\n{:x}\n{:x}\n------------------------------------------------ current cycle:{}",
+                self.i, addr, trb[0], trb[1], trb[2], trb[3],self.cycle
+            );
+        }
         self.next_index();
         addr
     }

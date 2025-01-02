@@ -35,6 +35,10 @@ impl OSAbstractions for PlatAbstraction {
     fn map_phys_to_virt(paddr: usize) -> Self::VirtAddr {
         phys_to_virt(paddr.into())
     }
+
+    fn send_event(&self, event: crate::abstractions::event::USBSystemEvent) {
+        debug!("send event:{:?}", event)
+    }
 }
 
 impl HALAbstractions for PlatAbstraction {

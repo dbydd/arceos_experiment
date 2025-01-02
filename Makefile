@@ -1,3 +1,4 @@
+
 # Available arguments:
 # * General options:
 #     - `ARCH`: Target architecture: x86_64, riscv64, aarch64
@@ -47,6 +48,7 @@ GRAPHIC ?= n
 BUS ?= pci
 XHCI ?= n
 DMA ?= n
+QEMU_PREFIX ?=
 
 DISK_IMG ?= disk.img
 QEMU_LOG ?= n
@@ -170,7 +172,7 @@ disasm:
 run: build justrun
 
 shumei:
-	qemu-system-aarch64 -m 2G -smp 4 -cpu cortex-a72 -machine raspi4b -nographic -kernel kernel8.img
+	$(QEMU_PREFIX)qemu-system-aarch64 -m 2G -smp 4 -cpu cortex-a72 -machine raspi4b -nographic -kernel kernel8.img
 
 # debugs:
 #     qemu-system-aarch64 -s -S -machine raspi4b -m 2G -cpu cortex-a72 -kernel kernel8.img -nographic
@@ -179,6 +181,8 @@ shumei:
 
 justrun:
 	$(call run_qemu)
+
+qemugdb: build qemu_gdbserver
 
 debug: build
 	$(call run_qemu_debug) &

@@ -564,7 +564,7 @@ where
             // trace!("input context:{:#?}", ctx_in.);
             warn!("fix input dump!");
 
-            ctx_in.addr()
+            O::map_virt_to_phys(ctx_in.addr().into())
         };
 
         let command_completion = self
@@ -665,7 +665,7 @@ where
 
             // trace!("device input context state:{:#?}", &**dev);
 
-            dev.addr()
+            O::map_virt_to_phys(dev.addr().into())
         };
 
         let command_completion = self
@@ -1317,7 +1317,7 @@ where
                     0,
                 )
                 .bits(),
-                data: Some((buffer.addr() as usize, buffer.length_for_bytes())),
+                data: Some(O::map_addr_len_tuple(buffer.addr_len_tuple())),
                 report: false,
             },
         )

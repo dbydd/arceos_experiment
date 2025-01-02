@@ -39,4 +39,5 @@ pub enum TransferEventCompleteCode {
     Stall,
     Unknown(u8),
     IsochComplete,
+    Babble,
 }

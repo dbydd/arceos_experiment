@@ -1,6 +1,6 @@
 # QEMU arguments
 
-QEMU := qemu-system-$(ARCH)
+QEMU := $(QEMU_PREFIX)qemu-system-$(ARCH)
 
 ifeq ($(BUS), mmio)
   vdev-suffix := device
@@ -103,3 +103,6 @@ define run_qemu_debug
   @printf "    $(CYAN_C)Debugging$(END_C) on qemu...\n"
   $(call run_cmd,$(QEMU),$(qemu_args-debug))
 endef
+
+qemu_gdbserver: 
+	$(QEMU) $(qemu_args-debug)
