@@ -55,6 +55,10 @@ where
             self.managed_modules.load_driver(Box::new(
                 universal_drivers::uvc_drivers::generic_uvc::GenericUVCDriverModule,
             ));
+
+            self.managed_modules.load_driver(Box::new(
+                universal_drivers::block_drivers::bot_protocol::USBMassBOTDeviceDriverModule,
+            ));
         }
 
         trace!("usb system driver modules load complete!")

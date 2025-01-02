@@ -15,7 +15,7 @@ use crate::{
     glue::ucb::UCB,
     usb::{
         operation::{Configuration, ExtraStep},
-        trasnfer::{control::ControlTransfer, interrupt::InterruptTransfer},
+        trasnfer::{bulk::BulkTransfer, control::ControlTransfer, interrupt::InterruptTransfer},
     },
     USBSystemConfig,
 };
@@ -40,6 +40,12 @@ where
         &mut self,
         dev_slot_id: usize,
         urb_req: InterruptTransfer,
+    ) -> crate::err::Result<UCB<O>>;
+
+    fn bulk_transfer(
+        &mut self,
+        dev_slot_id: usize,
+        urb_req: BulkTransfer,
     ) -> crate::err::Result<UCB<O>>;
 
     fn configure_device(

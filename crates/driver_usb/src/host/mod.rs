@@ -8,7 +8,12 @@ use crate::{
     abstractions::PlatformAbstractions,
     err,
     glue::{driver_independent_device_instance::DriverIndependentDeviceInstance, ucb::UCB},
-    usb::{self, operation::Configuration, trasnfer::control::ControlTransfer, urb::URB},
+    usb::{
+        self,
+        operation::Configuration,
+        trasnfer::{bulk::BulkTransfer, control::ControlTransfer},
+        urb::URB,
+    },
     USBSystemConfig,
 };
 
@@ -100,7 +105,10 @@ where
                 trace!("request transfer!");
                 self.control_transfer(request.device_slot_id, control)
             }
-            usb::urb::RequestedOperation::Bulk => todo!(),
+            usb::urb::RequestedOperation::Bulk(bulk_transfer) => self
+                .controller
+                .lock()
+                .bulk_transfer(request.device_slot_id, bulk_transfer),
             usb::urb::RequestedOperation::Interrupt(interrupt_transfer) => self
                 .controller
                 .lock()

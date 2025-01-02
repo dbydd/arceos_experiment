@@ -194,7 +194,7 @@ where
                 index: self.interface_value as u16,
                 value: self.config_value as u16,
                 data: None,
-                response:true
+                response: true,
             }),
         ));
         todo_list.push(URB::new(
@@ -211,7 +211,7 @@ where
                 index: 0 as u16,
                 value: 0 as u16,
                 data: None,
-                response:true
+                response: true,
             }),
         ));
 
@@ -256,7 +256,7 @@ where
                     )
                     .bits(),
                     data: Some({ buf.lock().addr_len_tuple() }),
-                    response:true
+                    response: true,
                 }),
             ));
         }
