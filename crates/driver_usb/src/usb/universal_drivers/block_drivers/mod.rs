@@ -13,7 +13,7 @@ pub enum USBMassStorageSubclassCode {
     Obsolete_SFF8070ti = 0x05,
     SCSI_TransparentCommandSet = 0x06,
     LSD_FS = 0x07,
-    IEEE1667 = 0x08h,
+    IEEE1667 = 0x08,
+    Reserved = 0x09,
     VendorSpec = 0xff,
-    Reserved,
 }

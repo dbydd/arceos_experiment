@@ -1,7 +1,4 @@
-use alloc::{
-    sync::Arc,
-    vec::{self, Vec},
-};
+use alloc::{sync::Arc, vec, vec::Vec};
 use num_traits::FromPrimitive;
 use spinlock::SpinNoIrq;
 use xhci::context::EndpointType;
@@ -60,8 +57,8 @@ where
     device_slot_id: usize,
     bulk_out_channels: Vec<u32>,
     bulk_in_channels: Vec<u32>,
-    interface_value: usize, //temporary place them here
-    interface_alternative_value: usize,
+    interface_value: u8, //temporary place them here
+    interface_alternative_value: u8,
     config_value: usize, // same
     bot_device_state_machine: BOTProtocolStateMachine,
 }
@@ -74,21 +71,27 @@ where
         device_slot_id: usize,
         endpoints: Vec<Endpoint>,
         config: Arc<SpinNoIrq<USBSystemConfig<O>>>,
-        interface_value: usize,
-        alternative_val: usize,
+        interface_value: u8,
+        alternative_val: u8,
         config_value: usize,
     ) -> Arc<SpinNoIrq<dyn USBSystemDriverModuleInstance<'a, O>>> {
         Arc::new(SpinNoIrq::new(Self {
             config,
             device_slot_id,
-            bulk_out_channels: endpoints.iter().filter_map(|e| match e.endpoint_type() {
-                _ => None,
-                EndpointType::BulkOut => Some(e.doorbell_value_aka_dci()),
-            }),
-            bulk_in_channels: endpoints.iter().filter_map(|e| match e.endpoint_type() {
-                _ => None,
-                EndpointType::BulkIn => Some(e.doorbell_value_aka_dci()),
-            }),
+            bulk_out_channels: endpoints
+                .iter()
+                .filter_map(|e| match e.endpoint_type() {
+                    _ => None,
+                    EndpointType::BulkOut => Some(e.doorbell_value_aka_dci()),
+                })
+                .collect(),
+            bulk_in_channels: endpoints
+                .iter()
+                .filter_map(|e| match e.endpoint_type() {
+                    _ => None,
+                    EndpointType::BulkIn => Some(e.doorbell_value_aka_dci()),
+                })
+                .collect(),
             interface_value,
             interface_alternative_value: alternative_val,
             config_value,
@@ -97,7 +100,7 @@ where
     }
 }
 
-impl<'a, O> USBSystemDriverModuleInstance<'a, O> for USBMassBOTDeviceDriver
+impl<'a, O> USBSystemDriverModuleInstance<'a, O> for USBMassBOTDeviceDriver<O>
 where
     O: PlatformAbstractions + 'static,
 {
@@ -116,7 +119,7 @@ where
 
 pub struct USBMassBOTDeviceDriverModule;
 
-impl<'a, O> USBSystemDriverModule<'a, O> for USBMassBOTDeviceDriver
+impl<'a, O> USBSystemDriverModule<'a, O> for USBMassBOTDeviceDriverModule
 where
     O: PlatformAbstractions + 'static,
 {
@@ -129,14 +132,14 @@ where
             let device = inited.device.first().unwrap();
             return match (
                 StandardUSBDeviceClassCode::from(device.data.class),
-                USBMassStorageSubclassCode::from_u8(device.data.protocol),
+                USBMassStorageSubclassCode::from_u8(device.data.protocol).unwrap(),
                 device.data.subclass,
             ) {
                 (
                     StandardUSBDeviceClassCode::MassStorage,
                     USBMassStorageSubclassCode::SCSI_TransparentCommandSet,
                     BulkOnlyTransportProtocol,
-                ) => USBMassBOTDeviceDriver::new_and_init(
+                ) => Some(vec![USBMassBOTDeviceDriver::new_and_init(
                     independent_dev.slotid,
                     {
                         device
@@ -180,10 +183,10 @@ where
                             .collect()
                     },
                     config.clone(),
-                    independent_dev.interface_val,
-                    independent_dev.current_alternative_interface_value,
+                    independent_dev.interface_val as _,
+                    independent_dev.current_alternative_interface_value as _,
                     independent_dev.configuration_val,
-                ),
+                )]),
                 (StandardUSBDeviceClassCode::ReferInterfaceDescriptor, _, _) => Some({
                     let collect = device
                         .child
@@ -199,12 +202,12 @@ where
                             crate::usb::descriptors::topological_desc::TopologicalUSBDescriptorFunction::InterfaceAssociation(_) => todo!("wtf, please fix meeeeeeeeee!"),
                             crate::usb::descriptors::topological_desc::TopologicalUSBDescriptorFunction::Interface(interfaces) => {
                                 let (interface, additional,endpoints) = interfaces.get(0).expect("wtf, it should be here!");
-                                if let (StandardUSBDeviceClassCode::MassStorage,USBMassStorageSubclassCode::SCSI_TransparentCommandSet,BulkOnlyTransportProtocol) = (StandardUSBDeviceClassCode::from(interface.interface_class),USBMassStorageSubclassCode::from_u8(interface.interface_subclass),interface.interface_subclass){
+                                if let (StandardUSBDeviceClassCode::MassStorage,USBMassStorageSubclassCode::SCSI_TransparentCommandSet,BulkOnlyTransportProtocol) = (StandardUSBDeviceClassCode::from(interface.interface_class),USBMassStorageSubclassCode::from_u8(interface.interface_subclass).unwrap(),interface.interface_subclass){
                                     Some(USBMassBOTDeviceDriver::new_and_init(independent_dev.slotid,  endpoints.iter().filter_map(|e|if let TopologicalUSBDescriptorEndpoint::Standard(e) = e{
                                         Some(e.clone())
                                     }else {
                                         None
-                                    }).collect(), config, interface.interface_number, interface.alternate_setting, independent_dev.configuration_val))
+                                    }).collect(), config.clone(), interface.interface_number, interface.alternate_setting, independent_dev.configuration_val))
                                 }else {
                                     None
                                 }
