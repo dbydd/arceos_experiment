@@ -59,10 +59,6 @@ where
         }
     }
 
-    pub fn new_singleton_page4k(value: T, allocator: A) -> Self {
-        Self::new(value, 4096, allocator)
-    }
-
     pub fn fill_zero(mut self) -> Self {
         unsafe { self.data.as_mut().iter_mut().for_each(|u| *u = 0u8) }
         self

@@ -35,7 +35,7 @@ use crate::{
     },
 };
 
-use super::USBHidDeviceSubClassCode;
+use super::USBHidDeviceSubClassProtocol;
 
 pub enum ReportDescState<O>
 where
@@ -290,12 +290,12 @@ where
             let device = inited.device.first().unwrap();
             return match (
                 StandardUSBDeviceClassCode::from(device.data.class),
-                USBHidDeviceSubClassCode::from_u8(device.data.protocol),
+                USBHidDeviceSubClassProtocol::from_u8(device.data.protocol),
                 device.data.subclass,
             ) {
                 (
                     StandardUSBDeviceClassCode::HID,
-                    Some(USBHidDeviceSubClassCode::Keyboard),
+                    Some(USBHidDeviceSubClassProtocol::Keyboard),
                     bootable,
                 ) => {
                     return Some(vec![HidKeyboardDriver::new_and_init(
@@ -366,11 +366,11 @@ where
                                 interfaces,
                             )) if let (
                                 StandardUSBDeviceClassCode::HID,
-                                Some(USBHidDeviceSubClassCode::Keyboard),
+                                Some(USBHidDeviceSubClassProtocol::Keyboard),
                                 bootable,
                             ) = (
                                 StandardUSBDeviceClassCode::from(asso.function_class),
-                                USBHidDeviceSubClassCode::from_u8(asso.function_protocol),
+                                USBHidDeviceSubClassProtocol::from_u8(asso.function_protocol),
                                 asso.function_subclass,
                             ) =>
                             {
@@ -383,11 +383,11 @@ where
                                     .expect("wtf");
                                 if let (
                                     StandardUSBDeviceClassCode::HID,
-                                    Some(USBHidDeviceSubClassCode::Keyboard),
+                                    Some(USBHidDeviceSubClassProtocol::Keyboard),
                                     bootable,
                                 ) = (
                                     StandardUSBDeviceClassCode::from(interface.interface_class),
-                                    USBHidDeviceSubClassCode::from_u8(interface.interface_protocol),
+                                    USBHidDeviceSubClassProtocol::from_u8(interface.interface_protocol),
                                     interface.interface_subclass,
                                 ) {
                                     return Some(HidKeyboardDriver::new_and_init(

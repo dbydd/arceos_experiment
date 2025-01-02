@@ -1,5 +1,6 @@
 use alloc::{boxed::Box, sync::Arc, vec::Vec};
 use driverapi::USBSystemDriverModuleInstance;
+use log::trace;
 use spinlock::SpinNoIrq;
 
 use crate::{
@@ -43,9 +44,15 @@ where
         let collect = self
             .drivers
             .iter()
-            .filter_map(|module| module.should_active(device, config.clone()))
+            .filter_map(|module| {
+                // trace!("should active? {:#?}", device.descriptors);
+                module
+                    .should_active(device, config.clone())
+                    .inspect(|_| trace!("should active!"))
+            })
             .flat_map(|a| a)
             .inspect(|a| {
+                trace!("a device!");
                 let sender = a.clone();
                 if let Some(mut prep_list) = a.lock().prepare_for_drive() {
                     prep_list
@@ -55,6 +62,8 @@ where
                 }
             })
             .collect();
+
+        trace!("prepare: {:#?}", preparing_list.len());
         collect
     }
 }

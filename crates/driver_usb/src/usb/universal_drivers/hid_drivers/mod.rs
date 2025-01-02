@@ -7,7 +7,7 @@ pub mod hid_mouse;
 
 #[derive(Copy, Clone, Debug, ToPrimitive, FromPrimitive)]
 #[repr(u8)]
-pub enum USBHidDeviceSubClassCode {
+pub enum USBHidDeviceSubClassProtocol {
     Mouse = 2,
     Keyboard = 1,
 }

@@ -1,4 +1,5 @@
 use alloc::{sync::Arc, vec, vec::Vec};
+use log::trace;
 use num_traits::FromPrimitive;
 use spinlock::SpinNoIrq;
 use xhci::context::EndpointType;
@@ -16,7 +17,7 @@ use crate::{
             },
         },
         drivers::driverapi::{USBSystemDriverModule, USBSystemDriverModuleInstance},
-        universal_drivers::hid_drivers::USBHidDeviceSubClassCode,
+        universal_drivers::hid_drivers::USBHidDeviceSubClassProtocol,
     },
     USBSystemConfig,
 };
@@ -105,6 +106,7 @@ where
     O: PlatformAbstractions + 'static,
 {
     fn prepare_for_drive(&mut self) -> Option<alloc::vec::Vec<crate::usb::urb::URB<'a, O>>> {
+        trace!("prepare for block device drive!");
         todo!()
     }
 
@@ -223,6 +225,6 @@ where
     }
 
     fn preload_module(&self) {
-        todo!()
+        trace!("preloading MassStorage device driver!")
     }
 }

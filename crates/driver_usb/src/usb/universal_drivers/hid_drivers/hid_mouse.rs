@@ -4,7 +4,7 @@ use core::mem::MaybeUninit;
 use alloc::sync::Arc;
 use alloc::vec;
 use alloc::vec::Vec;
-use log::trace;
+use log::{info, trace};
 use num_traits::FromPrimitive;
 use spinlock::SpinNoIrq;
 use xhci::context::EndpointType;
@@ -35,13 +35,13 @@ use crate::{
     },
 };
 
-use super::USBHidDeviceSubClassCode;
+use super::USBHidDeviceSubClassProtocol;
 
 pub enum ReportDescState<O>
 where
     O: PlatformAbstractions,
 {
-    Binary(SpinNoIrq<DMA<u8, O::DMA>>),
+    Binary(SpinNoIrq<DMA<[u8], O::DMA>>),
     Decoded(),
 }
 
@@ -228,16 +228,21 @@ where
         //             index: if self.bootable == 2 { 1 } else { 0 },
         //             value: self.interface_value as u16,
         //             data: None,
-        //             response:false
+        //             response: false,
         //         }),
         //     ));
         // }
 
-        self.report_descriptor = Some(ReportDescState::<O>::Binary(SpinNoIrq::new(DMA::new(
-            0u8,
-            O::PAGE_SIZE,
-            self.config.lock().os.dma_alloc(),
-        ))));
+        self.report_descriptor = Some(ReportDescState::<O>::Binary(SpinNoIrq::new({
+            let buffer = DMA::new_vec(
+                0u8,
+                O::PAGE_SIZE,
+                O::PAGE_SIZE,
+                self.config.lock().os.dma_alloc(),
+            );
+            trace!("size or report descriptor: {}", buffer.length_for_bytes());
+            buffer
+        })));
 
         if let Some(ReportDescState::Binary(buf)) = &self.report_descriptor {
             todo_list.push(URB::new(
@@ -271,6 +276,8 @@ where
                 ));
             });
 
+        trace!("preparing for hid mouse, size:{}", todo_list.len());
+
         Some(todo_list)
     }
 }
@@ -290,13 +297,13 @@ where
             let device = inited.device.first().unwrap();
             return match (
                 StandardUSBDeviceClassCode::from(device.data.class),
-                USBHidDeviceSubClassCode::from_u8(device.data.subclass),
-                device.data.protocol,
+                device.data.subclass,
+                USBHidDeviceSubClassProtocol::from_u8(device.data.protocol),
             ) {
                 (
                     StandardUSBDeviceClassCode::HID,
-                    Some(USBHidDeviceSubClassCode::Mouse),
                     bootable,
+                    Some(USBHidDeviceSubClassProtocol::Mouse),
                 ) => {
                     return Some(vec![HidMouseDriver::new_and_init(
                         independent_dev.slotid,
@@ -350,7 +357,7 @@ where
                 }
                 (StandardUSBDeviceClassCode::ReferInterfaceDescriptor, _, _) => {
                     Some({
-                        let collect = device
+                        let collect:Vec<_> = device
                         .child
                         .iter()
                         .find(|configuration| {
@@ -366,12 +373,12 @@ where
                                 interfaces,
                             )) if let (
                                 StandardUSBDeviceClassCode::HID,
-                                Some(USBHidDeviceSubClassCode::Mouse),
                                 bootable,
+                                Some(USBHidDeviceSubClassProtocol::Mouse),
                             ) = (
                                 StandardUSBDeviceClassCode::from(asso.function_class),
-                                USBHidDeviceSubClassCode::from_u8(asso.function_subclass),
-                                asso.function_protocol,
+                                asso.function_subclass,
+                                USBHidDeviceSubClassProtocol::from_u8(asso.function_protocol),
                             ) =>
                             {
                                 // return Some(Self::new_and_init(independent_dev.slotid, bootable));
@@ -383,12 +390,12 @@ where
                                     .expect("wtf");
                                 if let (
                                     StandardUSBDeviceClassCode::HID,
-                                    Some(USBHidDeviceSubClassCode::Mouse),
                                     bootable,
+                                    Some(USBHidDeviceSubClassProtocol::Mouse),
                                 ) = (
                                     StandardUSBDeviceClassCode::from(interface.interface_class),
-                                    USBHidDeviceSubClassCode::from_u8(interface.interface_subclass),
-                                    interface.interface_protocol,
+                                    interface.interface_class,
+                                    USBHidDeviceSubClassProtocol::from_u8(interface.interface_protocol),
                                 ) {
                                     return Some(HidMouseDriver::new_and_init(
                                         independent_dev.slotid,
@@ -408,6 +415,9 @@ where
                             _ => None,
                         })
                         .collect();
+
+                        trace!("founded {} hid mouse devices", collect.len());
+
                         collect
                     })
                 }
