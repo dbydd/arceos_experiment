@@ -2,8 +2,10 @@
 #![no_main]
 #![allow(warnings)]
 
+use core::time::Duration;
+
 use axalloc::GlobalNoCacheAllocator;
-use axhal::{mem::VirtAddr, paging::PageSize};
+use axhal::{mem::VirtAddr, paging::PageSize, time::busy_wait};
 use driver_usb::{USBSystem, USBSystemConfig};
 
 #[macro_use]
@@ -37,7 +39,7 @@ fn main() {
     let mut usbsystem = driver_usb::USBSystem::new({
         USBSystemConfig::new(0xffff_0000_31a0_8000, 48, 0, PlatformAbstraction)
     })
-    .init()
-    .init_probe()
-    .drive_all();
+    .init();
+    busy_wait(Duration::from_secs(5));
+    usbsystem.init_probe().drive_all();
 }
