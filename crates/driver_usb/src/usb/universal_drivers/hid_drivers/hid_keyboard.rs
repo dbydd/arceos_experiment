@@ -4,7 +4,7 @@ use core::mem::MaybeUninit;
 use alloc::sync::Arc;
 use alloc::vec;
 use alloc::vec::Vec;
-use log::{info, trace};
+use log::trace;
 use num_traits::FromPrimitive;
 use spinlock::SpinNoIrq;
 use xhci::context::EndpointType;
@@ -41,11 +41,11 @@ pub enum ReportDescState<O>
 where
     O: PlatformAbstractions,
 {
-    Binary(SpinNoIrq<DMA<[u8], O::DMA>>),
+    Binary(SpinNoIrq<DMA<u8, O::DMA>>),
     Decoded(),
 }
 
-pub struct HidMouseDriver<O>
+pub struct HidKeyboardDriver<O>
 //Driver should had a copy of independent device,at least should had ref of interface/config val and descriptors
 where
     O: PlatformAbstractions,
@@ -60,16 +60,16 @@ where
     interface_alternative_value: usize,
     config_value: usize, // same
     report_descriptor: Option<ReportDescState<O>>,
-    driver_state_machine: HidMouseStateMachine,
+    driver_state_machine: HidKeyboardStateMachine,
     receiption_buffer: Option<SpinNoIrq<DMA<[u8], O::DMA>>>,
 }
 
-pub enum HidMouseStateMachine {
+pub enum HidKeyboardStateMachine {
     Waiting,
     Sending,
 }
 
-impl<'a, O> HidMouseDriver<O>
+impl<'a, O> HidKeyboardDriver<O>
 where
     O: PlatformAbstractions + 'static,
 {
@@ -108,22 +108,22 @@ where
             interface_alternative_value: alternative_val,
             bootable: bootable as usize,
             report_descriptor: None,
-            driver_state_machine: HidMouseStateMachine::Sending,
+            driver_state_machine: HidKeyboardStateMachine::Sending,
             receiption_buffer: None,
         }))
     }
 }
 
-impl<'a, O> USBSystemDriverModuleInstance<'a, O> for HidMouseDriver<O>
+impl<'a, O> USBSystemDriverModuleInstance<'a, O> for HidKeyboardDriver<O>
 where
     O: PlatformAbstractions,
 {
     fn gather_urb(&mut self) -> Option<Vec<crate::usb::urb::URB<'a, O>>> {
         // trace!("gather urb!");
         match self.driver_state_machine {
-            HidMouseStateMachine::Waiting => None,
-            HidMouseStateMachine::Sending => {
-                self.driver_state_machine = HidMouseStateMachine::Waiting;
+            HidKeyboardStateMachine::Waiting => None,
+            HidKeyboardStateMachine::Sending => {
+                self.driver_state_machine = HidKeyboardStateMachine::Waiting;
                 match &self.receiption_buffer {
                     Some(buffer) => buffer.lock().fill_with(|| 0u8),
                     None => {
@@ -169,17 +169,17 @@ where
                         }
                     });
 
-                self.driver_state_machine = HidMouseStateMachine::Sending
+                self.driver_state_machine = HidKeyboardStateMachine::Sending
             }
             CompleteCode::Event(TransferEventCompleteCode::Babble) => {
-                self.driver_state_machine = HidMouseStateMachine::Sending
+                self.driver_state_machine = HidKeyboardStateMachine::Sending
             }
             other => panic!("received {:?}", other),
         }
     }
 
     fn prepare_for_drive(&mut self) -> Option<Vec<URB<'a, O>>> {
-        trace!("hid mouse preparing for drive!");
+        trace!("hid keyboard preparing for drive!");
         let endpoint_in = self.interrupt_in_channels.last().unwrap();
         let mut todo_list = Vec::new();
         todo_list.push(URB::new(
@@ -228,21 +228,16 @@ where
         //             index: if self.bootable == 2 { 1 } else { 0 },
         //             value: self.interface_value as u16,
         //             data: None,
-        //             response: false,
+        //             response:false
         //         }),
         //     ));
         // }
 
-        self.report_descriptor = Some(ReportDescState::<O>::Binary(SpinNoIrq::new({
-            let buffer = DMA::new_vec(
-                0u8,
-                O::PAGE_SIZE,
-                O::PAGE_SIZE,
-                self.config.lock().os.dma_alloc(),
-            );
-            trace!("size or report descriptor: {}", buffer.length_for_bytes());
-            buffer
-        })));
+        self.report_descriptor = Some(ReportDescState::<O>::Binary(SpinNoIrq::new(DMA::new(
+            0u8,
+            O::PAGE_SIZE,
+            self.config.lock().os.dma_alloc(),
+        ))));
 
         if let Some(ReportDescState::Binary(buf)) = &self.report_descriptor {
             todo_list.push(URB::new(
@@ -261,7 +256,7 @@ where
                     )
                     .bits(),
                     data: Some({ buf.lock().addr_len_tuple() }),
-                    response: true,
+                    response: false,
                 }),
             ));
         }
@@ -276,15 +271,13 @@ where
                 ));
             });
 
-        trace!("preparing for hid mouse, size:{}", todo_list.len());
-
         Some(todo_list)
     }
 }
 
-pub struct HidMouseDriverModule; //TODO: Create annotations to register
+pub struct HidKeyboardDriverModule; //TODO: Create annotations to register
 
-impl<'a, O> USBSystemDriverModule<'a, O> for HidMouseDriverModule
+impl<'a, O> USBSystemDriverModule<'a, O> for HidKeyboardDriverModule
 where
     O: PlatformAbstractions + 'static,
 {
@@ -297,15 +290,15 @@ where
             let device = inited.device.first().unwrap();
             return match (
                 StandardUSBDeviceClassCode::from(device.data.class),
-                device.data.subclass,
                 USBHidDeviceSubClassProtocol::from_u8(device.data.protocol),
+                device.data.subclass,
             ) {
                 (
                     StandardUSBDeviceClassCode::HID,
+                    Some(USBHidDeviceSubClassProtocol::Keyboard),
                     bootable,
-                    Some(USBHidDeviceSubClassProtocol::Mouse),
                 ) => {
-                    return Some(vec![HidMouseDriver::new_and_init(
+                    return Some(vec![HidKeyboardDriver::new_and_init(
                         independent_dev.slotid,
                         bootable,
                         {
@@ -357,7 +350,7 @@ where
                 }
                 (StandardUSBDeviceClassCode::ReferInterfaceDescriptor, _, _) => {
                     Some({
-                        let collect:Vec<_> = device
+                        let collect = device
                         .child
                         .iter()
                         .find(|configuration| {
@@ -373,12 +366,12 @@ where
                                 interfaces,
                             )) if let (
                                 StandardUSBDeviceClassCode::HID,
+                                Some(USBHidDeviceSubClassProtocol::Keyboard),
                                 bootable,
-                                Some(USBHidDeviceSubClassProtocol::Mouse),
                             ) = (
                                 StandardUSBDeviceClassCode::from(asso.function_class),
-                                asso.function_subclass,
                                 USBHidDeviceSubClassProtocol::from_u8(asso.function_protocol),
+                                asso.function_subclass,
                             ) =>
                             {
                                 // return Some(Self::new_and_init(independent_dev.slotid, bootable));
@@ -390,14 +383,14 @@ where
                                     .expect("wtf");
                                 if let (
                                     StandardUSBDeviceClassCode::HID,
+                                    Some(USBHidDeviceSubClassProtocol::Keyboard),
                                     bootable,
-                                    Some(USBHidDeviceSubClassProtocol::Mouse),
                                 ) = (
                                     StandardUSBDeviceClassCode::from(interface.interface_class),
-                                    interface.interface_class,
                                     USBHidDeviceSubClassProtocol::from_u8(interface.interface_protocol),
+                                    interface.interface_subclass,
                                 ) {
-                                    return Some(HidMouseDriver::new_and_init(
+                                    return Some(HidKeyboardDriver::new_and_init(
                                         independent_dev.slotid,
                                         bootable,
                                         endpoints.iter().filter_map(|e|if let TopologicalUSBDescriptorEndpoint::Standard(ep) = e{
@@ -415,9 +408,6 @@ where
                             _ => None,
                         })
                         .collect();
-
-                        trace!("founded {} hid mouse devices", collect.len());
-
                         collect
                     })
                 }
@@ -428,6 +418,6 @@ where
     }
 
     fn preload_module(&self) {
-        trace!("preloading Hid mouse driver!")
+        trace!("preloading Hid keyboard driver!")
     }
 }
