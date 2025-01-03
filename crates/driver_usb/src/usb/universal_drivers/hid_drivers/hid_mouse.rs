@@ -215,23 +215,25 @@ where
             }),
         ));
 
-        // if self.bootable > 0 {
-        //     todo_list.push(URB::new(
-        //         self.device_slot_id,
-        //         RequestedOperation::Control(ControlTransfer {
-        //             request_type: bmRequestType::new(
-        //                 Direction::Out,
-        //                 DataTransferType::Class,
-        //                 Recipient::Interface,
-        //             ),
-        //             request: bRequest::SetInterfaceDs, //actually set protocol
-        //             index: if self.bootable == 2 { 1 } else { 0 },
-        //             value: self.interface_value as u16,
-        //             data: None,
-        //             response: false,
-        //         }),
-        //     ));
-        // }
+        if self.bootable > 0 {
+            //now we know that issue was on the index and value.
+            //coincedence
+            todo_list.push(URB::new(
+                self.device_slot_id,
+                RequestedOperation::Control(ControlTransfer {
+                    request_type: bmRequestType::new(
+                        Direction::Out,
+                        DataTransferType::Class,
+                        Recipient::Interface,
+                    ),
+                    request: bRequest::SetInterfaceSpec, //actually set protocol
+                    index: if self.bootable == 2 { 1 } else { 0 },
+                    value: self.interface_value as u16,
+                    data: None,
+                    response: false,
+                }),
+            ));
+        }
 
         self.report_descriptor = Some(ReportDescState::<O>::Binary(SpinNoIrq::new({
             let buffer = DMA::new_vec(
@@ -261,7 +263,7 @@ where
                     )
                     .bits(),
                     data: Some({ buf.lock().addr_len_tuple() }),
-                    response: true,
+                    response: false,
                 }),
             ));
         }
