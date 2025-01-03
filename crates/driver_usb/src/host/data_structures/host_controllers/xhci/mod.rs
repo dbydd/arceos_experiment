@@ -861,14 +861,12 @@ where
                     portsc.port_power()
                 );
 
-                if portsc.current_connect_status() {
-                    if !portsc.port_enabled_disabled() {
-                        warn!("port {i} connected, but not enabled!");
-                        // continue;
-                    }
-
-                    port_id_list.push(i);
+                if !portsc.current_connect_status() {
+                    // warn!("port {i} connected, but not enabled!");
+                    continue;
                 }
+
+                port_id_list.push(i);
             }
 
             for port_idx in port_id_list {
