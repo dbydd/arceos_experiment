@@ -288,6 +288,7 @@ where
     }
 
     fn reset_ports(&mut self) -> &mut Self {
+        //TODO: reset usb 3 port
         let regs = &mut self.regs;
         let port_len = regs.port_register_set.len();
 
@@ -860,11 +861,14 @@ where
                     portsc.port_power()
                 );
 
-                if !portsc.port_enabled_disabled() {
-                    continue;
-                }
+                if portsc.current_connect_status() {
+                    if !portsc.port_enabled_disabled() {
+                        warn!("port {i} connected, but not enabled!");
+                        // continue;
+                    }
 
-                port_id_list.push(i);
+                    port_id_list.push(i);
+                }
             }
 
             for port_idx in port_id_list {
