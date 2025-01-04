@@ -209,7 +209,12 @@ where
                             crate::usb::descriptors::topological_desc::TopologicalUSBDescriptorFunction::InterfaceAssociation(_) => todo!("wtf, please fix meeeeeeeeee!"),
                             crate::usb::descriptors::topological_desc::TopologicalUSBDescriptorFunction::Interface(interfaces) => {
                                 let (interface, additional,endpoints) = interfaces.get(0).expect("wtf, it should be here!");
-                                if let (Some(StandardUSBDeviceClassCode::MassStorage),Some(USBMassStorageSubclassCode::SCSI_TransparentCommandSet),BulkOnlyTransportProtocol) = (StandardUSBDeviceClassCode::from_u8(interface.interface_class),USBMassStorageSubclassCode::from_u8(interface.interface_subclass),interface.interface_subclass){
+
+                                trace!("bot:: {:#?}",interface);
+                                if let (Some(StandardUSBDeviceClassCode::MassStorage),Some(USBMassStorageSubclassCode::SCSI_TransparentCommandSet),BulkOnlyTransportProtocol) = (StandardUSBDeviceClassCode::from_u8(interface.interface_class),USBMassStorageSubclassCode::from_u8(interface.interface_subclass),interface.interface_protocol){
+
+                                    trace!("yes! matched!");
+
                                     Some(USBMassBOTDeviceDriver::new_and_init(independent_dev.slotid,  endpoints.iter().filter_map(|e|if let TopologicalUSBDescriptorEndpoint::Standard(e) = e{
                                         Some(e.clone())
                                     }else {

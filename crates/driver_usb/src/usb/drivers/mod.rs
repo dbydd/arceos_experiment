@@ -48,7 +48,11 @@ where
                 // trace!("should active? {:#?}", device.descriptors);
                 module
                     .should_active(device, config.clone())
-                    .inspect(|instance| trace!("should active! {}", module.driver_name()))
+                    .inspect(|instance| {
+                        if !instance.is_empty() {
+                            trace!("should active! {}", module.driver_name())
+                        }
+                    })
             })
             .flat_map(|a| a)
             .inspect(|a| {

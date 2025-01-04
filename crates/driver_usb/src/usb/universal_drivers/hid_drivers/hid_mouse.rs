@@ -419,8 +419,6 @@ where
                         })
                         .collect();
 
-                        trace!("founded {} hid mouse devices", collect.len());
-
                         collect
                     })
                 }
