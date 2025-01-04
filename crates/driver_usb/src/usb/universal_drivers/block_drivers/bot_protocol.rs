@@ -1,4 +1,9 @@
-use alloc::{sync::Arc, vec, vec::Vec};
+use alloc::{
+    string::{String, ToString},
+    sync::Arc,
+    vec,
+    vec::Vec,
+};
 use log::trace;
 use num_traits::FromPrimitive;
 use spinlock::SpinNoIrq;
@@ -133,12 +138,12 @@ where
         if let MightBeInited::Inited(inited) = &*independent_dev.descriptors {
             let device = inited.device.first().unwrap();
             return match (
-                StandardUSBDeviceClassCode::from(device.data.class),
+                StandardUSBDeviceClassCode::from_u8(device.data.class),
                 USBMassStorageSubclassCode::from_u8(device.data.protocol).unwrap(),
                 device.data.subclass,
             ) {
                 (
-                    StandardUSBDeviceClassCode::MassStorage,
+                    Some(StandardUSBDeviceClassCode::MassStorage),
                     USBMassStorageSubclassCode::SCSI_TransparentCommandSet,
                     BulkOnlyTransportProtocol,
                 ) => Some(vec![USBMassBOTDeviceDriver::new_and_init(
@@ -189,7 +194,7 @@ where
                     independent_dev.current_alternative_interface_value as _,
                     independent_dev.configuration_val,
                 )]),
-                (StandardUSBDeviceClassCode::ReferInterfaceDescriptor, _, _) => Some({
+                (Some(StandardUSBDeviceClassCode::ReferInterfaceDescriptor), _, _) => Some({
                     let collect = device
                         .child
                         .iter()
@@ -204,7 +209,7 @@ where
                             crate::usb::descriptors::topological_desc::TopologicalUSBDescriptorFunction::InterfaceAssociation(_) => todo!("wtf, please fix meeeeeeeeee!"),
                             crate::usb::descriptors::topological_desc::TopologicalUSBDescriptorFunction::Interface(interfaces) => {
                                 let (interface, additional,endpoints) = interfaces.get(0).expect("wtf, it should be here!");
-                                if let (StandardUSBDeviceClassCode::MassStorage,USBMassStorageSubclassCode::SCSI_TransparentCommandSet,BulkOnlyTransportProtocol) = (StandardUSBDeviceClassCode::from(interface.interface_class),USBMassStorageSubclassCode::from_u8(interface.interface_subclass).unwrap(),interface.interface_subclass){
+                                if let (Some(StandardUSBDeviceClassCode::MassStorage),Some(USBMassStorageSubclassCode::SCSI_TransparentCommandSet),BulkOnlyTransportProtocol) = (StandardUSBDeviceClassCode::from_u8(interface.interface_class),USBMassStorageSubclassCode::from_u8(interface.interface_subclass),interface.interface_subclass){
                                     Some(USBMassBOTDeviceDriver::new_and_init(independent_dev.slotid,  endpoints.iter().filter_map(|e|if let TopologicalUSBDescriptorEndpoint::Standard(e) = e{
                                         Some(e.clone())
                                     }else {
@@ -226,5 +231,9 @@ where
 
     fn preload_module(&self) {
         trace!("preloading MassStorage device driver!")
+    }
+
+    fn driver_name(&self) -> String {
+        "block device (bot kind) driver".to_string()
     }
 }

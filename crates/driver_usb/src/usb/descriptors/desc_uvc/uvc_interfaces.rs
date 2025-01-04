@@ -1,19 +1,21 @@
 use core::ptr;
 
 use alloc::vec::Vec;
-use const_enum::ConstEnum;
+
 use log::trace;
+use num_derive::{FromPrimitive, ToPrimitive};
+use num_traits::{FromPrimitive, ToPrimitive};
 
 use super::UVCDescriptorTypes;
 
-#[derive(ConstEnum, Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, FromPrimitive)]
 #[allow(non_camel_case_types)]
 #[repr(u8)]
 pub(crate) enum UVCStandardVideoInterfaceClass {
     CC_Video = 0x0e,
 }
 
-#[derive(ConstEnum, Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, FromPrimitive)]
 #[allow(non_camel_case_types)]
 #[repr(u8)]
 pub(crate) enum UVCInterfaceSubclass {
@@ -23,7 +25,7 @@ pub(crate) enum UVCInterfaceSubclass {
     VIDEO_INTERFACE_COLLECTION = 0x03,
 }
 
-#[derive(ConstEnum, Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, FromPrimitive)]
 #[allow(non_camel_case_types)]
 #[repr(u8)]
 pub(crate) enum UVCControlInterfaceSubclass {
@@ -37,7 +39,7 @@ pub(crate) enum UVCControlInterfaceSubclass {
     ENCODING_UNIT = 0x07,
 }
 
-#[derive(ConstEnum, Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, FromPrimitive, ToPrimitive)]
 #[allow(non_camel_case_types)]
 #[repr(u8)]
 pub(crate) enum UVCVSInterfaceSubclass {
@@ -63,7 +65,7 @@ pub(crate) enum UVCVSInterfaceSubclass {
     FORMAT_VP8_SIMULCAST = 0x18,
 }
 
-#[derive(ConstEnum, Copy, Clone, Debug, PartialEq)]
+#[derive(FromPrimitive, Copy, Clone, Debug, PartialEq)]
 #[allow(non_camel_case_types)]
 #[repr(u8)]
 pub(crate) enum UVCStandardVideoInterfaceProtocols {
@@ -180,7 +182,7 @@ pub struct UVCControlInterfaceProcessingUnit {
     video_standards: u8,
 }
 
-#[derive(ConstEnum, Copy, Clone, Debug, PartialEq)]
+#[derive(FromPrimitive, Copy, Clone, Debug, PartialEq)]
 #[allow(non_camel_case_types)]
 #[repr(u16)]
 pub(crate) enum UVCCONTROLOutputTerminalType {
@@ -317,10 +319,10 @@ impl UVCControlInterface {
         let descriptor_sub_type = raw[2];
         trace!(
             "subtype{:?}",
-            UVCControlInterfaceSubclass::from(descriptor_sub_type)
+            UVCControlInterfaceSubclass::from_u8(descriptor_sub_type)
         );
 
-        match UVCControlInterfaceSubclass::from(descriptor_sub_type) {
+        match UVCControlInterfaceSubclass::from_u8(descriptor_sub_type).unwrap() {
             UVCControlInterfaceSubclass::DESCRIPTOR_UNDEFINED => panic!("impossible"),
             UVCControlInterfaceSubclass::HEADER => Self::Header({
                 trace!("header!");
@@ -411,7 +413,7 @@ impl UVCStreamingInterface {
         trace!("buffer:{:?}", raw);
         let len = raw[0];
         let descriptor_type = raw[1];
-        let descriptor_sub_type = UVCVSInterfaceSubclass::from(raw[2]);
+        let descriptor_sub_type = UVCVSInterfaceSubclass::from_u8(raw[2]).unwrap();
         trace!("subtype{:?}", descriptor_sub_type);
         match descriptor_sub_type {
             UVCVSInterfaceSubclass::INPUT_HEADER => Self::InputHeader({
@@ -419,7 +421,7 @@ impl UVCStreamingInterface {
                 UVCVSInterfaceInputHeader {
                     length: len,
                     descriptor_type,
-                    descriptor_sub_type: descriptor_sub_type.into(),
+                    descriptor_sub_type: descriptor_sub_type.to_u8().unwrap(),
                     num_formats: raw[3],
                     total_length: u16::from_ne_bytes(raw[4..=5].try_into().unwrap()),
                     endpoint_address: raw[6],
@@ -455,7 +457,7 @@ impl UVCStreamingInterface {
                 Self::FrameMjpeg(UVCVSInterfaceFrameMJPEG {
                     length: len,
                     descriptor_type,
-                    descriptor_sub_type: descriptor_sub_type.into(),
+                    descriptor_sub_type: descriptor_sub_type.to_u8().unwrap(),
                     frame_index: raw[3],
                     capabilities: raw[4],
                     width: u16::from_ne_bytes(raw[5..=6].try_into().unwrap()),
@@ -486,7 +488,7 @@ impl UVCStreamingInterface {
                 Self::StillImageFrame(UVCVSInterfaceStillImageFrame {
                     length: len,
                     descriptor_type,
-                    descriptor_sub_type: descriptor_sub_type.into(),
+                    descriptor_sub_type: descriptor_sub_type.to_u8().unwrap(),
                     endpoint_address: raw[3],
                     num_image_size_paterns,
                     width_heights,
@@ -517,7 +519,7 @@ impl UVCStreamingInterface {
                 Self::FrameUncompressed(UVCVSInterfaceFrameUncompressed {
                     length: len,
                     descriptor_type,
-                    descriptor_sub_type: descriptor_sub_type.into(),
+                    descriptor_sub_type: descriptor_sub_type.to_u8().unwrap(),
                     frame_index: raw[3],
                     capabilities: raw[4],
                     width: u16::from_ne_bytes(raw[5..=6].try_into().unwrap()),

@@ -1,6 +1,6 @@
 use core::fmt::Debug;
 
-use alloc::{sync::Arc, vec::Vec};
+use alloc::{string::String, sync::Arc, vec::Vec};
 use spinlock::SpinNoIrq;
 use xhci::ring::trb::event;
 
@@ -22,6 +22,8 @@ where
     ) -> Option<Vec<Arc<SpinNoIrq<dyn USBSystemDriverModuleInstance<'a, O>>>>>;
 
     fn preload_module(&self);
+
+    fn driver_name(&self) -> String;
 }
 
 pub trait USBSystemDriverModuleInstance<'a, O>: Send + Sync

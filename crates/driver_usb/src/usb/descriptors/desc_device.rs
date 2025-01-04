@@ -1,4 +1,4 @@
-use const_enum::ConstEnum;
+use num_derive::FromPrimitive;
 
 #[derive(Copy, Clone, Default, Debug)]
 #[repr(C, packed)]
@@ -37,7 +37,7 @@ impl Device {
     }
 }
 
-#[derive(ConstEnum, Copy, Clone, Debug)]
+#[derive(FromPrimitive, Copy, Clone, Debug)]
 #[repr(u8)]
 pub enum StandardUSBDeviceClassCode {
     ReferInterfaceDescriptor = 0x00,
@@ -64,14 +64,14 @@ pub enum StandardUSBDeviceClassCode {
     VendorSpecific = 0xFF,
 }
 
-// #[derive(Copy, Clone, Debug, ConstEnum)]
+// #[derive(Copy, Clone, Debug, FromPrimitive)]
 // #[repr(u8)]
 // pub enum StandardUSBDeviceSubClassCode {
 //     Common = 0x02,
 //     Any = 0x03,
 // }
 
-// #[derive(ConstEnum, Copy, Clone, Debug)]
+// #[derive(FromPrimitive, Copy, Clone, Debug)]
 // #[repr(u8)]
 // pub enum StandardUSBDeviceProtocol {
 //     ReferInterfaceAssociationDescriptor = 0x01,

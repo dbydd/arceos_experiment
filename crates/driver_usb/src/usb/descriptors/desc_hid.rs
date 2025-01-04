@@ -1,4 +1,4 @@
-use const_enum::ConstEnum;
+use num_derive::FromPrimitive;
 
 #[derive(Copy, Clone, Debug, Default)]
 #[repr(C, packed)]
@@ -12,14 +12,14 @@ pub struct Hid {
     pub report_descriptor_len: u16, //
 }
 
-#[derive(ConstEnum, Copy, Clone, Debug)]
+#[derive(FromPrimitive, Copy, Clone, Debug)]
 #[repr(u8)]
 pub enum USBHIDSubclassDescriptorType {
     None = 0,
     BootInterface = 1,
 }
 
-#[derive(ConstEnum, Copy, Clone, Debug)]
+#[derive(FromPrimitive, Copy, Clone, Debug)]
 #[allow(non_camel_case_types)]
 #[repr(u8)]
 pub enum USBHIDProtocolDescriptorType {
@@ -28,7 +28,7 @@ pub enum USBHIDProtocolDescriptorType {
     Mouse = 2,
 }
 
-#[derive(ConstEnum, Copy, Clone, Debug, PartialEq)]
+#[derive(FromPrimitive, Copy, Clone, Debug, PartialEq)]
 #[allow(non_camel_case_types)]
 #[repr(u8)]
 pub(crate) enum HIDDescriptorTypes {

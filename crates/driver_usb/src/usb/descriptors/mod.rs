@@ -1,8 +1,8 @@
-//
+//TODO: Restruct code!
 use core::ptr;
 
 use alloc::{collections, vec, vec::Vec};
-use const_enum::ConstEnum;
+
 use desc_configuration::Configuration;
 use desc_device::Device;
 use desc_endpoint::Endpoint;
@@ -37,7 +37,7 @@ pub mod desc_str;
 pub mod desc_uvc;
 
 #[allow(non_camel_case_types)]
-#[derive(FromPrimitive, ToPrimitive, Copy, Clone, Debug, PartialEq, ConstEnum)]
+#[derive(FromPrimitive, ToPrimitive, Copy, Clone, Debug, PartialEq)]
 #[repr(u8)]
 pub(crate) enum USBStandardDescriptorTypes {
     //USB 1.1: 9.4 Standard Device Requests, Table 9-5. Descriptor Types
@@ -93,6 +93,7 @@ pub(crate) enum USBDescriptor {
 
 impl USBDescriptor {
     pub(crate) fn from_slice(raw: &[u8], metadata: ParserMetaData) -> Result<Self, Error> {
+        trace!("from slice! meta:{:?}", metadata);
         assert_eq!(raw.len(), raw[0].into());
         match Self::from_slice_standard_usb(raw) {
             Ok(okay) => Ok(okay),
@@ -104,13 +105,14 @@ impl USBDescriptor {
 
     pub(crate) fn from_slice_uvc(raw: &[u8], flag: u8) -> Result<Self, Error> {
         trace!("from slice uvc!{:?}", raw);
-        match UVCDescriptorTypes::from(raw[1]) {
+        match UVCDescriptorTypes::from_u8(raw[1]).unwrap() {
             UVCDescriptorTypes::UVCClassSpecUnderfined => panic!("underfined!"),
             UVCDescriptorTypes::UVCClassSpecDevice => todo!(),
             UVCDescriptorTypes::UVCClassSpecConfiguration => todo!(),
             UVCDescriptorTypes::UVCClassSpecString => todo!(),
             UVCDescriptorTypes::UVCClassSpecInterface => {
-                match UVCInterfaceSubclass::from(if flag == 0 { raw[2] } else { flag }) {
+                match UVCInterfaceSubclass::from_u8(if flag == 0 { raw[2] } else { flag }).unwrap()
+                {
                     UVCInterfaceSubclass::UNDEFINED => panic!("impossible!"),
                     UVCInterfaceSubclass::VIDEOCONTROL => Ok(Self::UVCInterface(
                         UVCInterface::Control(UVCControlInterface::from_u8_array(raw)),
@@ -132,7 +134,7 @@ impl USBDescriptor {
     }
 
     pub(crate) fn from_slice_hid(raw: &[u8]) -> Result<Self, Error> {
-        match HIDDescriptorTypes::from(raw[1]) {
+        match HIDDescriptorTypes::from_u8(raw[1]).unwrap() {
             HIDDescriptorTypes::Hid => {
                 Ok(Self::Hid(unsafe { ptr::read((raw as *const [u8]).cast()) }))
             }
@@ -142,6 +144,10 @@ impl USBDescriptor {
     }
 
     pub(crate) fn from_slice_standard_usb(raw: &[u8]) -> Result<Self, Error> {
+        trace!(
+            "try to parse slice from standard usb desc! type: {}",
+            raw[1]
+        );
         match USBStandardDescriptorTypes::from_u8(raw[1]) {
             Some(t) => {
                 let raw: *const [u8] = raw;
@@ -176,7 +182,7 @@ impl USBDescriptor {
     }
 }
 
-#[derive(Copy, Clone, ConstEnum)]
+#[derive(Copy, Clone, FromPrimitive)]
 #[repr(u8)]
 pub enum PortSpeed {
     FullSpeed = 1,

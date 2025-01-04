@@ -1,6 +1,6 @@
-use const_enum::ConstEnum;
+use num_derive::FromPrimitive;
 
-#[derive(ConstEnum, Copy, Clone, Debug, PartialEq)]
+#[derive(FromPrimitive, Copy, Clone, Debug, PartialEq)]
 #[allow(non_camel_case_types)]
 #[repr(u8)]
 pub(crate) enum UVCVideoClassEndpointSubtypes {

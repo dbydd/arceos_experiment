@@ -1,10 +1,9 @@
-use const_enum::ConstEnum;
 use num_derive::FromPrimitive;
 
 pub mod uvc_endpoints;
 pub mod uvc_interfaces;
 
-#[derive(ConstEnum, Copy, Clone, Debug, PartialEq, FromPrimitive)]
+#[derive(FromPrimitive, Copy, Clone, Debug, PartialEq)]
 #[allow(non_camel_case_types)]
 #[repr(u8)]
 pub(crate) enum UVCDescriptorTypes {

@@ -161,7 +161,7 @@ where
                         )
                         .bits(),
                         data: Some(buffer_device.addr_len_tuple()),
-                        response:false
+                        response: false,
                     },
                 ) {
                     Ok(_) => {
@@ -193,13 +193,14 @@ where
                                         )
                                         .bits(),
                                         data: Some(buffer.addr_len_tuple()),
-                                        response:false
+                                        response: false,
                                     },
                                 )
                                 .inspect(|_| {
                                     parser.append_config(buffer);
                                 });
                         }
+                        trace!("try to parse device descriptor!");
                         driver.descriptors = Arc::new(MightBeInited::Inited(parser.summarize()));
                     }
                     Err(err) => {

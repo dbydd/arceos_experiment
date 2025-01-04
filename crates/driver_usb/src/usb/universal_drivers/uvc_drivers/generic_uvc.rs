@@ -1,6 +1,6 @@
 use core::mem::MaybeUninit;
 
-use alloc::{sync::Arc, vec, vec::Vec};
+use alloc::{string::ToString, sync::Arc, vec, vec::Vec};
 use log::trace;
 use spinlock::SpinNoIrq;
 
@@ -44,6 +44,10 @@ where
     fn preload_module(&self) {
         trace!("loaded Generic UVC Driver Module!");
         todo!()
+    }
+
+    fn driver_name(&self) -> alloc::string::String {
+        "UVC".to_string()
     }
 }
 

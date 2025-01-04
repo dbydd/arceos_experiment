@@ -1,6 +1,7 @@
 use core::borrow::BorrowMut;
 use core::mem::MaybeUninit;
 
+use alloc::string::ToString;
 use alloc::sync::Arc;
 use alloc::vec;
 use alloc::vec::Vec;
@@ -298,12 +299,12 @@ where
         if let MightBeInited::Inited(inited) = &*independent_dev.descriptors {
             let device = inited.device.first().unwrap();
             return match (
-                StandardUSBDeviceClassCode::from(device.data.class),
+                StandardUSBDeviceClassCode::from_u8(device.data.class),
                 device.data.subclass,
                 USBHidDeviceSubClassProtocol::from_u8(device.data.protocol),
             ) {
                 (
-                    StandardUSBDeviceClassCode::HID,
+                    Some(StandardUSBDeviceClassCode::HID),
                     bootable,
                     Some(USBHidDeviceSubClassProtocol::Mouse),
                 ) => {
@@ -357,7 +358,7 @@ where
                         independent_dev.configuration_val,
                     )]);
                 }
-                (StandardUSBDeviceClassCode::ReferInterfaceDescriptor, _, _) => {
+                (Some(StandardUSBDeviceClassCode::ReferInterfaceDescriptor), _, _) => {
                     Some({
                         let collect:Vec<_> = device
                         .child
@@ -374,11 +375,11 @@ where
                                 asso,
                                 interfaces,
                             )) if let (
-                                StandardUSBDeviceClassCode::HID,
+                                Some(StandardUSBDeviceClassCode::HID),
                                 bootable,
                                 Some(USBHidDeviceSubClassProtocol::Mouse),
                             ) = (
-                                StandardUSBDeviceClassCode::from(asso.function_class),
+                                StandardUSBDeviceClassCode::from_u8(asso.function_class),
                                 asso.function_subclass,
                                 USBHidDeviceSubClassProtocol::from_u8(asso.function_protocol),
                             ) =>
@@ -391,11 +392,11 @@ where
                                     .get(0)
                                     .expect("wtf");
                                 if let (
-                                    StandardUSBDeviceClassCode::HID,
+                                    Some(StandardUSBDeviceClassCode::HID),
                                     bootable,
                                     Some(USBHidDeviceSubClassProtocol::Mouse),
                                 ) = (
-                                    StandardUSBDeviceClassCode::from(interface.interface_class),
+                                    StandardUSBDeviceClassCode::from_u8(interface.interface_class),
                                     interface.interface_class,
                                     USBHidDeviceSubClassProtocol::from_u8(interface.interface_protocol),
                                 ) {
@@ -431,5 +432,9 @@ where
 
     fn preload_module(&self) {
         trace!("preloading Hid mouse driver!")
+    }
+
+    fn driver_name(&self) -> alloc::string::String {
+        "hid mouse".to_string()
     }
 }

@@ -1,6 +1,7 @@
 use core::borrow::BorrowMut;
 use core::mem::MaybeUninit;
 
+use alloc::string::{String, ToString};
 use alloc::sync::Arc;
 use alloc::vec;
 use alloc::vec::Vec;
@@ -289,12 +290,12 @@ where
         if let MightBeInited::Inited(inited) = &*independent_dev.descriptors {
             let device = inited.device.first().unwrap();
             return match (
-                StandardUSBDeviceClassCode::from(device.data.class),
+                StandardUSBDeviceClassCode::from_u8(device.data.class),
                 USBHidDeviceSubClassProtocol::from_u8(device.data.protocol),
                 device.data.subclass,
             ) {
                 (
-                    StandardUSBDeviceClassCode::HID,
+                    Some(StandardUSBDeviceClassCode::HID),
                     Some(USBHidDeviceSubClassProtocol::Keyboard),
                     bootable,
                 ) => {
@@ -348,7 +349,7 @@ where
                         independent_dev.configuration_val,
                     )]);
                 }
-                (StandardUSBDeviceClassCode::ReferInterfaceDescriptor, _, _) => {
+                (Some(StandardUSBDeviceClassCode::ReferInterfaceDescriptor), _, _) => {
                     Some({
                         let collect = device
                         .child
@@ -365,11 +366,11 @@ where
                                 asso,
                                 interfaces,
                             )) if let (
-                                StandardUSBDeviceClassCode::HID,
+                                Some(StandardUSBDeviceClassCode::HID),
                                 Some(USBHidDeviceSubClassProtocol::Keyboard),
                                 bootable,
                             ) = (
-                                StandardUSBDeviceClassCode::from(asso.function_class),
+                                StandardUSBDeviceClassCode::from_u8(asso.function_class),
                                 USBHidDeviceSubClassProtocol::from_u8(asso.function_protocol),
                                 asso.function_subclass,
                             ) =>
@@ -382,11 +383,11 @@ where
                                     .get(0)
                                     .expect("wtf");
                                 if let (
-                                    StandardUSBDeviceClassCode::HID,
+                                    Some(StandardUSBDeviceClassCode::HID),
                                     Some(USBHidDeviceSubClassProtocol::Keyboard),
                                     bootable,
                                 ) = (
-                                    StandardUSBDeviceClassCode::from(interface.interface_class),
+                                    StandardUSBDeviceClassCode::from_u8(interface.interface_class),
                                     USBHidDeviceSubClassProtocol::from_u8(interface.interface_protocol),
                                     interface.interface_subclass,
                                 ) {
@@ -419,5 +420,9 @@ where
 
     fn preload_module(&self) {
         trace!("preloading Hid keyboard driver!")
+    }
+
+    fn driver_name(&self) -> String {
+        "hid keyboard".to_string()
     }
 }

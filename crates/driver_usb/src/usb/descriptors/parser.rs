@@ -71,7 +71,7 @@ pub enum ParserMetaData {
 
 #[derive(Clone, Debug)]
 pub enum ParserMetaDataUnknownSituation {
-    Unknown, //treat as standard usb device
+    NoSpecial, //treat as standard usb device
     ReferIAC,
     ReferInterface,
 }
@@ -79,27 +79,41 @@ pub enum ParserMetaDataUnknownSituation {
 impl ParserMetaData {
     //refer https://www.usb.org/defined-class-codes
     pub fn determine(class: u8, subclass: u8, protocol: u8) -> Self {
-        match (class.into(), subclass, protocol) {
-            (StandardUSBDeviceClassCode::Miscellaneous, 0x02, 0x01) => {
-                return Self::Unknown(ParserMetaDataUnknownSituation::ReferIAC)
+        trace!("parse metadata! determining");
+        let result = {
+            match (
+                StandardUSBDeviceClassCode::from_u8(class),
+                subclass,
+                protocol,
+            ) {
+                (Some(StandardUSBDeviceClassCode::Miscellaneous), 0x02, 0x01) => {
+                    return Self::Unknown(ParserMetaDataUnknownSituation::ReferIAC)
+                }
+                (Some(StandardUSBDeviceClassCode::HID), _, _) => return Self::HID,
+                (Some(StandardUSBDeviceClassCode::ReferInterfaceDescriptor), _, _) => {
+                    return Self::Unknown(ParserMetaDataUnknownSituation::ReferInterface)
+                }
+                _ => {}
             }
-            (StandardUSBDeviceClassCode::HID, _, _) => return Self::HID,
-            (StandardUSBDeviceClassCode::ReferInterfaceDescriptor, _, _) => {
-                return Self::Unknown(ParserMetaDataUnknownSituation::ReferInterface)
+
+            match (
+                UVCStandardVideoInterfaceClass::from_u8(class),
+                UVCInterfaceSubclass::from_u8(subclass),
+                UVCStandardVideoInterfaceProtocols::from_u8(protocol),
+            ) {
+                (
+                    Some(UVCStandardVideoInterfaceClass::CC_Video),
+                    Some(UVCInterfaceSubclass::VIDEO_INTERFACE_COLLECTION),
+                    Some(UVCStandardVideoInterfaceProtocols::PC_PROTOCOL_UNDEFINED),
+                ) => return Self::UVC(0u8),
+                _ => {}
             }
-            _ => {}
-        }
 
-        match (class.into(), subclass.into(), protocol.into()) {
-            (
-                UVCStandardVideoInterfaceClass::CC_Video,
-                UVCInterfaceSubclass::VIDEO_INTERFACE_COLLECTION,
-                UVCStandardVideoInterfaceProtocols::PC_PROTOCOL_UNDEFINED,
-            ) => return Self::UVC(0u8),
-            _ => {}
-        }
+            Self::Unknown(ParserMetaDataUnknownSituation::NoSpecial)
+        };
+        trace!("result is {:?}", result);
 
-        Self::Unknown(ParserMetaDataUnknownSituation::Unknown)
+        result
     }
 }
 
@@ -219,7 +233,8 @@ where
                 match self.metadata {
                     ParserMetaData::NotDetermined => {
                         self.metadata =
-                            ParserMetaData::determine(dev.class, dev.subclass, dev.protocol)
+                            ParserMetaData::determine(dev.class, dev.subclass, dev.protocol);
+                        trace!("determined device type: {:?}", self.metadata)
                     }
                     _ => {}
                 }
@@ -319,7 +334,10 @@ where
                                         trace!("state change:{:?}", self.state);
                                         break;
                                     }
-                                    None => break,
+                                    None => {
+                                        trace!("None! wtf?");
+                                        break;
+                                    }
                                     other => panic!("deserialize error! {:?}", other),
                                 };
                             }
@@ -380,7 +398,8 @@ where
                         interface_association.function_class,
                         interface_association.function_subclass,
                         interface_association.function_protocol,
-                    )
+                    );
+                    trace!("determined currend device type: {:?}", self.metadata);
                 }
 
                 Ok(interface_association)
@@ -458,7 +477,9 @@ where
                             int.interface_class,
                             int.interface_subclass,
                             int.interface_protocol,
-                        )
+                        );
+
+                        trace!("determined current device type:{:?}", self.metadata);
                     }
                     _ => {}
                 }
