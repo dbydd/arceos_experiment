@@ -11,7 +11,7 @@ documentation = "https://rcore-os.github.io/arceos/driver_usb/index.html"
 
 [features]
 default = ["xhci","packed_drivers"]
-packed_drivers=[]
+packed_drivers=["axhid"]
 xhci=[]
 
 [dependencies]
@@ -36,3 +36,6 @@ axhal = {path = "../../modules/axhal",features=["irq"]}
 axtask = {path = "../../modules/axtask",features = ["multitask","sched_rr"]}
 axconfig = {path = "../../modules/axconfig"}
 axalloc = {path="../../modules/axalloc"}
+
+#optinal
+axhid = {path = "../axhid",optional = true,default-features = false}

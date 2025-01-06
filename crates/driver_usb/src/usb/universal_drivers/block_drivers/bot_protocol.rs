@@ -7,7 +7,7 @@ use alloc::{
 use log::trace;
 use num_traits::FromPrimitive;
 use spinlock::SpinNoIrq;
-use xhci::context::EndpointType;
+use xhci::{context::EndpointType, ring::trb::transfer::Direction};
 
 use crate::{
     abstractions::PlatformAbstractions,
@@ -22,7 +22,12 @@ use crate::{
             },
         },
         drivers::driverapi::{USBSystemDriverModule, USBSystemDriverModuleInstance},
+        operation::ExtraStep,
+        trasnfer::control::{
+            bRequest, bmRequestType, ControlTransfer, DataTransferType, Recipient,
+        },
         universal_drivers::hid_drivers::USBHidDeviceSubClassProtocol,
+        urb::{RequestedOperation, URB},
     },
     USBSystemConfig,
 };
@@ -112,7 +117,56 @@ where
 {
     fn prepare_for_drive(&mut self) -> Option<alloc::vec::Vec<crate::usb::urb::URB<'a, O>>> {
         trace!("prepare for block device drive!");
-        todo!()
+        // let endpoint_in = self.interrupt_in_channels.last().unwrap();
+        let mut todo_list = Vec::new();
+        todo_list.push(URB::new(
+            self.device_slot_id,
+            RequestedOperation::Control(ControlTransfer {
+                request_type: bmRequestType::new(
+                    Direction::Out,
+                    DataTransferType::Standard,
+                    Recipient::Device,
+                ),
+                request: bRequest::SetConfiguration,
+                index: self.interface_value as u16,
+                value: self.config_value as u16,
+                data: None,
+                response: true,
+            }),
+        ));
+
+        trace!(
+            "interace_alt:{}|{}",
+            self.interface_value,
+            self.interface_alternative_value
+        );
+        todo_list.push(URB::new(
+            self.device_slot_id,
+            RequestedOperation::Control(ControlTransfer {
+                request_type: bmRequestType::new(
+                    Direction::Out,
+                    DataTransferType::Standard,
+                    Recipient::Interface,
+                ),
+                request: bRequest::SetInterfaceSpec,
+                index: self.interface_alternative_value as _,
+                value: self.interface_value as _,
+                data: None,
+                response: true,
+            }),
+        ));
+
+        self.bulk_out_channels
+            .iter()
+            .chain(self.bulk_in_channels.iter())
+            .for_each(|dci| {
+                todo_list.push(URB::new(
+                    self.device_slot_id,
+                    RequestedOperation::ExtraStep(ExtraStep::PrepareForTransfer(*dci as _)),
+                ));
+            });
+
+        Some(todo_list)
     }
 
     fn gather_urb(&mut self) -> Option<alloc::vec::Vec<crate::usb::urb::URB<'a, O>>> {

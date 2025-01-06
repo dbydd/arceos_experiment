@@ -2,16 +2,16 @@
 #![no_main]
 #![allow(warnings)]
 
+#[macro_use]
+extern crate axstd as std;
+
 use core::time::Duration;
 
 use axalloc::GlobalNoCacheAllocator;
 use axhal::{mem::VirtAddr, paging::PageSize, time::busy_wait};
 use driver_usb::{USBSystem, USBSystemConfig};
 
-#[macro_use]
-extern crate axstd as std;
-
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 struct PlatformAbstraction;
 
 impl driver_usb::abstractions::OSAbstractions for PlatformAbstraction {
@@ -25,7 +25,7 @@ impl driver_usb::abstractions::OSAbstractions for PlatformAbstraction {
     }
 
     fn send_event(&self, event: driver_usb::abstractions::event::USBSystemEvent) {
-        //println!("event:{:#?}",event);
+        println!("event:{:#?}", event);
     }
 }
 

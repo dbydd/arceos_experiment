@@ -5,13 +5,16 @@ use alloc::string::ToString;
 use alloc::sync::Arc;
 use alloc::vec;
 use alloc::vec::Vec;
-use log::{info, trace};
+use axhid::report_handler::ReportHandler;
+use axhid::usage_tables::{GenericDesktopUsage, UsagePage};
+use log::{info, trace, warn};
 use num_traits::FromPrimitive;
 use spinlock::SpinNoIrq;
 use xhci::context::EndpointType;
 use xhci::ring::trb::transfer::Direction;
 
 use crate::abstractions::dma::DMA;
+use crate::abstractions::event::{MouseEvent, USBSystemEvent};
 use crate::glue::ucb::{CompleteCode, TransferEventCompleteCode, UCB};
 use crate::usb::descriptors::desc_hid::HIDDescriptorTypes;
 use crate::usb::descriptors::topological_desc::{
@@ -43,7 +46,7 @@ where
     O: PlatformAbstractions,
 {
     Binary(SpinNoIrq<DMA<[u8], O::DMA>>),
-    Decoded(),
+    Decoded(ReportHandler),
 }
 
 pub struct HidMouseDriver<O>
@@ -162,11 +165,97 @@ where
                     .map(|a| a.lock().to_vec().clone())
                     .inspect(|a| {
                         trace!("current buffer:{:?}", a);
-                        if a.iter().any(|v| *v != 0) {
-                            self.config
-                                .lock()
-                                .os
-                                .send_event(temp_mouse_report_parser::parse(a))
+                        loop {
+                            if let Some(buf) = &mut self.report_descriptor {
+                                match buf {
+                                    ReportDescState::Binary(base_spin_lock) => {
+                                        let mut flag = false;
+                                        let mut ind = 0;
+                                         for (index,item) in base_spin_lock
+                                                                                 .lock().iter().enumerate() {
+                                                             if *item == 0xc0u8 && flag==false {
+                                                                flag=true;
+                                                                ind = index;
+                                                             }
+                                                             if flag && *item == 0u8{
+                                                                break;
+                                                             }else {
+                                                                 flag = false
+                                                             }
+                                             
+                                         }
+                                        //trim vec until 0xc0,0x00
+                                        let vec = base_spin_lock
+                                            .lock()
+                                            .split_at_mut(ind)
+                                            .0
+                                            .to_vec();
+
+                                        trace!("len:{},current report buffer:{:?}",ind,vec);
+                                        self.report_descriptor = Some(ReportDescState::Decoded(
+                                            ReportHandler::new(
+                                                &vec
+                                            ).unwrap(),
+                                        ));
+                                    }
+                                    ReportDescState::Decoded(ref mut handler) => {
+                                        handler.handle(a).inspect(|evts| {
+                                            let mut mouse_event = MouseEvent::default();
+                                            evts.iter().for_each(|event| {
+                                                match (
+                                                    UsagePage::from_u16(event.usage_page),
+                                                    GenericDesktopUsage::from_u16(event.usage),
+                                                ) {
+                                                    (Some(page), Some(usage)) => match page {
+                                                        UsagePage::GenericDesktop => match usage {
+                                                            GenericDesktopUsage::X => {
+                                                                mouse_event.dx = event.value as _
+                                                            }
+                                                            GenericDesktopUsage::Y => {
+                                                                mouse_event.dy = event.value as _
+                                                            }
+                                                            GenericDesktopUsage::Rx => {
+                                                                mouse_event.dx = event.value as _
+                                                            }
+                                                            GenericDesktopUsage::Ry => {
+                                                                mouse_event.dy = event.value as _
+                                                            }
+                                                            GenericDesktopUsage::Wheel => {
+                                                                mouse_event.wheel = event.value as _
+                                                            }
+                                                            _ => {}
+                                                        },
+                                                        UsagePage::Button if let GenericDesktopUsage::Mouse = usage =>{
+                                                            trace!("button: {}",event.value);
+                                                            match event.value {
+                                                                0x00 => {
+                                                                    mouse_event.left = true;
+                                                                }
+                                                                0x01=>{
+                                                                    mouse_event.right = true;
+                                                                }
+                                                                0x02=>{
+                                                                    mouse_event.middle = true;
+                                                                }
+                                                                other=>{
+                                                                    warn!("unhandled mouse button {other}")
+                                                                }
+                                                            }
+                                                        }
+                                                        _ => {
+                                                            trace!("unknown: page-{:?},usage-{:?},value:{}",page,usage,event.value)
+                                                        }
+                                                    },
+                                                    _ => {}
+                                                }
+                                            });
+
+                                            self.config.lock().os.send_event(USBSystemEvent::MouseEvent(mouse_event));
+                                        });
+                                        break;
+                                    }
+                                }
+                            }
                         }
                     });
 

@@ -5,7 +5,6 @@ edition = "2021"
 authors = ["dbydd <dbydd@outlook.com>"]
 
 [dependencies]
-
 axstd = { path = "../../ulib/axstd" }
 driver_usb ={ path = "../../crates/driver_usb",features=["xhci"]}
 axalloc = { path = "../../modules/axalloc"}
