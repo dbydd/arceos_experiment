@@ -4,11 +4,18 @@ version = "0.1.0"
 edition = "2021"
 authors = ["zhourui <zrufo747@outlook.com>"]
 
+[patch."https://github.com/arceos-usb/axusb_host.git".axusb_host]
+path = "../../../arceos_starry_shared_crates/axusb_host"
+
+[patch."https://github.com/arceos-usb/axhid.git".axhid]
+path = "../../crates/axhid"
 
 [features]
 default = []
 
 [dependencies]
-
-axstd = { path = "../../ulib/axstd" }
+axstd = { path = "../../ulib/axstd", features = ["multitask", "irq"]}
+axhal = { path = "../../modules/axhal",features = ["paging"]}
 axalloc = { path = "../../modules/axalloc"}
+axusb_host = {git = "https://github.com/arceos-usb/axusb_host.git"}
+async-lock = {version = "3.4.0",default-features =  false}

@@ -12,6 +12,8 @@ documentation = "https://rcore-os.github.io/arceos/driver_usb/index.html"
 [features]
 default = ["xhci","packed_drivers"]
 packed_drivers=["axhid"]
+cotton-usb=["cotton-usb-host"]
+asyncal=[]
 xhci=[]
 
 [dependencies]
@@ -39,3 +41,4 @@ axalloc = {path="../../modules/axalloc"}
 
 #optinal
 axhid = {path = "../axhid",optional = true,default-features = false}
+cotton-usb-host = {version = "0.1.0",optional = true,default-features = false}
