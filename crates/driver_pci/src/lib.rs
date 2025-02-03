@@ -35,7 +35,7 @@ impl core::fmt::Display for PciAddress {
 }
 
 cfg_match! {
-    cfg(feature = "bcm2711")=>{
+    feature = "bcm2711"=>{
         pub type RootComplex = PciRootComplex<bcm2711::BCM2711>;
     }
     _=>{

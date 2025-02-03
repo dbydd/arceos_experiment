@@ -246,9 +246,11 @@ version = "0.1.0"
 dependencies = [
  "async-lock",
  "axalloc",
+ "axfeat",
  "axhal",
  "axstd",
  "axusb_host",
+ "lazy_static",
 ]
 
 [[package]]
@@ -677,7 +679,6 @@ dependencies = [
 [[package]]
 name = "axusb_host"
 version = "0.1.0"
-source = "git+https://github.com/arceos-usb/axusb_host.git#55c15209553e93acc3e7a24904734d25ab593625"
 dependencies = [
  "async-lock",
  "async-ringbuf",

@@ -19,6 +19,7 @@ use axhal::{
 };
 
 use axusb_host::abstractions::{PlatformAbstractions, USBSystemConfig, WakeMethod};
+use lazy_static::lazy_static;
 
 #[derive(Clone)]
 pub struct DummyVA(VirtAddr);
@@ -72,23 +73,25 @@ impl PlatformAbstractions for OSA {
 
     const PAGE_SIZE: usize = PageSize::Size4K as usize;
 
-    const RING_BUFFER_SIZE: usize = 512;
+    const RING_BUFFER_SIZE: usize = 512usize;
 
     fn dma_alloc(&self) -> Self::DMA {
         axalloc::global_no_cache_allocator()
     }
 }
 
-#[cfg_attr(feature = "axstd", no_mangle)]
+lazy_static! {
+    static ref sem: Arc<Semaphore> = Arc::new(Semaphore::new(1));
+    static ref usbsystem: axusb_host::USBSystem<'static, OSA, 512> =
+        axusb_host::USBSystem::new(USBSystemConfig {
+            base_addr: 0xffff_0000_31a0_8000.into(),
+            wake_method: WakeMethod::Timer(sem.clone()),
+            os: OSA,
+        });
+}
+
+#[no_mangle]
 fn main() {
-    let sem = Arc::new(Semaphore::new(1));
-
-    let usbsystem = axusb_host::USBSystem::new(USBSystemConfig {
-        base_addr: todo!(),
-        wake_method: WakeMethod::Timer(sem.clone()),
-        os: OSA,
-    });
-
     axstd::thread::spawn(move || loop {
         axstd::thread::sleep(Duration::from_millis(50));
         sem.add_permits(1);
