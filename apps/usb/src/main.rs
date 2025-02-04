@@ -92,15 +92,16 @@ lazy_static! {
 
 #[no_mangle]
 fn main() {
-    axstd::thread::spawn(move || loop {
-        axstd::thread::sleep(Duration::from_millis(50));
-        sem.add_permits(1);
+    axstd::thread::spawn(move || {
+        usbsystem
+            .stage_1_start_controller()
+            .stage_2_initialize_usb_layer()
+            .block_run();
+        panic!("okay?")
     });
 
-    usbsystem
-        .stage_1_start_controller()
-        .stage_2_initialize_usb_layer()
-        .block_stage_3()
-        .block_run();
-    panic!("okay?")
+    loop {
+        axstd::thread::sleep(Duration::from_millis(50));
+        sem.add_permits(1);
+    }
 }
