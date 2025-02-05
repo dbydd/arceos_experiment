@@ -1035,6 +1035,7 @@ where
 
     fn address_device(&mut self, slot_id: usize, port_id: usize) {
         let port_idx = port_id - 1;
+        trace!("port_idx is: {}", port_idx);
         let port_speed = self.get_speed(port_idx);
         let max_packet_size = self.parse_default_max_packet_size_from_port(port_idx);
         let dci = 1;
@@ -1084,6 +1085,8 @@ where
             endpoint_0.set_max_primary_streams(0);
             endpoint_0.set_mult(0);
             endpoint_0.set_error_count(3);
+
+            trace!("{:#?}", context_mut);
 
             (context_mut as *const Input<16>).addr() as u64
         };

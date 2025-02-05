@@ -18,7 +18,7 @@ axstd = { path = "../../ulib/axstd",features = ["multitask"]}
 axfeat = {path = "../../api/axfeat", features = ["multitask","sched_rr","paging"]}
 axhal = { path = "../../modules/axhal",features = ["paging"]}
 axalloc = { path = "../../modules/axalloc"}
-# axusb_host = {git = "https://github.com/arceos-usb/axusb_host.git"}
-axusb_host = {path = "../../../arceos_starry_shared_crates/axusb_host"}
+axusb_host = {git = "https://github.com/arceos-usb/axusb_host.git"}
+# axusb_host = {path = "../../../arceos_starry_shared_crates/axusb_host"}
 async-lock = {version = "3.4.0",default-features =  false}
 lazy_static = { version = "1.4", features = ["spin_no_std"] }

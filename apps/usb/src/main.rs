@@ -101,7 +101,7 @@ fn main() {
     });
 
     loop {
-        axstd::thread::sleep(Duration::from_millis(50));
+        axstd::thread::sleep(Duration::from_millis(10));
         sem.add_permits(1);
     }
 }
