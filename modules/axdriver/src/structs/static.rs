@@ -6,7 +6,7 @@ pub use crate::drivers::AxBlockDevice;
 pub use crate::drivers::AxDisplayDevice;
 #[cfg(feature = "net")]
 pub use crate::drivers::AxNetDevice;
-#[cfg(feature = "pci-xhci")]
+#[cfg(feature = "usb")]
 use crate::drivers::AxUSBHostDevice;
 
 impl super::AxDeviceEnum {
@@ -16,7 +16,7 @@ impl super::AxDeviceEnum {
         Self::Net(dev)
     }
     /// Constructs a xhci device.
-    #[cfg(feature = "pci-xhci")]
+    #[cfg(feature = "usb")]
     pub const fn from_usb(dev: AxUSBHostDevice) -> Self {
         Self::XHCI(dev)
     }
@@ -86,7 +86,6 @@ impl<D> core::ops::DerefMut for AxDeviceContainer<D> {
         &mut self.0
     }
 }
-
 
 impl<D> Default for AxDeviceContainer<D> {
     fn default() -> Self {

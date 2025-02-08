@@ -20,6 +20,7 @@ macro_rules! print_err {
 }
 
 static Drivers: LazyInit<Mutex<AllDevices>> = LazyInit::new();
+static USB: LazyInit<axdriver::AxUSBHostDevice> = LazyInit::new();
 
 type CmdHandler = fn(&str);
 
@@ -37,9 +38,25 @@ const CMD_TABLE: &[(&str, CmdHandler)] = &[
 ];
 
 fn do_run_usb(_args: &str) {
-    Drivers.lock().xhci.iter_mut().for_each(|controller| {
-        controller.init().init_probe().drive_all();
-    });
+    // Drivers.lock().usb_host.iter_mut().for_each(|controller| {
+    //     controller.init().init_probe().drive_all();
+    // });
+
+    //--
+    // Drivers.lock().xhci.iter_mut().for_each(|sys| {
+    //     // controller.init().init_probe().drive_all();
+    //     sys.0
+    //         .stage_1_start_controller()
+    //         .stage_2_initialize_usb_layer()
+    //         .block_run();
+    // });
+    let xhci = &mut Drivers.lock().usb_host;
+    let remove = xhci.take().unwrap();
+    USB.init_by(remove);
+    USB.0
+        .stage_1_start_controller()
+        .stage_2_initialize_usb_layer()
+        .block_run();
 }
 
 fn do_uname(_args: &str) {
@@ -179,8 +196,8 @@ fn split_whitespace(str: &str) -> (&str, &str) {
 }
 
 fn dump_dtb(str: &str) {
-    // axdtb::dump_dtb();
-    println!("{:#?}", axdtb::find_dtb_node("pci-host-ecam-generic"));
+    axdtb::dump_dtb();
+    // println!("{:#?}", axdtb::find_dtb_node("pci-host-ecam-generic"));
 }
 
 fn test(_str: &str) {

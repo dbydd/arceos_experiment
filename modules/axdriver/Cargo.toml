@@ -31,7 +31,10 @@ ramdisk = ["block", "driver_block/ramdisk"]
 bcm2835-sdhci = ["block", "driver_block/bcm2835-sdhci"]
 ixgbe = ["net", "driver_net/ixgbe", "dep:axalloc", "dep:axhal"]
 bcm2711 = ["driver_pci/bcm2711"]
-pci-xhci = ["driver_usb/pci"]
+pci-xhci = ["driver_usb/pci","usb"]
+axusb-pci-host=["axusb_host","pci_types","usb"]
+
+usb = []
 # more devices example: e1000 = ["net", "driver_net/e1000"]
 
 default = ["bus-mmio"]
@@ -50,3 +53,8 @@ driver_usb = { path = "../../crates/driver_usb", optional = true }
 axalloc = { path = "../axalloc", optional = true }
 axhal = { path = "../axhal", optional = true }
 axconfig = { path = "../axconfig", optional = true }
+
+axusb_host = {path = "../../../arceos_starry_shared_crates/axusb_host",optional = true}
+pci_types = { version = "0.6", optional = true }
+# async-lock = {version = "3.4.0",default-features =  false,optional = true}
+# lazy_static = { version = "1.4", features = ["spin_no_std"] ,optional = true}

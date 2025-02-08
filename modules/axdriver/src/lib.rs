@@ -81,8 +81,6 @@ mod ixgbe;
 
 pub mod prelude;
 
-use drivers::AxUSBHostDevice;
-
 #[allow(unused_imports)]
 use self::prelude::*;
 pub use self::structs::{AxDeviceContainer, AxDeviceEnum};
@@ -93,6 +91,8 @@ pub use self::structs::AxBlockDevice;
 pub use self::structs::AxDisplayDevice;
 #[cfg(feature = "net")]
 pub use self::structs::AxNetDevice;
+#[cfg(feature = "usb")]
+pub use drivers::AxUSBHostDevice;
 
 /// A structure that contains all device drivers, organized by their category.
 #[derive(Default)]
@@ -106,10 +106,9 @@ pub struct AllDevices {
     /// All graphics device drivers.
     #[cfg(feature = "display")]
     pub display: AxDeviceContainer<AxDisplayDevice>,
-    #[cfg(feature = "pci-xhci")]
-    pub xhci: AxDeviceContainer<AxUSBHostDevice>,
+    #[cfg(feature = "usb")]
+    pub usb_host: AxDeviceContainer<AxUSBHostDevice>,
 }
-
 
 impl AllDevices {
     /// Returns the device model used, either `dyn` or `static`.
@@ -150,7 +149,8 @@ impl AllDevices {
             AxDeviceEnum::Block(dev) => self.block.push(dev),
             #[cfg(feature = "display")]
             AxDeviceEnum::Display(dev) => self.display.push(dev),
-            AxDeviceEnum::XHCI(dev) => self.xhci.push(dev),
+            #[cfg(feature = "usb")]
+            AxDeviceEnum::XHCI(dev) => self.usb_host.push(dev),
         }
     }
 }
@@ -184,6 +184,14 @@ pub fn init_drivers() -> AllDevices {
         debug!("number of graphics devices: {}", all_devs.display.len());
         for (i, dev) in all_devs.display.iter().enumerate() {
             assert_eq!(dev.device_type(), DeviceType::Display);
+            debug!("  graphics device {}: {:?}", i, dev.device_name());
+        }
+    }
+    #[cfg(feature = "usb")]
+    {
+        debug!("number of usb system hosts: {}", all_devs.usb_host.len());
+        for (i, dev) in all_devs.usb_host.iter().enumerate() {
+            assert_eq!(dev.device_type(), DeviceType::USBHost);
             debug!("  graphics device {}: {:?}", i, dev.device_name());
         }
     }

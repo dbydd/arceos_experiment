@@ -22,7 +22,7 @@ pub use root_complex::*;
 use types::ConifgPciPciBridge;
 // pub use virtio_drivers::transport::pci::bus::{BarInfo};
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct PciAddress {
     pub bus: usize,
     pub device: usize,

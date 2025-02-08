@@ -72,7 +72,7 @@ macro_rules! for_each_drivers {
             type $drv_type = crate::drivers::IxgbeDriver;
             $code
         }
-        #[cfg(feature = "pci-xhci")]
+        #[cfg(feature = "usb")]
         {
             type $drv_type = crate::drivers::PciXHCIDriver;
             $code
